@@ -12,7 +12,7 @@ export interface OrderItem {
 
 export enum OrderItemStatus {
   PENDING = 'PENDING',
-  IN_PREPARATION = 'IN_PREPARATION',
+  IN_PREPARATION = 'IN PREPARATION',
   DELIVERED = 'DELIVERED',
   CANCELLED = 'CANCELLED'
 }
