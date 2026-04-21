@@ -1,4 +1,4 @@
-import { Order } from '@/model/Order';
+import { OrderItem } from '@/model/OrderItem';
 import { FlatList, StyleSheet, Text, View } from 'react-native';
 
 const formatPrice = (value: number) => {
@@ -9,14 +9,14 @@ const formatPrice = (value: number) => {
 };
 
 interface OrderTableProps {
-  order: Order;
+  orderItems: OrderItem[];
 }
 
-export default function OrderTable({ order }: OrderTableProps) {
+export default function OrderTable({ orderItems }: OrderTableProps) {
   return (
     <View style={styles.container}>
       <FlatList
-        data={order.orderItems}
+        data={orderItems}
         keyExtractor={item => item.id.toString()}
         ListHeaderComponent={
           <View style={[styles.row, styles.header]}>
