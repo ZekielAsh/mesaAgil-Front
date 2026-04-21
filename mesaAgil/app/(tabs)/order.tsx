@@ -13,11 +13,7 @@ export default function Orders() {
   useEffect(() => {
     getOrderByTableId(1)
       .then(response => {
-        console.log("ORDER COMPLETA:", response.data);
-        console.log("ORDER ITEMS:", response.data?.orderItems);
-        console.log("ES UNDEFINED?", response.data === undefined);
-        console.log("ES NULL?", response.data === null);
-
+        console.log('ORDER COMPLETA:', response.data);
         setOrder(response.data);
       })
       .catch(error => {
@@ -31,9 +27,7 @@ export default function Orders() {
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
-      {!isLoading && order ? (
-        <OrderTable orderItems={order?.orderItems ?? []} />
-      ) : null}
+      {!isLoading && order ? <OrderTable orderItems={order.orderItems} /> : null}
     </SafeAreaView>
   );
 }
