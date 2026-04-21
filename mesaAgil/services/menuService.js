@@ -1,7 +1,11 @@
 import API_URL from "../constants/api";
 
 export const getMenu = async () => {
-  const response = await fetch(`${API_URL}/menu`);
+  const response = await fetch(`${API_URL}/menu`, {
+    headers: {
+      "ngrok-skip-browser-warning": "true",
+    },
+  });
 
   console.log("STATUS:", response.status);
 
