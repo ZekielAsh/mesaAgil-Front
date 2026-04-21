@@ -1,7 +1,7 @@
 import { Order, OrderStatus } from '@/model/Order';
 import { OrderItemStatus } from '@/model/OrderItem';
 
-const mockOrder: Order = {
+export const mockOrder: Order = {
   id: 1,
   tableId: 10,
   status: OrderStatus.OPEN,
