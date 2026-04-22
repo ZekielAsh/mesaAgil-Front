@@ -34,7 +34,7 @@ export default function OrderTable({ orderItems }: OrderTableProps) {
 
             <Text style={[styles.cell, styles.right]}>{item.quantity}</Text>
 
-            <Text style={[styles.cell, styles.right]}>{formatPrice(Number(item.price))}</Text>
+            <Text style={[styles.cell, styles.right]}>{formatPrice(Number(item.price * item.quantity))}</Text>
 
             <Text style={[styles.cell, styles.center]}>{item.status}</Text>
           </View>
