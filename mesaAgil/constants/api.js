@@ -1,3 +1,3 @@
-const API_URL = "https://google-agreed-rotunda.ngrok-free.dev";
+const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:8080';
 
 export default API_URL;
