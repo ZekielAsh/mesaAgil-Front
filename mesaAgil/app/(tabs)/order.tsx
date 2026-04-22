@@ -3,9 +3,8 @@ import { useEffect, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import OrderTable from '@/components/OrderTable';
-import { mockOrder } from '@/mocks/Order';
 import { Order } from '@/model/Order';
-import { getOrderByTableId } from '@/service/orderService';
+import { closeOrder, getOrderByTableId } from '@/service/orderService';
 import { Pressable, Text, View } from 'react-native';
 
 export default function Orders() {
@@ -13,6 +12,7 @@ export default function Orders() {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const isFocused = useIsFocused();
 
+  // TODO: pasarlos a hooks
   // id hardcodeado para PoC
   useEffect(() => {
     console.log(isFocused);
@@ -32,27 +32,39 @@ export default function Orders() {
     }
   }, [isFocused]);
 
+  const onCloseOrder = (id: number) => {
+    closeOrder(id)
+      .then(() => {
+        console.log('request bill made');
+      })
+      .catch(error => {
+        console.log(error);
+      });
+  };
+
   // simulamos que se pide la cuenta
   return (
     <SafeAreaView style={{ flex: 1 }}>
-      {!isLoading ? <OrderTable orderItems={mockOrder.orderItems} /> : null}
+      {!isLoading && order ? <OrderTable orderItems={order.orderItems} /> : null}
       <View
         style={{
           justifyContent: 'center',
           alignItems: 'center'
         }}
       >
-        <Pressable
-          onPress={() => console.log('request bill made')}
-          style={{
-            backgroundColor: '#007AFF',
-            padding: 12,
-            borderRadius: 8,
-            alignItems: 'center'
-          }}
-        >
-          <Text style={{ color: '#fff', fontWeight: 'bold' }}>Request Bill</Text>
-        </Pressable>
+        {!isLoading && order ? (
+          <Pressable
+            onPress={() => onCloseOrder(order.id)}
+            style={{
+              backgroundColor: '#007AFF',
+              padding: 12,
+              borderRadius: 8,
+              alignItems: 'center'
+            }}
+          >
+            <Text style={{ color: '#fff', fontWeight: 'bold' }}>Request Bill</Text>
+          </Pressable>
+        ) : null}
       </View>
     </SafeAreaView>
   );
