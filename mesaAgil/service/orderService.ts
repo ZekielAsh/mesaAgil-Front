@@ -1,6 +1,6 @@
 import { apiClient } from '@/api/apiClient';
-import { Order } from '@/model/Order';
-import { OrderItem } from '@/model/OrderItem';
+import { CreateOrderItem } from '@/types/CreateOrderItem';
+import { Order } from '@/types/model/Order';
 
 export function getOrderByTableId(orderId: number) {
   return apiClient.get<Order>(`/orders/${orderId}`);
@@ -10,8 +10,8 @@ export function closeOrder(orderId: number) {
   return apiClient.post(`/orders/${orderId}/close`);
 }
 
-export function addItems(orderId: number, orderItemsList: OrderItem[]) {
-  return apiClient.post(`/${orderId}/items`, {
+export async function addItems(orderId: number, orderItemsList: CreateOrderItem[]) {
+  return apiClient.post(`/orders/${orderId}/items`, {
     orderItemRequestList: orderItemsList
   });
 }

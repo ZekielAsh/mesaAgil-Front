@@ -1,4 +1,4 @@
-import { Item } from '@/model/Item';
+import { Item } from '@/types/model/Item';
 
 export interface OrderItem {
   id: number;
