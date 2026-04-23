@@ -1,14 +1,18 @@
+import { Item } from '@/types/model/Item';
+import { OrderItemCart } from '@/types/OrderItemCart';
 import { useState } from 'react';
 import { ActivityIndicator, Button, FlatList, Image, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useAddItems } from '../../hooks/useAddItem';
 import { useMenu } from '../../hooks/useMenu';
 
 const MenuScreen = () => {
   const { menu, message, loading, error, refetch } = useMenu();
-  const [cart, setCart] = useState([]);
+  const { execute, loadingAddingItems, errorAddingItems } = useAddItems();
+  const [cart, setCart] = useState<OrderItemCart[]>([]);
   const insets = useSafeAreaInsets();
 
-  const renderItem = ({ item }) => (
+  const renderItem = ({ item }: { item: Item }) => (
     <View style={styles.card}>
       <Image
         source={{
@@ -26,30 +30,49 @@ const MenuScreen = () => {
     </View>
   );
 
-  const addToCart = item => {
+  const addToCart = (item: Item) => {
     setCart(prevCart => {
-      const existing = prevCart.find(i => i.id === item.id);
+      const existing = prevCart.find(orderItemCart => orderItemCart.item.id === item.id);
 
       if (existing) {
-        return prevCart.map(i => (i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i));
+        return prevCart.map(orderItemCart =>
+          orderItemCart.item.id === item.id ? { ...orderItemCart, quantity: orderItemCart.quantity + 1 } : orderItemCart
+        );
       }
 
-      return [...prevCart, { ...item, quantity: 1 }];
+      return [...prevCart, { item: item, quantity: 1 }];
     });
   };
 
-  const getQuantity = id => {
-    const found = cart.find(i => i.id === id);
+  const getQuantity = (id: number) => {
+    const found = cart.find(orderItemCart => orderItemCart.item.id === id);
     return found ? found.quantity : 0;
   };
 
-  const removeFromCart = id => {
+  const removeFromCart = (id: number) => {
     setCart(prevCart =>
-      prevCart.map(i => (i.id === id ? { ...i, quantity: i.quantity - 1 } : i)).filter(i => i.quantity > 0)
+      prevCart
+        .map(orderItemCart =>
+          orderItemCart.item.id === id ? { ...orderItemCart, quantity: orderItemCart.quantity - 1 } : orderItemCart
+        )
+        .filter(i => i.quantity > 0)
     );
   };
 
-  const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const total = cart.reduce((sum, orderItemCart) => sum + orderItemCart.item.price * orderItemCart.quantity, 0);
+
+  const handleAddItems = async () => {
+    try {
+      const orderItemsList = cart.map(orderItemCart => ({
+        itemId: orderItemCart.item.id,
+        quantity: orderItemCart.quantity
+      }));
+      await execute(1, orderItemsList);
+      setCart([]);
+    } catch (error) {
+      console.log('falló', error);
+    }
+  };
 
   if (loading) {
     return <ActivityIndicator size="large" style={{ marginTop: 50 }} />;
@@ -98,15 +121,20 @@ const MenuScreen = () => {
         {cart.length === 0 ? (
           <Text style={{ color: 'gray' }}>No hay items en el carrito</Text>
         ) : (
-          cart.map(item => (
-            <Text key={item.id} style={{ color: 'white' }}>
-              {item.name} x{item.quantity}
+          cart.map(orderItemCart => (
+            <Text key={orderItemCart.item.id} style={{ color: 'white' }}>
+              {orderItemCart.item.name} x{orderItemCart.quantity}
             </Text>
           ))
         )}
 
         {/* TOTAL */}
         <Text style={{ color: 'white', marginTop: 10 }}>Total: ${total}</Text>
+        <Button
+          title={loadingAddingItems ? 'Agregando...' : 'Pedir comidas'}
+          onPress={handleAddItems}
+          disabled={loading}
+        />
       </View>
     </View>
   );

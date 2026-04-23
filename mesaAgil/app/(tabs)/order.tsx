@@ -3,8 +3,8 @@ import { useEffect, useState } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import OrderTable from '@/components/OrderTable';
-import { Order } from '@/model/Order';
 import { closeOrder, getOrderByTableId } from '@/service/orderService';
+import { Order } from '@/types/model/Order';
 import { Pressable, Text, View } from 'react-native';
 
 export default function Orders() {
@@ -71,7 +71,7 @@ export default function Orders() {
               alignItems: 'center'
             }}
           >
-            <Text style={{ color: '#fff', fontWeight: 'bold' }}>Request Bill</Text>
+            <Text style={{ color: '#fff', fontWeight: 'bold' }}>Pedir cuenta</Text>
           </Pressable>
         ) : null}
       </View>
