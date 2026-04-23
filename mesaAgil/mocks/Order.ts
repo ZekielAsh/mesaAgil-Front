@@ -1,5 +1,5 @@
-import { Order, OrderStatus } from '@/model/Order';
-import { OrderItemStatus } from '@/model/OrderItem';
+import { Order, OrderStatus } from '@/types/model/Order';
+import { OrderItemStatus } from '@/types/model/OrderItem';
 
 export const mockOrder: Order = {
   id: 1,

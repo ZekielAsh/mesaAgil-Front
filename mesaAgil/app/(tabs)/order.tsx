@@ -1,38 +1,15 @@
-import { useIsFocused } from '@react-navigation/native';
-import { useEffect, useState } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import OrderTable from '@/components/OrderTable';
-import { closeOrder, getOrderByTableId } from '@/service/orderService';
-import { Order } from '@/types/model/Order';
-import { Pressable, Text, View } from 'react-native';
+import { useGetOrderById } from '@/hooks/useOrderById';
+import { closeOrder } from '@/service/orderService';
+import { ActivityIndicator, Button, Pressable, StyleSheet, Text, View } from 'react-native';
 
 export default function Orders() {
-  const [order, setOrder] = useState<Order>();
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const isFocused = useIsFocused();
+  const { order, isLoadingOrder, orderErrorMessage, refetch } = useGetOrderById(1);
   const insets = useSafeAreaInsets();
 
-  // TODO: pasarlos a hooks
-  // id hardcodeado para PoC
-  useEffect(() => {
-    console.log(isFocused);
-    if (isFocused) {
-      getOrderByTableId(1)
-        .then(response => {
-          console.log(response.data);
-          setOrder(response.data);
-        })
-        .catch(error => {
-          // agregar manejar de errores global y modal de errores
-          console.log(error);
-        })
-        .finally(() => {
-          setIsLoading(false);
-        });
-    }
-  }, [isFocused]);
-
+  // TODO: pasar a hook y componente
   const onCloseOrder = (id: number) => {
     closeOrder(id)
       .then(() => {
@@ -43,7 +20,19 @@ export default function Orders() {
       });
   };
 
-  // simulamos que se pide la cuenta
+  if (isLoadingOrder) {
+    return <ActivityIndicator size="large" style={{ marginTop: 50 }} />;
+  }
+
+  if (orderErrorMessage) {
+    return (
+      <View style={styles.center}>
+        <Text>{orderErrorMessage}</Text>
+        <Button title="Reintentar" onPress={refetch} />
+      </View>
+    );
+  }
+
   return (
     <View
       style={{
@@ -54,27 +43,33 @@ export default function Orders() {
         paddingRight: insets.right
       }}
     >
-      {!isLoading && order ? <OrderTable orderItems={order.orderItems} /> : null}
-      <View
-        style={{
-          justifyContent: 'center',
-          alignItems: 'center'
-        }}
-      >
-        {!isLoading && order ? (
-          <Pressable
-            onPress={() => onCloseOrder(order.id)}
-            style={{
-              backgroundColor: '#007AFF',
-              padding: 12,
-              borderRadius: 8,
-              alignItems: 'center'
-            }}
-          >
-            <Text style={{ color: '#fff', fontWeight: 'bold' }}>Pedir cuenta</Text>
+      {!isLoadingOrder && order ? <OrderTable orderItems={order.orderItems} /> : null}
+      <View style={styles.buttonsContainer}>
+        {!isLoadingOrder && order ? (
+          <Pressable onPress={() => onCloseOrder(order.id)} style={styles.button}>
+            <Text style={styles.buttonText}>Pedir cuenta</Text>
           </Pressable>
         ) : null}
       </View>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  buttonsContainer: {
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+  button: {
+    backgroundColor: '#007AFF',
+    padding: 12,
+    borderRadius: 8,
+    alignItems: 'center'
+  },
+  buttonText: { color: '#fff', fontWeight: 'bold' },
+  center: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center'
+  }
+});

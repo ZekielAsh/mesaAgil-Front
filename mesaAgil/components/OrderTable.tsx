@@ -1,4 +1,4 @@
-import { OrderItem } from '@/model/OrderItem';
+import { OrderItem } from '@/types/model/OrderItem';
 import { FlatList, StyleSheet, Text, View } from 'react-native';
 
 const formatPrice = (value: number) => {
