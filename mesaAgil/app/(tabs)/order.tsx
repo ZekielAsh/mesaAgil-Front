@@ -1,6 +1,6 @@
 import { useIsFocused } from '@react-navigation/native';
 import { useEffect, useState } from 'react';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import OrderTable from '@/components/OrderTable';
 import { Order } from '@/model/Order';
@@ -11,6 +11,7 @@ export default function Orders() {
   const [order, setOrder] = useState<Order>();
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const isFocused = useIsFocused();
+  const insets = useSafeAreaInsets();
 
   // TODO: pasarlos a hooks
   // id hardcodeado para PoC
@@ -44,7 +45,15 @@ export default function Orders() {
 
   // simulamos que se pide la cuenta
   return (
-    <SafeAreaView style={{ flex: 1 }}>
+    <View
+      style={{
+        flex: 1,
+        paddingTop: insets.top,
+        paddingBottom: insets.bottom,
+        paddingLeft: insets.left,
+        paddingRight: insets.right
+      }}
+    >
       {!isLoading && order ? <OrderTable orderItems={order.orderItems} /> : null}
       <View
         style={{
@@ -66,6 +75,6 @@ export default function Orders() {
           </Pressable>
         ) : null}
       </View>
-    </SafeAreaView>
+    </View>
   );
 }
