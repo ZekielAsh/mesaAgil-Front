@@ -1,7 +1,7 @@
 import { Item } from '@/types/model/Item';
 import { OrderItemCart } from '@/types/OrderItemCart';
 import { useState } from 'react';
-import { ActivityIndicator, Button, FlatList, Image, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Button, FlatList, Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAddItems } from '../../hooks/useAddItem';
 import { useMenu } from '../../hooks/useMenu';
@@ -19,14 +19,20 @@ const MenuScreen = () => {
           uri: item.imageUrl
         }}
         style={styles.image}
+        resizeMode="cover"
       />
       <Text style={styles.name}>{item.name}</Text>
       <Text style={styles.description}>{item.description}</Text>
       <Text style={styles.price}>${item.price}</Text>
 
-      <Button title="-" onPress={() => removeFromCart(item.id)} />
-      <Text style={{ marginHorizontal: 10, color: 'white' }}>{getQuantity(item.id)}</Text>
-      <Button title="+" onPress={() => addToCart(item)} />
+      <View style={styles.cardButtonsContainer}>
+        <Pressable style={styles.cardButton} onPress={() => removeFromCart(item.id)}>
+          <Text style={styles.cardButtonText}>-</Text>
+        </Pressable>
+        <Pressable style={styles.cardButton} onPress={() => addToCart(item)}>
+          <Text style={styles.cardButtonText}>+</Text>
+        </Pressable>
+      </View>
     </View>
   );
 
@@ -42,11 +48,6 @@ const MenuScreen = () => {
 
       return [...prevCart, { item: item, quantity: 1 }];
     });
-  };
-
-  const getQuantity = (id: number) => {
-    const found = cart.find(orderItemCart => orderItemCart.item.id === id);
-    return found ? found.quantity : 0;
   };
 
   const removeFromCart = (id: number) => {
@@ -112,14 +113,12 @@ const MenuScreen = () => {
         contentContainerStyle={styles.container}
         refreshing={loading}
         onRefresh={refetch}
+        numColumns={4}
       />
 
-      {/* 🛒 CARRITO */}
       <View style={{ padding: 10, backgroundColor: '#222', maxHeight: 150 }}>
-        <Text style={{ color: 'white', fontSize: 18 }}>Carrito:</Text>
-
         {cart.length === 0 ? (
-          <Text style={{ color: 'gray' }}>No hay items en el carrito</Text>
+          <Text style={{ color: 'gray' }}>No hay items</Text>
         ) : (
           cart.map(orderItemCart => (
             <Text key={orderItemCart.item.id} style={{ color: 'white' }}>
@@ -128,7 +127,6 @@ const MenuScreen = () => {
           ))
         )}
 
-        {/* TOTAL */}
         <Text style={{ color: 'white', marginTop: 10 }}>Total: ${total}</Text>
         <Button
           title={loadingAddingItems ? 'Agregando...' : 'Pedir comidas'}
@@ -147,15 +145,16 @@ const styles = StyleSheet.create({
     padding: 16
   },
   card: {
+    flex: 1,
     backgroundColor: '#fff',
     padding: 16,
-    marginBottom: 12,
+    margin: 12,
     borderRadius: 10,
     elevation: 3
   },
   image: {
     width: '100%',
-    height: 150,
+    height: 200,
     borderRadius: 10,
     marginBottom: 10
   },
@@ -180,5 +179,20 @@ const styles = StyleSheet.create({
   emptyText: {
     color: '#fff',
     fontSize: 16
-  }
+  },
+  cardButtonsContainer: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'space-between'
+  },
+  cardButton: {
+    backgroundColor: '#007AFF',
+    paddingTop: 8,
+    paddingBottom: 8,
+    paddingLeft: 12,
+    paddingRight: 12,
+    borderRadius: 8,
+    alignItems: 'center'
+  },
+  cardButtonText: { color: '#fff', fontWeight: 'bold' }
 });

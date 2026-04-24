@@ -17,7 +17,7 @@ export function useStatsByPeriod(initialPeriod: Period) {
     getStatsByPeriod(periodToUse)
       .then(response => {
         setStats(response.data);
-        setPeriod(periodToUse); // importante si cambió
+        setPeriod(periodToUse);
       })
       .catch(error => {
         setStatsErrorMessage(error.message);
