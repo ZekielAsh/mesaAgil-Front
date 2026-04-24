@@ -1,5 +1,6 @@
 import HomeIcon from '@/components/ui/home-icon';
 import OrderIcon from '@/components/ui/order-icon';
+import StatsIcon from '@/components/ui/stats-icon';
 import { Ionicons } from '@expo/vector-icons';
 import { Tabs } from 'expo-router';
 import React from 'react';
@@ -31,7 +32,14 @@ export default function TabLayout() {
         name="menu"
         options={{
           title: 'Menu',
-          tabBarIcon: ({ color }) => <Ionicons size={28} name="list" color={color} />,
+          tabBarIcon: ({ color }) => <Ionicons size={28} name="list" color={color} />
+        }}
+      />
+      <Tabs.Screen
+        name="stats"
+        options={{
+          title: 'Stats',
+          tabBarIcon: ({ color }) => <StatsIcon color={color} />
         }}
       />
     </Tabs>
