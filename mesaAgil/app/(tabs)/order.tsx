@@ -6,7 +6,7 @@ import { closeOrder } from '@/service/orderService';
 import { ActivityIndicator, Button, Pressable, StyleSheet, Text, View } from 'react-native';
 
 export default function Orders() {
-  const { order, isLoadingOrder, orderErrorMessage, refetch } = useGetOrderById(1);
+  const { order, isLoadingOrder, orderErrorMessage, refetch } = useGetOrderById(6);
   const insets = useSafeAreaInsets();
 
   // TODO: pasar a hook y componente

@@ -68,7 +68,7 @@ const MenuScreen = () => {
         itemId: orderItemCart.item.id,
         quantity: orderItemCart.quantity
       }));
-      await execute(1, orderItemsList);
+      await execute(6, orderItemsList);
       setCart([]);
     } catch (error) {
       console.log('falló', error);
