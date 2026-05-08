@@ -21,17 +21,20 @@ const MenuScreen = () => {
         style={styles.image}
         resizeMode="cover"
       />
-      <Text style={styles.name}>{item.name}</Text>
-      <Text style={styles.description}>{item.description}</Text>
-      <Text style={styles.price}>${item.price}</Text>
+      <View style={styles.cardContent}>
+        <View style={styles.cardInfo}>
+          <View style={styles.cardHeader}>
+            <Text style={styles.name}>{item.name}</Text>
+            <Text style={styles.price}>${item.price}</Text>
+          </View>
+          <Text style={styles.description}>{item.description}</Text>
+        </View>
 
-      <View style={styles.cardButtonsContainer}>
-        <Pressable style={styles.cardButton} onPress={() => removeFromCart(item.id)}>
-          <Text style={styles.cardButtonText}>-</Text>
-        </Pressable>
-        <Pressable style={styles.cardButton} onPress={() => addToCart(item)}>
-          <Text style={styles.cardButtonText}>+</Text>
-        </Pressable>
+        <View style={styles.cardButtonsContainer}>
+          <Pressable style={styles.cardButton} onPress={() => addToCart(item)}>
+            <Text style={styles.cardButtonText}>Add</Text>
+          </Pressable>
+        </View>
       </View>
     </View>
   );
@@ -41,13 +44,19 @@ const MenuScreen = () => {
       const existing = prevCart.find(orderItemCart => orderItemCart.item.id === item.id);
 
       if (existing) {
-        return prevCart.map(orderItemCart =>
-          orderItemCart.item.id === item.id ? { ...orderItemCart, quantity: orderItemCart.quantity + 1 } : orderItemCart
-        );
+        return prevCart;
       }
 
       return [...prevCart, { item: item, quantity: 1 }];
     });
+  };
+
+  const addItemQuantity = (itemId: number) => {
+    setCart(prevCart =>
+      prevCart.map(orderItemCart =>
+        orderItemCart.item.id === itemId ? { ...orderItemCart, quantity: orderItemCart.quantity + 1 } : orderItemCart
+      )
+    );
   };
 
   const removeFromCart = (id: number) => {
@@ -101,7 +110,6 @@ const MenuScreen = () => {
       style={{
         flex: 1,
         paddingTop: insets.top,
-        paddingBottom: insets.bottom,
         paddingLeft: insets.left,
         paddingRight: insets.right
       }}
@@ -113,21 +121,37 @@ const MenuScreen = () => {
         contentContainerStyle={styles.container}
         refreshing={loading}
         onRefresh={refetch}
-        numColumns={4}
       />
 
-      <View style={{ padding: 10, backgroundColor: '#222', maxHeight: 150 }}>
-        {cart.length === 0 ? (
-          <Text style={{ color: 'gray' }}>No hay items</Text>
-        ) : (
-          cart.map(orderItemCart => (
-            <Text key={orderItemCart.item.id} style={{ color: 'white' }}>
-              {orderItemCart.item.name} x{orderItemCart.quantity}
-            </Text>
-          ))
-        )}
+      <View style={{ display: 'flex', gap: 8, padding: 10, backgroundColor: '#222' }}>
+        <View style={{ display: 'flex', gap: 8 }}>
+          {cart.length === 0 ? (
+            <Text style={{ color: 'gray' }}>No hay items</Text>
+          ) : (
+            cart.map(orderItemCart => (
+              <View key={orderItemCart.item.id} style={styles.orderItemCart}>
+                <Text style={{ color: 'white' }}>{orderItemCart.item.name}</Text>
+                <View style={styles.cartButtons}>
+                  <Pressable
+                    style={[styles.cartButton, , { borderTopLeftRadius: '100%', borderBottomLeftRadius: '100%' }]}
+                    onPress={() => removeFromCart(orderItemCart.item.id)}
+                  >
+                    <Text style={styles.cardButtonText}>-</Text>
+                  </Pressable>
+                  <Text style={{ color: 'white' }}>{orderItemCart.quantity}</Text>
+                  <Pressable
+                    style={[styles.cartButton, { borderTopRightRadius: '100%', borderBottomRightRadius: '100%' }]}
+                    onPress={() => addItemQuantity(orderItemCart.item.id)}
+                  >
+                    <Text style={styles.cardButtonText}>+</Text>
+                  </Pressable>
+                </View>
+              </View>
+            ))
+          )}
+        </View>
 
-        <Text style={{ color: 'white', marginTop: 10 }}>Total: ${total}</Text>
+        <Text style={{ color: 'white' }}>Total: ${total}</Text>
         <Button
           title={loadingAddingItems ? 'Agregando...' : 'Pedir comidas'}
           onPress={handleAddItems}
@@ -142,21 +166,47 @@ export default MenuScreen;
 
 const styles = StyleSheet.create({
   container: {
-    padding: 16
+    display: 'flex',
+    gap: 12,
+    padding: 12
   },
   card: {
+    display: 'flex',
+    flexDirection: 'row',
     flex: 1,
     backgroundColor: '#fff',
-    padding: 16,
-    margin: 12,
-    borderRadius: 10,
+    padding: 12,
+    borderRadius: 12,
     elevation: 3
   },
+  cardContent: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    flex: 1,
+    paddingLeft: 16
+  },
+  cardInfo: {},
+  cardHeader: {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-between'
+  },
+  orderItemCart: {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center'
+  },
+  cartButtons: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8
+  },
   image: {
-    width: '100%',
-    height: 200,
-    borderRadius: 10,
-    marginBottom: 10
+    width: 100,
+    height: 100,
+    borderRadius: 10
   },
   name: {
     fontSize: 18,
@@ -168,8 +218,7 @@ const styles = StyleSheet.create({
   },
   price: {
     fontSize: 16,
-    fontWeight: 'bold',
-    color: 'green'
+    fontWeight: 'bold'
   },
   center: {
     flex: 1,
@@ -181,9 +230,8 @@ const styles = StyleSheet.create({
     fontSize: 16
   },
   cardButtonsContainer: {
-    flex: 1,
     flexDirection: 'row',
-    justifyContent: 'space-between'
+    justifyContent: 'flex-end'
   },
   cardButton: {
     backgroundColor: '#007AFF',
@@ -193,6 +241,15 @@ const styles = StyleSheet.create({
     paddingRight: 12,
     borderRadius: 8,
     alignItems: 'center'
+  },
+  cartButton: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#007AFF',
+    width: 24,
+    height: 24,
+    borderRadius: 8
   },
   cardButtonText: { color: '#fff', fontWeight: 'bold' }
 });
