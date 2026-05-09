@@ -1,7 +1,9 @@
 import { Item } from '@/types/model/Item';
 import { OrderItemCart } from '@/types/OrderItemCart';
-import { useState } from 'react';
+import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, Button, FlatList, Image, Pressable, StyleSheet, Text, View } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAddItems } from '../../hooks/useAddItem';
 import { useMenu } from '../../hooks/useMenu';
@@ -11,6 +13,8 @@ const MenuScreen = () => {
   const { execute, loadingAddingItems, errorAddingItems } = useAddItems();
   const [cart, setCart] = useState<OrderItemCart[]>([]);
   const insets = useSafeAreaInsets();
+  const bottomSheetRef = useRef(null);
+  const snapPoints = useMemo(() => ['5%', '25%', '50%', '75%'], []);
 
   const renderItem = ({ item }: { item: Item }) => (
     <View style={styles.card}>
@@ -84,6 +88,10 @@ const MenuScreen = () => {
     }
   };
 
+  const handleSheetChanges = useCallback((index: number) => {
+    console.log('handleSheetChanges', index);
+  }, []);
+
   if (loading) {
     return <ActivityIndicator size="large" style={{ marginTop: 50 }} />;
   }
@@ -106,59 +114,77 @@ const MenuScreen = () => {
   }
 
   return (
-    <View
-      style={{
-        flex: 1,
-        paddingTop: insets.top,
-        paddingLeft: insets.left,
-        paddingRight: insets.right
-      }}
-    >
-      <FlatList
-        data={menu}
-        keyExtractor={item => item.id.toString()}
-        renderItem={renderItem}
-        contentContainerStyle={styles.container}
-        refreshing={loading}
-        onRefresh={refetch}
-      />
-
-      <View style={{ display: 'flex', gap: 8, padding: 10, backgroundColor: '#222' }}>
-        <View style={{ display: 'flex', gap: 8 }}>
-          {cart.length === 0 ? (
-            <Text style={{ color: 'gray' }}>No hay items</Text>
-          ) : (
-            cart.map(orderItemCart => (
-              <View key={orderItemCart.item.id} style={styles.orderItemCart}>
-                <Text style={{ color: 'white' }}>{orderItemCart.item.name}</Text>
-                <View style={styles.cartButtons}>
-                  <Pressable
-                    style={[styles.cartButton, , { borderTopLeftRadius: '100%', borderBottomLeftRadius: '100%' }]}
-                    onPress={() => removeFromCart(orderItemCart.item.id)}
-                  >
-                    <Text style={styles.cardButtonText}>-</Text>
-                  </Pressable>
-                  <Text style={{ color: 'white' }}>{orderItemCart.quantity}</Text>
-                  <Pressable
-                    style={[styles.cartButton, { borderTopRightRadius: '100%', borderBottomRightRadius: '100%' }]}
-                    onPress={() => addItemQuantity(orderItemCart.item.id)}
-                  >
-                    <Text style={styles.cardButtonText}>+</Text>
-                  </Pressable>
-                </View>
-              </View>
-            ))
-          )}
-        </View>
-
-        <Text style={{ color: 'white' }}>Total: ${total}</Text>
-        <Button
-          title={loadingAddingItems ? 'Agregando...' : 'Pedir comidas'}
-          onPress={handleAddItems}
-          disabled={loading}
+    <GestureHandlerRootView style={styles.containerTwo}>
+      <View
+        style={{
+          flex: 1,
+          paddingTop: insets.top,
+          paddingLeft: insets.left,
+          paddingRight: insets.right
+        }}
+      >
+        <FlatList
+          data={menu}
+          keyExtractor={item => item.id.toString()}
+          renderItem={renderItem}
+          contentContainerStyle={styles.container}
+          refreshing={loading}
+          onRefresh={refetch}
         />
+
+        <BottomSheet
+          style={{ width: '100%' }}
+          ref={bottomSheetRef}
+          onChange={handleSheetChanges}
+          enableDynamicSizing={false}
+          snapPoints={snapPoints}
+          backgroundStyle={{
+            backgroundColor: '#222'
+          }}
+          handleIndicatorStyle={{
+            backgroundColor: '#fff'
+          }}
+        >
+          <BottomSheetView style={styles.contentContainer}>
+            <View style={{ display: 'flex', gap: 8, padding: 10, backgroundColor: '#222', width: '100%' }}>
+              <View style={{ display: 'flex', gap: 8 }}>
+                {cart.length === 0 ? (
+                  <Text style={{ color: 'gray' }}>No hay items</Text>
+                ) : (
+                  cart.map(orderItemCart => (
+                    <View key={orderItemCart.item.id} style={styles.orderItemCart}>
+                      <Text style={{ color: 'white' }}>{orderItemCart.item.name}</Text>
+                      <View style={styles.cartButtons}>
+                        <Pressable
+                          style={[styles.cartButton, , { borderTopLeftRadius: '100%', borderBottomLeftRadius: '100%' }]}
+                          onPress={() => removeFromCart(orderItemCart.item.id)}
+                        >
+                          <Text style={styles.cardButtonText}>-</Text>
+                        </Pressable>
+                        <Text style={{ color: 'white' }}>{orderItemCart.quantity}</Text>
+                        <Pressable
+                          style={[styles.cartButton, { borderTopRightRadius: '100%', borderBottomRightRadius: '100%' }]}
+                          onPress={() => addItemQuantity(orderItemCart.item.id)}
+                        >
+                          <Text style={styles.cardButtonText}>+</Text>
+                        </Pressable>
+                      </View>
+                    </View>
+                  ))
+                )}
+              </View>
+
+              <Text style={{ color: 'white' }}>Total: ${total}</Text>
+              <Button
+                title={loadingAddingItems ? 'Agregando...' : 'Pedir comidas'}
+                onPress={handleAddItems}
+                disabled={loading}
+              />
+            </View>
+          </BottomSheetView>
+        </BottomSheet>
       </View>
-    </View>
+    </GestureHandlerRootView>
   );
 };
 
@@ -251,5 +277,15 @@ const styles = StyleSheet.create({
     height: 24,
     borderRadius: 8
   },
-  cardButtonText: { color: '#fff', fontWeight: 'bold' }
+  cardButtonText: { color: '#fff', fontWeight: 'bold' },
+  containerTwo: {
+    flex: 1
+  },
+  contentContainer: {
+    flex: 1,
+    padding: 12,
+    alignItems: 'center',
+    width: '100%',
+    backgroundColor: '#222'
+  }
 });
