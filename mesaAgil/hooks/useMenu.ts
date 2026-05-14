@@ -1,6 +1,6 @@
 import { Item } from '@/types/model/Item';
 import { useEffect, useState } from 'react';
-import { getMenu } from '../services/menuService';
+import { getMenu } from '../service/menuService';
 
 export const useMenu = () => {
   const [menu, setMenu] = useState<Item[]>();

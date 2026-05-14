@@ -5,8 +5,8 @@ import { useCallback, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, Button, FlatList, Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useAddItems } from '../../hooks/useAddItem';
-import { useMenu } from '../../hooks/useMenu';
+import { useAddItems } from '../../../hooks/useAddItem';
+import { useMenu } from '../../../hooks/useMenu';
 
 const MenuScreen = () => {
   const { menu, message, loading, error, refetch } = useMenu();
