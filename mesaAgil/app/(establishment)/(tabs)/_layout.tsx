@@ -1,57 +1,92 @@
-import { EstablishmentRole } from '@/constants/mockProfile';
+import { useProfile } from '@/context/ProfileContext';
+
+import StatsIcon from '@/components/ui/stats-icon';
 
 import { Tabs } from 'expo-router';
 
-interface Props {
-  role: EstablishmentRole;
-}
+const EstablishmentTabsLayout =
+  () => {
+    const { role } =
+      useProfile();
 
-const EstablishmentTabs = ({
-  role
-}: Props) => {
-  return (
-    <Tabs
-      screenOptions={{
-        headerShown: false
-      }}
-    >
-      {role === 'ADMIN' && (
-        <>
+    return (
+      <Tabs
+        screenOptions={{
+          headerShown: false,
+          tabBarShowLabel: false,
+          tabBarActiveTintColor:
+            '#007AFF'
+        }}
+      >
+        {role === 'ADMIN' && (
+          <>
+            <Tabs.Screen
+              name="items"
+              options={{
+                title: 'Items',
+
+                tabBarIcon: ({
+                  color
+                }) => (
+                  <StatsIcon
+                    color={color}
+                  />
+                )
+              }}
+            />
+
+            <Tabs.Screen
+              name="stats"
+              options={{
+                title: 'Stats',
+
+                tabBarIcon: ({
+                  color
+                }) => (
+                  <StatsIcon
+                    color={color}
+                  />
+                )
+              }}
+            />
+          </>
+        )}
+
+        {role === 'KITCHEN' && (
           <Tabs.Screen
-            name="items"
+            name="kitchen"
             options={{
-              title: 'Items'
+              title: 'Kitchen',
+
+              tabBarIcon: ({
+                color
+              }) => (
+                <StatsIcon
+                  color={color}
+                />
+              )
             }}
           />
+        )}
 
+        {role === 'EMPLOYEE' && (
           <Tabs.Screen
-            name="stats"
+            name="tables"
             options={{
-              title: 'Stats'
+              title: 'Tables',
+
+              tabBarIcon: ({
+                color
+              }) => (
+                <StatsIcon
+                  color={color}
+                />
+              )
             }}
           />
-        </>
-      )}
+        )}
+      </Tabs>
+    );
+  };
 
-      {role === 'KITCHEN' && (
-        <Tabs.Screen
-          name="kitchen"
-          options={{
-            title: 'Kitchen'
-          }}
-        />
-      )}
-
-      {role === 'EMPLOYEE' && (
-        <Tabs.Screen
-          name="tables"
-          options={{
-            title: 'Tables'
-          }}
-        />
-      )}
-    </Tabs>
-  );
-};
-
-export default EstablishmentTabs;
+export default EstablishmentTabsLayout;

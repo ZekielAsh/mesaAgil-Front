@@ -1,8 +1,18 @@
 import { useItems } from '@/hooks/useItems';
-import { ActivityIndicator, FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Item } from '@/types/model/Item';
+import { ActivityIndicator, Alert, FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
+import { AdminItemCard } from '@/components/items/AdminItemCard';
 
 const ItemsScreen = () => {
   const { items, loading, error, refetch } = useItems();
+
+  const handleEdit = (item: Item) => {
+    Alert.alert('Editar comida', `Editar ${item.name}`);
+  };
+
+  const handleDelete = (item: Item) => {
+    Alert.alert('Eliminar comida', `Eliminar ${item.name}`);
+  };
 
   if (loading) {
     return <ActivityIndicator size="large" style={{ marginTop: 50 }} />;
@@ -28,25 +38,12 @@ const ItemsScreen = () => {
       <FlatList
         data={items}
         keyExtractor={item => item.id.toString()}
-        contentContainerStyle={styles.list}
         renderItem={({ item }) => (
-          <View style={styles.card}>
-            <View>
-              <Text style={styles.name}>{item.name}</Text>
-              <Text>{item.categoryName}</Text>
-              <Text>${item.price}</Text>
-            </View>
-
-            <View style={styles.actions}>
-              <Pressable style={styles.editButton}>
-                <Text style={styles.buttonText}>Editar</Text>
-              </Pressable>
-
-              <Pressable style={styles.deleteButton}>
-                <Text style={styles.buttonText}>Eliminar</Text>
-              </Pressable>
-            </View>
-          </View>
+          <AdminItemCard
+            item={item}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
+          />
         )}
       />
     </View>

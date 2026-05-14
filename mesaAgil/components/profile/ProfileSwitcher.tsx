@@ -3,6 +3,10 @@ import {
   EstablishmentRole
 } from '@/constants/mockProfile';
 
+import { useProfile } from '@/context/ProfileContext';
+
+import { router } from 'expo-router';
+
 import {
   Pressable,
   StyleSheet,
@@ -10,29 +14,35 @@ import {
   View
 } from 'react-native';
 
-interface Props {
-  mode: AppMode;
-  role: EstablishmentRole;
+const establishmentRoles: EstablishmentRole[] =
+  ['ADMIN', 'KITCHEN', 'EMPLOYEE'];
 
-  onChangeMode: (mode: AppMode) => void;
+const ProfileSwitcher = () => {
+  const {
+    mode,
+    role,
+    setMode,
+    setRole
+  } = useProfile();
 
-  onChangeRole: (
-    role: EstablishmentRole
-  ) => void;
-}
+  const handleChangeMode = (
+  newMode: AppMode
+) => {
+  setMode(newMode);
 
-const establishmentRoles: EstablishmentRole[] = [
-  'ADMIN',
-  'KITCHEN',
-  'EMPLOYEE'
-];
+  if (newMode === 'CLIENT') {
+    router.replace(
+      '/(client)/(tabs)'
+    );
 
-const ProfileSwitcher = ({
-  mode,
-  role,
-  onChangeMode,
-  onChangeRole
-}: Props) => {
+    return;
+  }
+
+  router.replace(
+    '/(establishment)/(tabs)/items'
+  );
+};
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>
@@ -47,10 +57,12 @@ const ProfileSwitcher = ({
               styles.activeButton
           ]}
           onPress={() =>
-            onChangeMode('CLIENT')
+            handleChangeMode(
+              'CLIENT'
+            )
           }
         >
-          <Text style={styles.buttonText}>
+          <Text style={styles.text}>
             Cliente
           </Text>
         </Pressable>
@@ -63,12 +75,12 @@ const ProfileSwitcher = ({
               styles.activeButton
           ]}
           onPress={() =>
-            onChangeMode(
+            handleChangeMode(
               'ESTABLISHMENT'
             )
           }
         >
-          <Text style={styles.buttonText}>
+          <Text style={styles.text}>
             Establecimiento
           </Text>
         </Pressable>
@@ -76,7 +88,9 @@ const ProfileSwitcher = ({
 
       {mode ===
         'ESTABLISHMENT' && (
-        <View style={styles.rolesContainer}>
+        <View
+          style={styles.rolesContainer}
+        >
           {establishmentRoles.map(
             establishmentRole => (
               <Pressable
@@ -90,17 +104,19 @@ const ProfileSwitcher = ({
                     styles.activeRole
                 ]}
                 onPress={() =>
-                  onChangeRole(
+                  setRole(
                     establishmentRole
                   )
                 }
               >
                 <Text
                   style={
-                    styles.buttonText
+                    styles.text
                   }
                 >
-                  {establishmentRole}
+                  {
+                    establishmentRole
+                  }
                 </Text>
               </Pressable>
             )
@@ -115,41 +131,51 @@ export default ProfileSwitcher;
 
 const styles = StyleSheet.create({
   container: {
-    padding: 16,
-    backgroundColor: '#222',
+    backgroundColor: '#111',
+    paddingTop: 60,
+    paddingHorizontal: 16,
+    paddingBottom: 16,
     gap: 12
   },
+
   title: {
     color: '#fff',
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: 'bold'
   },
+
   modeContainer: {
     flexDirection: 'row',
     gap: 8
   },
+
   modeButton: {
     flex: 1,
-    backgroundColor: '#444',
+    backgroundColor: '#333',
     padding: 12,
     borderRadius: 10,
     alignItems: 'center'
   },
+
   activeButton: {
     backgroundColor: '#007AFF'
   },
+
   rolesContainer: {
     gap: 8
   },
+
   roleButton: {
-    backgroundColor: '#444',
-    padding: 10,
+    backgroundColor: '#333',
+    padding: 12,
     borderRadius: 10
   },
+
   activeRole: {
     backgroundColor: '#34C759'
   },
-  buttonText: {
+
+  text: {
     color: '#fff',
     fontWeight: 'bold'
   }
