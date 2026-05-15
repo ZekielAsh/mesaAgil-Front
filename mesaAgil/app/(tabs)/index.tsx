@@ -101,7 +101,10 @@ const styles = StyleSheet.create({
   menuContainer: {
     display: 'flex',
     gap: 12,
-    padding: 12
+    paddingTop: 12,
+    paddingLeft: 12,
+    paddingRight: 12,
+    paddingBottom: 36
   },
   center: {
     flex: 1,

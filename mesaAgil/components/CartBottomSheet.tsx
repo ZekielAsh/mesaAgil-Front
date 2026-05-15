@@ -1,7 +1,7 @@
 import { Fonts } from '@/constants/fonts';
 import { OrderItemCart } from '@/types/OrderItemCart';
 import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
-import { useMemo, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import CartItem from './CartItem';
 
@@ -24,14 +24,56 @@ export default function CartBottomSheet({
   onSubmit,
   onClear
 }: Props) {
-  const bottomSheetRef = useRef(null);
-  const snapPoints = useMemo(() => ['5%', '75%'], []);
+  const bottomSheetRef = useRef<BottomSheet>(null);
+  const snapPoints = useMemo(() => ['4%', '25%', '75%'], []);
+  const currentIndexRef = useRef(0);
+  const previousCartLength = useRef(cart.length);
+  const hasOpenedFullCartRef = useRef(false);
+
+  const handleSheetChanges = (index: number) => {
+    currentIndexRef.current = index;
+  };
+
+  const bounceCart = () => {
+    bottomSheetRef.current?.snapToIndex(1);
+
+    setTimeout(() => {
+      bottomSheetRef.current?.snapToIndex(0);
+    }, 450);
+  };
+
+  useEffect(() => {
+    const itemWasAdded = cart.length > previousCartLength.current;
+
+    if (!itemWasAdded) {
+      previousCartLength.current = cart.length;
+      return;
+    }
+
+    // Primera vez
+    if (!hasOpenedFullCartRef.current) {
+      bottomSheetRef.current?.snapToIndex(2);
+
+      hasOpenedFullCartRef.current = true;
+
+      previousCartLength.current = cart.length;
+      return;
+    }
+
+    // Después de la primera vez
+    if (currentIndexRef.current === 0) {
+      bounceCart();
+    }
+
+    previousCartLength.current = cart.length;
+  }, [cart]);
 
   return (
     <BottomSheet
       ref={bottomSheetRef}
       enableDynamicSizing={false}
       snapPoints={snapPoints}
+      onChange={handleSheetChanges}
       backgroundStyle={{
         backgroundColor: '#fff',
         borderRadius: 16,
