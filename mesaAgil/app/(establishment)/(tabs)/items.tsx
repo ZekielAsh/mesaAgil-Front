@@ -1,13 +1,26 @@
+import { AdminCategoryCard } from '@/components/categories/AdminCategoryCard';
+import CreateCategoryModal from '@/components/categories/CreateCategoryModal';
+import DeleteCategoryModal from '@/components/categories/DeleteCategoryModal';
+import EditCategoryModal from '@/components/categories/EditCategoryModal';
+
 import { AdminItemCard } from '@/components/items/AdminItemCard';
 import CreateItemModal from '@/components/items/CreateItemModal';
 import DeleteItemModal from '@/components/items/DeleteItemModal';
 import EditItemModal from '@/components/items/EditItemModal';
+
 import { useCategories } from '@/hooks/useCategories';
+import { useCreateCategory } from '@/hooks/useCreateCategory';
+import { useDeleteCategory } from '@/hooks/useDeleteCategory';
+import { useUpdateCategory } from '@/hooks/useUpdateCategory';
+
 import { useCreateItem } from '@/hooks/useCreateItem';
 import { useDeleteItem } from '@/hooks/useDeleteItem';
 import { useItems } from '@/hooks/useItems';
 import { useUpdateItem } from '@/hooks/useUpdateItem';
+
+import { Category } from '@/types/model/Category';
 import { Item } from '@/types/model/Item';
+
 import {
   ActivityIndicator,
   FlatList,
@@ -18,6 +31,7 @@ import {
 } from 'react-native';
 
 import { useState } from 'react';
+
 import { Toast } from 'react-native-toast-message/lib/src/Toast';
 
 const ItemsScreen = () => {
@@ -29,7 +43,8 @@ const ItemsScreen = () => {
   } = useItems();
 
   const {
-    categories
+    categories,
+    refetch: refetchCategories
   } = useCategories();
 
   const {
@@ -46,6 +61,21 @@ const ItemsScreen = () => {
     execute: deleteItem,
     loading: deleting
   } = useDeleteItem();
+
+  const {
+    execute: createCategory,
+    loading: creatingCategory
+  } = useCreateCategory();
+
+  const {
+    execute: updateCategory,
+    loading: updatingCategory
+  } = useUpdateCategory();
+
+  const {
+    execute: deleteCategory,
+    loading: deletingCategory
+  } = useDeleteCategory();
 
   const [
     createModalVisible,
@@ -69,6 +99,29 @@ const ItemsScreen = () => {
     null
   );
 
+  const [
+    selectedCategory,
+    setSelectedCategory
+  ] =
+    useState<Category | null>(
+      null
+    );
+
+  const [
+    createCategoryModalVisible,
+    setCreateCategoryModalVisible
+  ] = useState(false);
+
+  const [
+    editCategoryModalVisible,
+    setEditCategoryModalVisible
+  ] = useState(false);
+
+  const [
+    deleteCategoryModalVisible,
+    setDeleteCategoryModalVisible
+  ] = useState(false);
+
   const handleCreate = async (
     values: any
   ) => {
@@ -85,6 +138,7 @@ const ItemsScreen = () => {
       setCreateModalVisible(false);
 
       refetch();
+      refetchCategories();
     } catch {
       Toast.show({
         type: 'error',
@@ -118,7 +172,8 @@ const ItemsScreen = () => {
 
       Toast.show({
         type: 'success',
-        text1: 'Comida actualizada',
+        text1:
+          'Comida actualizada',
         text2:
           'Los cambios fueron guardados'
       });
@@ -128,6 +183,7 @@ const ItemsScreen = () => {
       setSelectedItem(null);
 
       refetch();
+      refetchCategories();
     } catch {
       Toast.show({
         type: 'error',
@@ -148,35 +204,156 @@ const ItemsScreen = () => {
     );
   };
 
-  const confirmDelete = async () => {
-    if (!selectedItem) {
-      return;
-    }
+  const confirmDelete =
+    async () => {
+      if (!selectedItem) {
+        return;
+      }
 
-    try {
-      await deleteItem(selectedItem.id);
+      try {
+        await deleteItem(
+          selectedItem.id
+        );
 
-      Toast.show({
-        type: 'success',
-        text1: 'Comida eliminada',
-        text2:
-          'La comida fue eliminada correctamente'
-      });
+        Toast.show({
+          type: 'success',
+          text1:
+            'Comida eliminada',
+          text2:
+            'La comida fue eliminada correctamente'
+        });
 
-      setDeleteModalVisible(false);
+        setDeleteModalVisible(
+          false
+        );
 
-      setSelectedItem(null);
+        setSelectedItem(null);
 
-      refetch();
-    } catch {
-      Toast.show({
-        type: 'error',
-        text1: 'Error',
-        text2:
-          'No se pudo eliminar la comida'
-      });
-    }
+        refetch();
+        refetchCategories();
+      } catch {
+        Toast.show({
+          type: 'error',
+          text1: 'Error',
+          text2:
+            'No se pudo eliminar la comida'
+        });
+      }
+    };
+
+  const handleCreateCategory =
+    async (name: string) => {
+      try {
+        await createCategory(name);
+
+        Toast.show({
+          type: 'success',
+          text1:
+            'Categoría creada'
+        });
+
+        setCreateCategoryModalVisible(
+          false
+        );
+
+        refetchCategories();
+      } catch {
+        Toast.show({
+          type: 'error',
+          text1: 'Error',
+          text2:
+            'No se pudo crear la categoría'
+        });
+      }
+    };
+
+  const handleEditCategory = (
+    category: Category
+  ) => {
+    setSelectedCategory(category);
+
+    setEditCategoryModalVisible(
+      true
+    );
   };
+
+  const handleUpdateCategory =
+    async (name: string) => {
+      if (!selectedCategory) {
+        return;
+      }
+
+      try {
+        await updateCategory(
+          selectedCategory.id,
+          name
+        );
+
+        Toast.show({
+          type: 'success',
+          text1:
+            'Categoría actualizada'
+        });
+
+        setEditCategoryModalVisible(
+          false
+        );
+
+        setSelectedCategory(null);
+
+        refetchCategories();
+      } catch {
+        Toast.show({
+          type: 'error',
+          text1: 'Error',
+          text2:
+            'No se pudo actualizar la categoría'
+        });
+      }
+    };
+
+  const handleDeleteCategory =
+    (category: Category) => {
+      setSelectedCategory(category);
+
+      setDeleteCategoryModalVisible(
+        true
+      );
+    };
+
+  const confirmDeleteCategory =
+    async () => {
+      if (!selectedCategory) {
+        return;
+      }
+
+      try {
+        await deleteCategory(
+          selectedCategory.id
+        );
+
+        Toast.show({
+          type: 'success',
+          text1:
+            'Categoría eliminada'
+        });
+
+        setDeleteCategoryModalVisible(
+          false
+        );
+
+        setSelectedCategory(null);
+
+        refetchCategories();
+      } catch {
+        Toast.show({
+          type: 'error',
+          text1: 'Error',
+          text2:
+            'No se pudo eliminar la categoría'
+        });
+      }
+    };
 
   if (loading) {
     return (
@@ -214,6 +391,56 @@ const ItemsScreen = () => {
 
   return (
     <View style={styles.container}>
+      <Text style={styles.sectionTitle}>
+        Categorías
+      </Text>
+
+      <Pressable
+        style={styles.createButton}
+        onPress={() =>
+          setCreateCategoryModalVisible(
+            true
+          )
+        }
+      >
+        <Text
+          style={
+            styles.createButtonText
+          }
+        >
+          + Nueva categoría
+        </Text>
+      </Pressable>
+
+      <FlatList
+        horizontal
+        data={categories}
+        keyExtractor={category =>
+          category.id.toString()
+        }
+        showsHorizontalScrollIndicator={
+          false
+        }
+        contentContainerStyle={
+          styles.categoriesList
+        }
+        renderItem={({ item }) => (
+          <AdminCategoryCard
+            category={item}
+            onEdit={
+              handleEditCategory
+            }
+            onDelete={
+              handleDeleteCategory
+            }
+          />
+        )}
+      />
+
+      <Text style={styles.sectionTitle}>
+        Comidas
+      </Text>
+
       <Pressable
         style={styles.createButton}
         onPress={() =>
@@ -248,6 +475,57 @@ const ItemsScreen = () => {
             }
           />
         )}
+      />
+
+      <CreateCategoryModal
+        visible={
+          createCategoryModalVisible
+        }
+        loading={creatingCategory}
+        onClose={() =>
+          setCreateCategoryModalVisible(
+            false
+          )
+        }
+        onSubmit={
+          handleCreateCategory
+        }
+      />
+
+      <EditCategoryModal
+        visible={
+          editCategoryModalVisible
+        }
+        category={selectedCategory}
+        loading={updatingCategory}
+        onClose={() => {
+          setEditCategoryModalVisible(
+            false
+          );
+
+          setSelectedCategory(null);
+        }}
+        onSubmit={
+          handleUpdateCategory
+        }
+      />
+
+      <DeleteCategoryModal
+        visible={
+          deleteCategoryModalVisible
+        }
+        category={selectedCategory}
+        loading={deletingCategory}
+        onClose={() => {
+          setDeleteCategoryModalVisible(
+            false
+          );
+
+          setSelectedCategory(null);
+        }}
+        onConfirm={
+          confirmDeleteCategory
+        }
       />
 
       <CreateItemModal
@@ -290,9 +568,7 @@ const ItemsScreen = () => {
 
           setSelectedItem(null);
         }}
-        onConfirm={
-          confirmDelete
-        }
+        onConfirm={confirmDelete}
       />
     </View>
   );
@@ -304,6 +580,16 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16
+  },
+
+  sectionTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 16
+  },
+
+  categoriesList: {
+    paddingBottom: 24
   },
 
   list: {

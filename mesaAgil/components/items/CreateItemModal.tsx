@@ -2,7 +2,9 @@ import ItemForm from './ItemForm';
 import { Category } from '@/types/model/Category';
 import {
   Modal,
+  Pressable,
   StyleSheet,
+  Text,
   View
 } from 'react-native';
 
@@ -34,9 +36,18 @@ const CreateItemModal = ({
       visible={visible}
       animationType="slide"
       transparent
+      onRequestClose={onClose}
     >
       <View style={styles.overlay}>
         <View style={styles.content}>
+          <Pressable
+            style={styles.closeButton}
+            onPress={onClose}
+          >
+            <Text style={styles.closeText}>
+              ✕
+            </Text>
+          </Pressable>
           <ItemForm
             categories={categories}
             loading={loading}
@@ -64,5 +75,16 @@ const styles = StyleSheet.create({
     backgroundColor: '#222',
     borderRadius: 16,
     maxHeight: '90%'
+  },
+
+  closeButton: {
+    alignSelf: 'flex-end',
+    padding: 12
+  },
+
+  closeText: {
+    color: '#fff',
+    fontSize: 20,
+    fontWeight: 'bold'
   }
 });

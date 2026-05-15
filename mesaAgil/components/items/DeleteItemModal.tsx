@@ -30,9 +30,18 @@ const DeleteItemModal = ({
       visible={visible}
       animationType="fade"
       transparent
+      onRequestClose={onClose}
     >
       <View style={styles.overlay}>
         <View style={styles.content}>
+          <Pressable
+            style={styles.closeButton}
+            onPress={onClose}
+          >
+            <Text style={styles.closeText}>
+              ✕
+            </Text>
+          </Pressable>
           <Text style={styles.title}>
             Eliminar comida
           </Text>
@@ -133,6 +142,17 @@ const styles = StyleSheet.create({
 
   textButton: {
     color: '#fff',
+    fontWeight: 'bold'
+  },
+
+  closeButton: {
+    alignSelf: 'flex-end',
+    padding: 12
+  },
+
+  closeText: {
+    color: '#fff',
+    fontSize: 20,
     fontWeight: 'bold'
   }
 });
