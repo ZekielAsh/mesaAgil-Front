@@ -6,10 +6,11 @@ import { useMenu } from '@/hooks/useMenu';
 import { ActivityIndicator, Button, FlatList, StyleSheet, Text, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import Toast from 'react-native-toast-message';
 
 const MenuScreen = () => {
   const { menu, message, loading, error, refetch } = useMenu();
-  const { execute, loadingAddingItems, errorAddingItems } = useAddItems();
+  const { execute, loadingAddingItems } = useAddItems();
   const { cart, total, addToCart, addItemQuantity, removeFromCart, clearCart } = useCart();
   const insets = useSafeAreaInsets();
 
@@ -19,10 +20,21 @@ const MenuScreen = () => {
         itemId: orderItemCart.item.id,
         quantity: orderItemCart.quantity
       }));
+
       await execute(6, orderItemsList);
       clearCart();
+
+      Toast.show({
+        type: 'success',
+        text1: 'Agregado a la orden'
+      });
     } catch (error) {
-      console.log('falló', error);
+      const errorMessage = error instanceof Error ? error.message : 'Error desconocido';
+
+      Toast.show({
+        type: 'error',
+        text1: errorMessage
+      });
     }
   };
 

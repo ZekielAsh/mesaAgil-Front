@@ -1,7 +1,7 @@
 import { Fonts } from '@/constants/fonts';
 import { OrderItemCart } from '@/types/OrderItemCart';
 import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
-import { useCallback, useMemo, useRef } from 'react';
+import { useMemo, useRef } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import CartItem from './CartItem';
 
@@ -25,15 +25,11 @@ export default function CartBottomSheet({
   onClear
 }: Props) {
   const bottomSheetRef = useRef(null);
-  const handleSheetChanges = useCallback((index: number) => {
-    console.log('handleSheetChanges', index);
-  }, []);
   const snapPoints = useMemo(() => ['5%', '75%'], []);
 
   return (
     <BottomSheet
       ref={bottomSheetRef}
-      onChange={handleSheetChanges}
       enableDynamicSizing={false}
       snapPoints={snapPoints}
       backgroundStyle={{
