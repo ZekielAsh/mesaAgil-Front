@@ -1,7 +1,58 @@
-import { DefaultTheme, ThemeProvider } from '@react-navigation/native';
+import ProfileSwitcher from '@/components/profile/ProfileSwitcher';
+import { ProfileProvider } from '@/context/ProfileContext';
+import {
+  DefaultTheme,
+  ThemeProvider
+} from '@react-navigation/native';
 import { Stack } from 'expo-router';
-import { StatusBar } from 'react-native';
+import {
+  StatusBar,
+  StyleSheet,
+  View
+} from 'react-native';
+import Toast from 'react-native-toast-message';
 
+export default function RootLayout() {
+  return (
+    <ProfileProvider>
+      <ThemeProvider value={DefaultTheme}>
+        <View style={styles.container}>
+          <ProfileSwitcher />
+
+          <View style={styles.content}>
+            <Stack
+              screenOptions={{
+                headerShown: false
+              }}
+            >
+              <Stack.Screen
+                name="(client)"
+              />
+
+              <Stack.Screen
+                name="(establishment)"
+              />
+            </Stack>
+          </View>
+
+          <Toast />
+
+          <StatusBar />
+        </View>
+      </ThemeProvider>
+    </ProfileProvider>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1
+  },
+
+  content: {
+    flex: 1
+  }
+});
 // La ruta no sera dinamica, guardar id de order actual en un singleton al habilitar mesa
 // Flujo:
 // -> Hablitan la mesa
@@ -15,13 +66,3 @@ import { StatusBar } from 'react-native';
 // -> Si ya apretaste el boton de pedir comidas del carrito ya no podras eliminarlas del pedido
 //    (se lo dejamos al restaurante que solucione eso o del lado de mozos permitir que accedan
 //     al pedido de una mesa y modificarlo)
-export default function RootLayout() {
-  return (
-    <ThemeProvider value={DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-      </Stack>
-      <StatusBar />
-    </ThemeProvider>
-  );
-}
