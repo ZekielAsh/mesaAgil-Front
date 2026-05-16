@@ -55,7 +55,7 @@ const ProfileSwitcher = () => {
   }
 
   router.replace(
-    '/(establishment)/(tabs)/items'
+    roleRoutes[role] as never
   );
 };
 
