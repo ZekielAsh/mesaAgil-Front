@@ -62,9 +62,11 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 12,
     marginRight: 12,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12
+    width: 220,
+    minHeight: 86,
+    justifyContent:
+      'space-between',
+    gap: 10
   },
 
   name: {
@@ -79,21 +81,26 @@ const styles = StyleSheet.create({
   },
 
   editButton: {
+    flex: 1,
     backgroundColor: '#FF9500',
     paddingVertical: 6,
-    paddingHorizontal: 10,
-    borderRadius: 8
+    paddingHorizontal: 8,
+    borderRadius: 8,
+    alignItems: 'center'
   },
 
   deleteButton: {
+    flex: 1,
     backgroundColor: '#FF3B30',
     paddingVertical: 6,
-    paddingHorizontal: 10,
-    borderRadius: 8
+    paddingHorizontal: 8,
+    borderRadius: 8,
+    alignItems: 'center'
   },
 
   text: {
     color: '#fff',
-    fontWeight: 'bold'
+    fontWeight: 'bold',
+    fontSize: 12
   }
 });

@@ -302,7 +302,7 @@ const ItemsScreen = () => {
           type: 'success',
           text1: isActive
             ? 'Comida deshabilitada'
-            : 'Comida activada',
+            : 'Comida habilitada',
           text2: isActive
             ? 'Ya no se mostrara en el menu'
             : 'Volvera a mostrarse en el menu'
@@ -501,6 +501,9 @@ const ItemsScreen = () => {
         showsHorizontalScrollIndicator={
           false
         }
+        style={
+          styles.categoriesListWrapper
+        }
         contentContainerStyle={
           styles.categoriesList
         }
@@ -546,6 +549,7 @@ const ItemsScreen = () => {
         contentContainerStyle={
           styles.list
         }
+        style={styles.itemsList}
         renderItem={({ item }) => (
           <AdminItemCard
             item={item}
@@ -666,29 +670,40 @@ export default ItemsScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16
+    padding: 12
   },
 
   sectionTitle: {
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: 'bold',
-    marginBottom: 16
+    marginBottom: 10
+  },
+
+  categoriesListWrapper: {
+    flexGrow: 0,
+    height: 98,
+    marginBottom: 12
   },
 
   categoriesList: {
-    paddingBottom: 24
+    paddingBottom: 0
   },
 
   list: {
-    gap: 12
+    gap: 10,
+    paddingBottom: 16
+  },
+
+  itemsList: {
+    flex: 1
   },
 
   createButton: {
     backgroundColor: '#007AFF',
-    padding: 14,
+    padding: 12,
     borderRadius: 12,
     alignItems: 'center',
-    marginBottom: 16
+    marginBottom: 10
   },
 
   createButtonText: {
