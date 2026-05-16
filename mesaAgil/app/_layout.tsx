@@ -68,16 +68,14 @@ export default function RootLayout() {
           <ProfileSwitcher />
 
           <View style={styles.content}>
-            <Stack>
-              <Stack
-                screenOptions={{
-                  headerShown: false
-                }}
-              >
-                <Stack.Screen name="(client)" />
+            <Stack
+              screenOptions={{
+                headerShown: false
+              }}
+            >
+              <Stack.Screen name="(client)" />
 
-                <Stack.Screen name="(establishment)" />
-              </Stack>
+              <Stack.Screen name="(establishment)" />
             </Stack>
           </View>
           <StatusBar />

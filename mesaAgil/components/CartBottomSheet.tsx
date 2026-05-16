@@ -1,8 +1,8 @@
 import { Fonts } from '@/constants/fonts';
 import { OrderItemCart } from '@/types/OrderItemCart';
-import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
+import BottomSheet, { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import { useEffect, useMemo, useRef } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 import CartItem from './CartItem';
 
 interface Props {
@@ -83,7 +83,7 @@ export default function CartBottomSheet({
         backgroundColor: '#000'
       }}
     >
-      <BottomSheetView style={styles.buttomSheetView}>
+      <BottomSheetScrollView style={styles.buttomSheetView}>
         <View style={styles.cartContainer}>
           <View style={styles.cartHeader}>
             <Text style={styles.title}>Comidas del carrito</Text>
@@ -99,18 +99,18 @@ export default function CartBottomSheet({
               <Text style={styles.textGrey}>limpiar todo</Text>
             </Pressable>
           </View>
-          <View style={styles.cartItemsContainer}>
+          <View style={{ flex: 1 }}>
             {cart.length === 0 ? (
               <Text style={{ color: '#6C6C6C' }}>No hay comidas</Text>
             ) : (
-              cart.map(orderItemCart => (
-                <CartItem
-                  key={orderItemCart.item.id}
-                  orderItemCart={orderItemCart}
-                  onIncrease={onIncrease}
-                  onDecrease={onDecrease}
-                />
-              ))
+              <FlatList
+                data={cart}
+                keyExtractor={orderItemCart => orderItemCart.item.id.toString()}
+                renderItem={({ item }) => (
+                  <CartItem orderItemCart={item} onIncrease={onIncrease} onDecrease={onDecrease} />
+                )}
+                contentContainerStyle={styles.cartItemsContainer}
+              />
             )}
           </View>
           <View style={{ alignItems: 'center' }}>
@@ -133,7 +133,7 @@ export default function CartBottomSheet({
             </Pressable>
           </View>
         </View>
-      </BottomSheetView>
+      </BottomSheetScrollView>
     </BottomSheet>
   );
 }
@@ -144,16 +144,16 @@ const styles = StyleSheet.create({
     paddingTop: 0,
     paddingRight: 12,
     paddingBottom: 12,
-    paddingLeft: 12,
-    alignItems: 'center'
+    paddingLeft: 12
   },
   cartContainer: {
+    flex: 1,
     width: '100%',
     padding: 10,
     gap: 20
   },
   cartItemsContainer: {
-    display: 'flex',
+    flex: 1,
     gap: 8
   },
   cartHeader: {
