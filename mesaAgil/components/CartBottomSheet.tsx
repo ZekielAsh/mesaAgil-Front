@@ -95,8 +95,12 @@ export default function CartBottomSheet({
               }
             ]}
           >
-            <Text style={styles.textGrey}>limpiar todo</Text>
+            <Text style={styles.textGrey}>Limpiar todo</Text>
           </Pressable>
+        </View>
+        <View style={styles.cartColumnsHeader}>
+          <Text style={[styles.columnTitle, styles.productsColumn]}>Platos elegidos</Text>
+          <Text style={[styles.columnTitle, styles.quantityColumn]}>Cantidad</Text>
         </View>
         <View style={{ flex: 1 }}>
           {cart.length === 0 ? (
@@ -151,6 +155,25 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center'
+  },
+  cartColumnsHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderBottomWidth: 1,
+    borderBottomColor: '#E0E0E0',
+    paddingBottom: 6
+  },
+  columnTitle: {
+    color: '#000',
+    fontSize: 13,
+    fontFamily: Fonts.semiBold
+  },
+  productsColumn: {
+    flex: 1
+  },
+  quantityColumn: {
+    width: 96,
+    textAlign: 'right'
   },
   textGrey: {
     fontSize: 14,

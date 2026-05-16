@@ -31,24 +31,24 @@ export default function CartItem({ orderItemCart, onIncrease, onDecrease }: Prop
             style={({ pressed }) => [
               styles.cartButton,
               {
-                backgroundColor: pressed ? '#e0e0e0' : '#fff'
+                backgroundColor: pressed ? '#B42318' : '#D92D20'
               }
             ]}
             onPress={() => onDecrease(orderItemCart.item.id)}
           >
-            {orderItemCart.quantity > 1 ? <MinusIcon color="#000" /> : <TrashIcon color="#000" />}
+            {orderItemCart.quantity > 1 ? <MinusIcon color="#fff" /> : <TrashIcon color="#fff" />}
           </Pressable>
           <Text style={styles.cartQuantity}>{orderItemCart.quantity}</Text>
           <Pressable
             style={({ pressed }) => [
               styles.cartButton,
               {
-                backgroundColor: pressed ? '#e0e0e0' : '#fff'
+                backgroundColor: pressed ? '#027A48' : '#12B76A'
               }
             ]}
             onPress={() => onIncrease(orderItemCart.item.id)}
           >
-            <PlusIcon color="#000" />
+            <PlusIcon color="#fff" />
           </Pressable>
         </View>
         <Text style={styles.textGrey}>
@@ -99,17 +99,13 @@ const styles = StyleSheet.create({
     paddingBottom: 1,
     paddingLeft: 2,
     paddingRight: 2,
-    borderWidth: 1.5,
-    borderRadius: 8,
-    borderColor: '#000'
+    borderRadius: 8
   },
   cartButton: {
     alignItems: 'center',
     justifyContent: 'center',
-    paddingTop: 1,
-    paddingBottom: 1,
-    paddingLeft: 4,
-    paddingRight: 4,
+    width: 28,
+    height: 28,
     borderRadius: 4
   },
   cartQuantity: {

@@ -20,23 +20,25 @@ export default function OrderTable({ orderItems }: OrderTableProps) {
         keyExtractor={item => item.id.toString()}
         ListHeaderComponent={
           <View style={[styles.row, styles.header]}>
-            <Text style={[styles.cell, styles.headerText]}>Comida</Text>
-            <Text style={[styles.cell, styles.headerText, styles.right]}>Cant</Text>
-            <Text style={[styles.cell, styles.headerText, styles.right]}>Precio</Text>
-            <Text style={[styles.cell, styles.headerText, styles.center]}>Estado</Text>
+            <Text style={[styles.cell, styles.productCell, styles.headerText]}>Platos elegidos</Text>
+            <Text style={[styles.cell, styles.quantityCell, styles.headerText, styles.right]}>Cantidad</Text>
+            <Text style={[styles.cell, styles.priceCell, styles.headerText, styles.right]}>Precio</Text>
+            <Text style={[styles.cell, styles.statusCell, styles.headerText, styles.center]}>Estado</Text>
           </View>
         }
         renderItem={({ item }) => (
           <View style={styles.row}>
-            <Text style={[styles.cell]} numberOfLines={1}>
+            <Text style={[styles.cell, styles.productCell]} numberOfLines={1}>
               {item.item.name}
             </Text>
 
-            <Text style={[styles.cell, styles.right]}>{item.quantity}</Text>
+            <Text style={[styles.cell, styles.quantityCell, styles.right]}>{item.quantity}</Text>
 
-            <Text style={[styles.cell, styles.right]}>{formatPrice(Number(item.price * item.quantity))}</Text>
+            <Text style={[styles.cell, styles.priceCell, styles.right]}>
+              {formatPrice(Number(item.price * item.quantity))}
+            </Text>
 
-            <Text style={[styles.cell, styles.center]}>{item.status}</Text>
+            <Text style={[styles.cell, styles.statusCell, styles.center]}>{item.status}</Text>
           </View>
         )}
         ItemSeparatorComponent={() => <View style={styles.separator} />}
@@ -67,6 +69,22 @@ export const styles = StyleSheet.create({
   cell: {
     flex: 1,
     fontSize: 14
+  },
+
+  productCell: {
+    flex: 1.5
+  },
+
+  quantityCell: {
+    flex: 0.9
+  },
+
+  priceCell: {
+    flex: 1
+  },
+
+  statusCell: {
+    flex: 1
   },
 
   headerText: {
