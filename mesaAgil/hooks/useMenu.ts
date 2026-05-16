@@ -1,5 +1,6 @@
 import { Item } from '@/types/model/Item';
-import { useEffect, useState } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
+import { useCallback, useState } from 'react';
 import { getMenu } from '../service/menuService';
 
 export const useMenu = () => {
@@ -8,36 +9,37 @@ export const useMenu = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>();
 
-  const fetchMenu = async () => {
+  const fetchMenu = useCallback(async () => {
     try {
-      console.log('🔵 Iniciando fetch...');
-
       setLoading(true);
       setError('');
 
       const data = await getMenu();
 
-      console.log('🟢 Respuesta recibida:', data);
-
       if (data.message) {
         setMessage(data.message);
         setMenu([]);
       } else {
-        setMenu(data.items || []);
+        setMenu(
+          (data.items || []).filter(
+            item =>
+              item.active !== false
+          )
+        );
         setMessage('');
       }
     } catch (err) {
-      console.log('🔴 Error en fetch:', err);
-      setError('Error al cargar el menú');
+      setError('Error al cargar el menu');
     } finally {
-      console.log('🟡 Finalizando fetch');
       setLoading(false);
     }
-  };
-
-  useEffect(() => {
-    fetchMenu();
   }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchMenu();
+    }, [fetchMenu])
+  );
 
   return {
     menu,

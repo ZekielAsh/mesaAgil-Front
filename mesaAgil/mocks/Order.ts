@@ -21,7 +21,9 @@ export const mockOrder: Order = {
         name: 'Hamburguesa Clásica',
         description: 'Carne, lechuga, tomate y queso',
         imageUrl: 'https://via.placeholder.com/150',
-        price: 1000
+        price: 1000,
+        categoryName: 'Hamburguesas',
+        active: true
       }
     },
     {
@@ -36,7 +38,9 @@ export const mockOrder: Order = {
         name: 'Papas Fritas',
         description: 'Papas crocantes',
         imageUrl: 'https://via.placeholder.com/150',
-        price: 1500
+        price: 1500,
+        categoryName: 'Guarniciones',
+        active: true
       }
     },
     {
@@ -51,7 +55,9 @@ export const mockOrder: Order = {
         name: 'Pizza Muzzarella',
         description: 'Pizza clásica con muzzarella',
         imageUrl: 'https://via.placeholder.com/150',
-        price: 3000
+        price: 3000,
+        categoryName: 'Pizzas',
+        active: true
       }
     }
   ]
