@@ -1,18 +1,66 @@
 import ProfileSwitcher from '@/components/profile/ProfileSwitcher';
 import { ProfileProvider } from '@/context/ProfileContext';
 import {
-  DefaultTheme,
-  ThemeProvider
-} from '@react-navigation/native';
+  Inter_400Regular,
+  Inter_500Medium,
+  Inter_600SemiBold,
+  Inter_700Bold,
+  useFonts
+} from '@expo-google-fonts/inter';
+import { DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { Stack } from 'expo-router';
-import {
-  StatusBar,
-  StyleSheet,
-  View
-} from 'react-native';
-import Toast from 'react-native-toast-message';
+import { StatusBar, StyleSheet, View } from 'react-native';
+import Toast, { BaseToast, ErrorToast } from 'react-native-toast-message';
 
 export default function RootLayout() {
+  const [loaded] = useFonts({
+    Inter_400Regular,
+    Inter_500Medium,
+    Inter_600SemiBold,
+    Inter_700Bold
+  });
+
+  if (!loaded) {
+    return null;
+  }
+
+  const toastConfig = {
+    success: (props: any) => (
+      <BaseToast
+        {...props}
+        style={{
+          borderLeftColor: '#58c400',
+          borderLeftWidth: 8,
+          height: 48
+        }}
+        contentContainerStyle={{
+          paddingHorizontal: 16
+        }}
+        text1Style={{
+          fontSize: 16,
+          fontFamily: 'Inter_600SemiBold'
+        }}
+      />
+    ),
+
+    error: (props: any) => (
+      <ErrorToast
+        {...props}
+        style={{
+          borderLeftColor: '#c40000',
+          borderLeftWidth: 8
+        }}
+        contentContainerStyle={{
+          paddingHorizontal: 16
+        }}
+        text1Style={{
+          fontSize: 16,
+          fontFamily: 'Inter_600SemiBold'
+        }}
+      />
+    )
+  };
+
   return (
     <ProfileProvider>
       <ThemeProvider value={DefaultTheme}>
@@ -25,19 +73,13 @@ export default function RootLayout() {
                 headerShown: false
               }}
             >
-              <Stack.Screen
-                name="(client)"
-              />
+              <Stack.Screen name="(client)" />
 
-              <Stack.Screen
-                name="(establishment)"
-              />
+              <Stack.Screen name="(establishment)" />
             </Stack>
           </View>
-
-          <Toast />
-
           <StatusBar />
+          <Toast config={toastConfig} />
         </View>
       </ThemeProvider>
     </ProfileProvider>
@@ -53,16 +95,3 @@ const styles = StyleSheet.create({
     flex: 1
   }
 });
-// La ruta no sera dinamica, guardar id de order actual en un singleton al habilitar mesa
-// Flujo:
-// -> Hablitan la mesa
-// -> la app cliente crea una orden en la BD para esa mesa
-// -> recibe la orden del back y lo guarda en un singleton
-// -> cuando cierran mesa guarda el pedido final en la BD y limpia singleton
-// Nota:
-// -> En home habra un modal lateral que cuando agregues una comida se agregara ahi
-//    sera como un carrito en el cual habra un boton para agregar comidas al pedido
-// -> Cuando agregas una comida al carrito podes sumar mas cantidad de esa comida o eliminarla
-// -> Si ya apretaste el boton de pedir comidas del carrito ya no podras eliminarlas del pedido
-//    (se lo dejamos al restaurante que solucione eso o del lado de mozos permitir que accedan
-//     al pedido de una mesa y modificarlo)
