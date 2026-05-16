@@ -1,6 +1,5 @@
 import HomeIcon from '@/components/ui/home-icon';
 import OrderIcon from '@/components/ui/order-icon';
-import StatsIcon from '@/components/ui/stats-icon';
 import { Tabs } from 'expo-router';
 import React from 'react';
 
@@ -25,13 +24,6 @@ const ClientTabsLayout = () => {
         options={{
           title: 'Order',
           tabBarIcon: ({ color }) => <OrderIcon color={color} />
-        }}
-      />
-      <Tabs.Screen
-        name="stats"
-        options={{
-          title: 'Stats',
-          tabBarIcon: ({ color }) => <StatsIcon color={color} />
         }}
       />
     </Tabs>
