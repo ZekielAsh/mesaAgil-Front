@@ -1,8 +1,8 @@
 import { Fonts } from '@/constants/fonts';
 import { OrderItemCart } from '@/types/OrderItemCart';
-import BottomSheet, { BottomSheetScrollView } from '@gorhom/bottom-sheet';
+import BottomSheet, { BottomSheetFlatList } from '@gorhom/bottom-sheet';
 import { useEffect, useMemo, useRef } from 'react';
-import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import CartItem from './CartItem';
 
 interface Props {
@@ -83,69 +83,61 @@ export default function CartBottomSheet({
         backgroundColor: '#000'
       }}
     >
-      <BottomSheetScrollView style={styles.buttomSheetView}>
-        <View style={styles.cartContainer}>
-          <View style={styles.cartHeader}>
-            <Text style={styles.title}>Comidas del carrito</Text>
-            <Pressable
-              onPress={onClear}
-              style={({ pressed }) => [
-                styles.cartMiniButtom,
-                {
-                  backgroundColor: pressed ? '#e0e0e0' : '#fff'
-                }
-              ]}
-            >
-              <Text style={styles.textGrey}>limpiar todo</Text>
-            </Pressable>
-          </View>
-          <View style={{ flex: 1 }}>
-            {cart.length === 0 ? (
-              <Text style={{ color: '#6C6C6C' }}>No hay comidas</Text>
-            ) : (
-              <FlatList
-                data={cart}
-                keyExtractor={orderItemCart => orderItemCart.item.id.toString()}
-                renderItem={({ item }) => (
-                  <CartItem orderItemCart={item} onIncrease={onIncrease} onDecrease={onDecrease} />
-                )}
-                contentContainerStyle={styles.cartItemsContainer}
-              />
-            )}
-          </View>
-          <View style={{ alignItems: 'center' }}>
-            <Pressable
-              style={({ pressed }) => [
-                styles.cartButtom,
-                {
-                  backgroundColor: pressed ? '#a94700' : '#F06400',
-                  transform: [
-                    {
-                      scale: pressed ? 0.95 : 1
-                    }
-                  ]
-                }
-              ]}
-              onPress={onSubmit}
-              disabled={loadingAddingItems || cart.length === 0}
-            >
-              <Text style={styles.cardButtonText}>{loadingAddingItems ? 'Agregando...' : `Agregar por $${total}`}</Text>
-            </Pressable>
-          </View>
+      <View style={styles.cartContainer}>
+        <View style={styles.cartHeader}>
+          <Text style={styles.title}>Comidas del carrito</Text>
+          <Pressable
+            onPress={onClear}
+            style={({ pressed }) => [
+              styles.cartMiniButtom,
+              {
+                backgroundColor: pressed ? '#e0e0e0' : '#fff'
+              }
+            ]}
+          >
+            <Text style={styles.textGrey}>limpiar todo</Text>
+          </Pressable>
         </View>
-      </BottomSheetScrollView>
+        <View style={{ flex: 1 }}>
+          {cart.length === 0 ? (
+            <Text style={{ color: '#6C6C6C' }}>No hay comidas</Text>
+          ) : (
+            <BottomSheetFlatList
+              data={cart}
+              keyExtractor={orderItemCart => orderItemCart.item.id.toString()}
+              renderItem={({ item }) => (
+                <CartItem orderItemCart={item} onIncrease={onIncrease} onDecrease={onDecrease} />
+              )}
+              contentContainerStyle={styles.cartItemsContainer}
+              style={{ flex: 1 }}
+            />
+          )}
+        </View>
+        <View style={{ alignItems: 'center' }}>
+          <Pressable
+            style={({ pressed }) => [
+              styles.cartButtom,
+              {
+                backgroundColor: pressed ? '#a94700' : '#F06400',
+                transform: [
+                  {
+                    scale: pressed ? 0.95 : 1
+                  }
+                ]
+              }
+            ]}
+            onPress={onSubmit}
+            disabled={loadingAddingItems || cart.length === 0}
+          >
+            <Text style={styles.cardButtonText}>{loadingAddingItems ? 'Agregando...' : `Agregar por $${total}`}</Text>
+          </Pressable>
+        </View>
+      </View>
     </BottomSheet>
   );
 }
 
 const styles = StyleSheet.create({
-  buttomSheetView: {
-    flex: 1,
-    paddingTop: 0,
-    paddingRight: 12,
-    paddingBottom: 12,
-    paddingLeft: 12
-  },
   cartContainer: {
     flex: 1,
     width: '100%',
@@ -153,7 +145,6 @@ const styles = StyleSheet.create({
     gap: 20
   },
   cartItemsContainer: {
-    flex: 1,
     gap: 8
   },
   cartHeader: {
