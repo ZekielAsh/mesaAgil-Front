@@ -20,6 +20,7 @@ import { useUpdateItem } from '@/hooks/useUpdateItem';
 
 import { Category } from '@/types/model/Category';
 import { Item } from '@/types/model/Item';
+import { UpdateItemRequest } from '@/types/UpdateItemRequest';
 
 import {
   ActivityIndicator,
@@ -100,6 +101,13 @@ const ItemsScreen = () => {
   );
 
   const [
+    togglingItemId,
+    setTogglingItemId
+  ] = useState<number | null>(
+    null
+  );
+
+  const [
     selectedCategory,
     setSelectedCategory
   ] =
@@ -167,7 +175,12 @@ const ItemsScreen = () => {
     try {
       await updateItem(
         selectedItem.id,
-        values
+        {
+          ...values,
+          active:
+            selectedItem.active !==
+            false
+        }
       );
 
       Toast.show({
@@ -238,6 +251,73 @@ const ItemsScreen = () => {
           text2:
             'No se pudo eliminar la comida'
         });
+      }
+    };
+
+  const handleToggleActive =
+    async (item: Item) => {
+      const category =
+        categories.find(
+          currentCategory =>
+            currentCategory.name ===
+            item.categoryName
+        );
+
+      if (!category) {
+        Toast.show({
+          type: 'error',
+          text1: 'Error',
+          text2:
+            'No se pudo identificar la categoria de la comida'
+        });
+
+        return;
+      }
+
+      const isActive =
+        item.active !== false;
+
+      const values: UpdateItemRequest =
+        {
+          name: item.name,
+          description:
+            item.description,
+          imageUrl: item.imageUrl,
+          price: item.price,
+          categoryId: category.id,
+          active: !isActive
+        };
+
+      try {
+        setTogglingItemId(
+          item.id
+        );
+
+        await updateItem(
+          item.id,
+          values
+        );
+
+        Toast.show({
+          type: 'success',
+          text1: isActive
+            ? 'Comida deshabilitada'
+            : 'Comida activada',
+          text2: isActive
+            ? 'Ya no se mostrara en el menu'
+            : 'Volvera a mostrarse en el menu'
+        });
+
+        refetch();
+      } catch {
+        Toast.show({
+          type: 'error',
+          text1: 'Error',
+          text2:
+            'No se pudo cambiar el estado de la comida'
+        });
+      } finally {
+        setTogglingItemId(null);
       }
     };
 
@@ -472,6 +552,13 @@ const ItemsScreen = () => {
             onEdit={handleEdit}
             onDelete={
               handleDelete
+            }
+            onToggleActive={
+              handleToggleActive
+            }
+            toggling={
+              togglingItemId ===
+              item.id
             }
           />
         )}

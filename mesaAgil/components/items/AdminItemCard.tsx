@@ -13,15 +13,28 @@ type AdminItemCardProps = {
   onEdit: (item: Item) => void;
 
   onDelete: (item: Item) => void;
+
+  onToggleActive: (item: Item) => void;
+
+  toggling?: boolean;
 };
 
 export const AdminItemCard = ({
   item,
   onEdit,
-  onDelete
+  onDelete,
+  onToggleActive,
+  toggling
 }: AdminItemCardProps) => {
+  const isActive = item.active !== false;
+
   return (
-    <View style={styles.card}>
+    <View
+      style={[
+        styles.card,
+        !isActive && styles.inactiveCard
+      ]}
+    >
       <Image
         source={{
           uri: item.imageUrl
@@ -31,9 +44,30 @@ export const AdminItemCard = ({
 
       <View style={styles.content}>
         <View>
-          <Text style={styles.name}>
-            {item.name}
-          </Text>
+          <View style={styles.header}>
+            <Text style={styles.name}>
+              {item.name}
+            </Text>
+
+            <View
+              style={[
+                styles.statusBadge,
+                isActive
+                  ? styles.activeBadge
+                  : styles.inactiveBadge
+              ]}
+            >
+              <Text
+                style={
+                  styles.statusText
+                }
+              >
+                {isActive
+                  ? 'Activa'
+                  : 'Inactiva'}
+              </Text>
+            </View>
+          </View>
 
           <Text style={styles.category}>
             {item.categoryName}
@@ -45,6 +79,33 @@ export const AdminItemCard = ({
         </View>
 
         <View style={styles.actions}>
+          <Pressable
+            style={[
+              styles.toggleButton,
+              isActive
+                ? styles.disableButton
+                : styles.enableButton,
+              toggling &&
+                styles.disabledButton
+            ]}
+            onPress={() =>
+              onToggleActive(item)
+            }
+            disabled={toggling}
+          >
+            <Text
+              style={
+                styles.buttonText
+              }
+            >
+              {toggling
+                ? 'Guardando...'
+                : isActive
+                  ? 'Deshabilitar'
+                  : 'Habilitar'}
+            </Text>
+          </Pressable>
+
           <Pressable
             style={styles.editButton}
             onPress={() =>
@@ -92,6 +153,10 @@ const styles = StyleSheet.create({
     elevation: 3
   },
 
+  inactiveCard: {
+    opacity: 0.72
+  },
+
   image: {
     width: 90,
     height: 90,
@@ -104,8 +169,37 @@ const styles = StyleSheet.create({
       'space-between'
   },
 
+  header: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    justifyContent:
+      'space-between',
+    gap: 8
+  },
+
   name: {
     fontSize: 18,
+    fontWeight: 'bold',
+    flex: 1
+  },
+
+  statusBadge: {
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+    borderRadius: 999
+  },
+
+  activeBadge: {
+    backgroundColor: '#34C759'
+  },
+
+  inactiveBadge: {
+    backgroundColor: '#8E8E93'
+  },
+
+  statusText: {
+    color: '#fff',
+    fontSize: 12,
     fontWeight: 'bold'
   },
 
@@ -126,6 +220,20 @@ const styles = StyleSheet.create({
     marginTop: 12
   },
 
+  toggleButton: {
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 8
+  },
+
+  enableButton: {
+    backgroundColor: '#34C759'
+  },
+
+  disableButton: {
+    backgroundColor: '#5856D6'
+  },
+
   editButton: {
     backgroundColor: '#FF9500',
     paddingVertical: 8,
@@ -138,6 +246,10 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     paddingHorizontal: 12,
     borderRadius: 8
+  },
+
+  disabledButton: {
+    opacity: 0.6
   },
 
   buttonText: {

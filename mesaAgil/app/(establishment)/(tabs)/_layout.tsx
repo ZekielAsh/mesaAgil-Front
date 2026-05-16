@@ -1,7 +1,5 @@
 import { useProfile } from '@/context/ProfileContext';
-
 import StatsIcon from '@/components/ui/stats-icon';
-
 import { Tabs } from 'expo-router';
 
 const EstablishmentTabsLayout =

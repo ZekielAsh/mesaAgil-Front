@@ -5,4 +5,5 @@ export interface Item {
   imageUrl: string;
   price: number;
   categoryName: string;
+  active?: boolean;
 }
