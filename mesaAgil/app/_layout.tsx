@@ -1,3 +1,5 @@
+import ProfileSwitcher from '@/components/profile/ProfileSwitcher';
+import { ProfileProvider } from '@/context/ProfileContext';
 import {
   Inter_400Regular,
   Inter_500Medium,
@@ -7,7 +9,7 @@ import {
 } from '@expo-google-fonts/inter';
 import { DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { Stack } from 'expo-router';
-import { StatusBar } from 'react-native';
+import { StatusBar, StyleSheet, View } from 'react-native';
 import Toast, { BaseToast, ErrorToast } from 'react-native-toast-message';
 
 export default function RootLayout() {
@@ -60,12 +62,38 @@ export default function RootLayout() {
   };
 
   return (
-    <ThemeProvider value={DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-      </Stack>
-      <StatusBar />
-      <Toast config={toastConfig} />
-    </ThemeProvider>
+    <ProfileProvider>
+      <ThemeProvider value={DefaultTheme}>
+        <View style={styles.container}>
+          <ProfileSwitcher />
+
+          <View style={styles.content}>
+            <Stack>
+              <Stack
+                screenOptions={{
+                  headerShown: false
+                }}
+              >
+                <Stack.Screen name="(client)" />
+
+                <Stack.Screen name="(establishment)" />
+              </Stack>
+            </Stack>
+          </View>
+          <StatusBar />
+          <Toast config={toastConfig} />
+        </View>
+      </ThemeProvider>
+    </ProfileProvider>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1
+  },
+
+  content: {
+    flex: 1
+  }
+});

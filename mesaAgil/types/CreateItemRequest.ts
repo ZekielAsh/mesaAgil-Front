@@ -1,8 +1,7 @@
-export interface Item {
-  id: number;
+export interface CreateItemRequest {
   name: string;
   description: string;
   imageUrl: string;
   price: number;
-  categoryName: string;
+  categoryId: number;
 }
