@@ -8,8 +8,6 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
 
-const ACTIVE_ORDER_ID = 6;
-
 const MenuScreen = () => {
   const { menu, message, loading, error, refetch } = useMenu();
   const { execute, loadingAddingItems } = useAddItems();
@@ -23,7 +21,7 @@ const MenuScreen = () => {
         quantity: orderItemCart.quantity
       }));
 
-      await execute(ACTIVE_ORDER_ID, orderItemsList);
+      await execute(6, orderItemsList);
       clearCart();
 
       Toast.show({
@@ -81,7 +79,6 @@ const MenuScreen = () => {
         />
 
         <CartBottomSheet
-          orderId={ACTIVE_ORDER_ID}
           cart={cart}
           total={total}
           loadingAddingItems={loadingAddingItems}
