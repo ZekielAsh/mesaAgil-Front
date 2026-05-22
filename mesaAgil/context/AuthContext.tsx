@@ -1,6 +1,7 @@
 import { login as loginRequest } from '@/service/userService';
 import { getAuth, removeAuth, saveAuth } from '@/storage/auth.storage';
 import { User } from '@/types/model/User';
+import { router } from 'expo-router';
 import { createContext, useEffect, useState } from 'react';
 
 type AuthContextType = {
@@ -47,6 +48,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     await removeAuth();
 
     setUser(null);
+
+    router.replace('/(establishment)');
   }
 
   return (
