@@ -1,14 +1,7 @@
 import { Category } from '@/types/model/Category';
 import { Item } from '@/types/model/Item';
-import {
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View
-} from 'react-native';
 import { useState } from 'react';
+import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 
 type ItemFormProps = {
   initialValues?: Partial<Item>;
@@ -28,62 +21,24 @@ type ItemFormProps = {
   }) => void;
 };
 
-const ItemForm = ({
-  initialValues,
-  categories,
-  loading,
-  submitText,
-  onSubmit
-}: ItemFormProps) => {
-  const [name, setName] =
-    useState(
-      initialValues?.name || ''
-    );
+const ItemForm = ({ initialValues, categories, loading, submitText, onSubmit }: ItemFormProps) => {
+  const [name, setName] = useState(initialValues?.name || '');
 
-  const [description, setDescription] =
-    useState(
-      initialValues?.description ||
-        ''
-    );
+  const [description, setDescription] = useState(initialValues?.description || '');
 
-  const [imageUrl, setImageUrl] =
-    useState(
-      initialValues?.imageUrl ||
-        ''
-    );
+  const [imageUrl, setImageUrl] = useState(initialValues?.imageUrl || '');
 
-  const [price, setPrice] =
-    useState(
-      initialValues?.price
-        ? String(
-            initialValues.price
-          )
-        : ''
-    );
+  const [price, setPrice] = useState(initialValues?.price ? String(initialValues.price) : '');
 
-  const [categoryId, setCategoryId] =
-  useState<number | undefined>(
-    categories.find(
-      category =>
-        category.name ===
-        initialValues?.categoryName
-    )?.id
+  const [categoryId, setCategoryId] = useState<number | undefined>(
+    categories.find(category => category.name === initialValues?.categoryName)?.id
   );
 
-  const [error, setError] =
-    useState('');
+  const [error, setError] = useState('');
 
   const handleSubmit = () => {
-    if (
-      !name ||
-      !description ||
-      !imageUrl ||
-      !price ||
-      !categoryId
-    ) {
-      setError(
-        'Todos los campos son obligatorios'
-      );
+    if (!name || !description || !imageUrl || !price || !categoryId) {
+      setError('Todos los campos son obligatorios');
 
       return;
     }
@@ -98,37 +53,14 @@ const ItemForm = ({
   };
 
   return (
-    <ScrollView
-      contentContainerStyle={
-        styles.container
-      }
-    >
-      <Text style={styles.title}>
-        Comida
-      </Text>
+    <ScrollView contentContainerStyle={styles.container}>
+      <Text style={styles.title}>Comida</Text>
 
-      <TextInput
-        placeholder="Nombre"
-        value={name}
-        onChangeText={setName}
-        style={styles.input}
-      />
+      <TextInput placeholder="Nombre" value={name} onChangeText={setName} style={styles.input} />
 
-      <TextInput
-        placeholder="Descripción"
-        value={description}
-        onChangeText={
-          setDescription
-        }
-        style={styles.input}
-      />
+      <TextInput placeholder="Descripción" value={description} onChangeText={setDescription} style={styles.input} />
 
-      <TextInput
-        placeholder="Image URL"
-        value={imageUrl}
-        onChangeText={setImageUrl}
-        style={styles.input}
-      />
+      <TextInput placeholder="Image URL" value={imageUrl} onChangeText={setImageUrl} style={styles.input} />
 
       <TextInput
         placeholder="Precio"
@@ -142,45 +74,18 @@ const ItemForm = ({
         {categories.map(category => (
           <Pressable
             key={category.id}
-            style={[
-              styles.categoryButton,
-              categoryId ===
-                category.id &&
-                styles.categorySelected
-            ]}
-            onPress={() =>
-              setCategoryId(
-                category.id
-              )
-            }
+            style={[styles.categoryButton, categoryId === category.id && styles.categorySelected]}
+            onPress={() => setCategoryId(category.id)}
           >
-            <Text
-              style={
-                styles.categoryText
-              }
-            >
-              {category.name}
-            </Text>
+            <Text style={styles.categoryText}>{category.name}</Text>
           </Pressable>
         ))}
       </View>
 
-      {!!error && (
-        <Text style={styles.error}>
-          {error}
-        </Text>
-      )}
+      {!!error && <Text style={styles.error}>{error}</Text>}
 
-      <Pressable
-        style={styles.submitButton}
-        onPress={handleSubmit}
-        disabled={loading}
-      >
-        <Text style={styles.submitText}>
-          {loading
-            ? 'Guardando...'
-            : submitText}
-        </Text>
+      <Pressable style={styles.submitButton} onPress={handleSubmit} disabled={loading}>
+        <Text style={styles.submitText}>{loading ? 'Guardando...' : submitText}</Text>
       </Pressable>
     </ScrollView>
   );
@@ -195,6 +100,7 @@ const styles = StyleSheet.create({
   },
 
   title: {
+    color: '#fff',
     fontSize: 24,
     fontWeight: 'bold'
   },

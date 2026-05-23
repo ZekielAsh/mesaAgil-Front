@@ -1,20 +1,12 @@
-import {
-  StyleSheet,
-  Text,
-  View
-} from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
-const KitchenScreen = () => {
+export default function StaffScreen() {
   return (
     <View style={styles.container}>
-      <Text style={styles.text}>
-        Kitchen screen coming soon
-      </Text>
+      <Text style={styles.text}>Kitchen screen coming soon</Text>
     </View>
   );
-};
-
-export default KitchenScreen;
+}
 
 const styles = StyleSheet.create({
   container: {
