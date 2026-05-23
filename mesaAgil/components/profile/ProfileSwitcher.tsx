@@ -17,7 +17,7 @@ const ProfileSwitcher = () => {
       router.replace('/(client)/(tabs)');
       return;
     } else {
-      router.replace('/(establishment)');
+      router.replace('/(establishment)' as never);
     }
   };
 
