@@ -75,9 +75,9 @@ export default function RootLayout() {
                   headerShown: false
                 }}
               >
-                <Stack.Screen name="(client)" />
+                <Stack.Screen name="(client)/(tabs)" />
 
-                <Stack.Screen name="(establishment)" />
+                <Stack.Screen name="(establishment)/index" />
               </Stack>
             </View>
             <StatusBar />
