@@ -22,12 +22,12 @@ export default function Index() {
 
   switch (user.role) {
     case 'ADMIN':
-      return <Redirect href="./admin" />;
+      return <Redirect href="./admin/admin" />;
 
     case 'KITCHEN':
-      return <Redirect href="./kitchen" />;
+      return <Redirect href="./kitchen/kitchen" />;
 
     case 'STAFF':
-      return <Redirect href="./staff" />;
+      return <Redirect href="./staff/staff" />;
   }
 }
