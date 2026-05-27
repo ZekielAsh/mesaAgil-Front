@@ -1,13 +1,41 @@
 import { Fonts } from '@/constants/fonts';
+import CreateTableModal from '@/components/tables/CreateTableModal';
+import { useCreateTable } from '@/hooks/useCreateTable';
 import { useTablesQrInfo } from '@/hooks/useTablesQrInfo';
 import { TableQrInfo } from '@/types/TableQr';
 import { ActivityIndicator, Button, FlatList, Image, Linking, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Toast } from 'react-native-toast-message/lib/src/Toast';
+import { useState } from 'react';
 
 const TableScreen = () => {
   const { tables, loading, error, refetch } = useTablesQrInfo();
+  const { execute: createTable, loading: creatingTable } = useCreateTable();
+  const [createModalVisible, setCreateModalVisible] = useState(false);
 
   const handleDownload = (table: TableQrInfo) => {
     Linking.openURL(table.qrDownloadUrl);
+  };
+
+  const handleCreate = async (tableNumber: number) => {
+    try {
+      await createTable(tableNumber);
+
+      Toast.show({
+        type: 'success',
+        text1: 'Mesa creada',
+        text2: `La mesa ${tableNumber} fue creada correctamente`
+      });
+
+      setCreateModalVisible(false);
+      refetch();
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Error al crear la mesa';
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: errorMessage
+      });
+    }
   };
 
   const renderTable = ({ item }: { item: TableQrInfo }) => (
@@ -63,8 +91,19 @@ const TableScreen = () => {
         onRefresh={refetch}
         ListHeaderComponent={
           <View style={styles.header}>
-            <Text style={styles.title}>QR de mesas</Text>
-            <Text style={styles.subtitle}>Cada codigo permanece asociado a su mesa.</Text>
+            <View style={styles.headerTop}>
+              <View>
+                <Text style={styles.title}>QR de mesas</Text>
+                <Text style={styles.subtitle}>Cada codigo permanece asociado a su mesa.</Text>
+              </View>
+              <Pressable
+                style={styles.createButton}
+                onPress={() => setCreateModalVisible(true)}
+                disabled={creatingTable}
+              >
+                <Text style={styles.createButtonText}>+ Crear</Text>
+              </Pressable>
+            </View>
           </View>
         }
         ListEmptyComponent={
@@ -72,6 +111,12 @@ const TableScreen = () => {
             <Text style={styles.emptyText}>No hay mesas para mostrar.</Text>
           </View>
         }
+      />
+      <CreateTableModal
+        visible={createModalVisible}
+        loading={creatingTable}
+        onClose={() => setCreateModalVisible(false)}
+        onSubmit={handleCreate}
       />
     </View>
   );
@@ -100,6 +145,12 @@ const styles = StyleSheet.create({
   },
   header: {
     marginBottom: 4
+  },
+  headerTop: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    gap: 12
   },
   title: {
     color: '#111827',
@@ -179,5 +230,18 @@ const styles = StyleSheet.create({
   emptyText: {
     color: '#6B7280',
     fontFamily: Fonts.medium
+  },
+  createButton: {
+    backgroundColor: '#111827',
+    borderRadius: 8,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+  createButtonText: {
+    color: '#fff',
+    fontFamily: Fonts.bold,
+    fontSize: 14
   }
 });
