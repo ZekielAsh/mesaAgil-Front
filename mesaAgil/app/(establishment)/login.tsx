@@ -1,7 +1,7 @@
 import { useAuth } from '@/hooks/useAuth';
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { Button, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
 export default function LoginScreen() {
   const [username, setUsername] = useState('');
@@ -30,11 +30,11 @@ export default function LoginScreen() {
           break;
 
         case 'KITCHEN':
-          router.replace('./kitchen/kitchen');
+          router.replace('./kitchen/(tabs)');
           break;
 
         case 'STAFF':
-          router.replace('./staff/staff');
+          router.replace('./staff/(tabs)');
           break;
 
         default:
@@ -42,48 +42,111 @@ export default function LoginScreen() {
       }
     } catch (err) {
       setError('Error al iniciar sesión');
-      console.log(err);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <View
-      style={{
-        flex: 1,
-        justifyContent: 'center',
-        padding: 24,
-        gap: 12
-      }}
-    >
-      <TextInput
-        placeholder="Nombre"
-        value={username}
-        onChangeText={setUsername}
-        autoCapitalize="none"
-        style={{
-          borderWidth: 1,
-          padding: 12,
-          borderRadius: 8
-        }}
-      />
+    <View style={styles.container}>
+      <View style={styles.logoContainer}>
+        <Image source={require('@/assets/images/MesaAgil_Logo.png')} style={styles.image} resizeMode="contain" />
 
-      <TextInput
-        placeholder="Contraseña"
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry
-        style={{
-          borderWidth: 1,
-          padding: 12,
-          borderRadius: 8
-        }}
-      />
+        <Text style={styles.title}>Bienvenido a Mesa Ágil</Text>
+        <Text style={styles.subtitle}>Rellena con tus credenciales para ingresar</Text>
+      </View>
 
-      {error ? <Text style={{ color: 'red' }}>{error}</Text> : null}
+      <View style={styles.form}>
+        <TextInput
+          placeholder="Usuario"
+          placeholderTextColor="#999"
+          value={username}
+          onChangeText={setUsername}
+          cursorColor={'#000000'}
+          autoCapitalize="none"
+          style={styles.input}
+        />
 
-      <Button title={loading ? 'Ingresando...' : 'Ingresar'} onPress={handleLogin} disabled={loading} />
+        <TextInput
+          placeholder="Contraseña"
+          placeholderTextColor="#999"
+          value={password}
+          onChangeText={setPassword}
+          cursorColor={'#000000'}
+          secureTextEntry
+          style={styles.input}
+        />
+
+        {error ? <Text style={styles.errorText}>{error}</Text> : null}
+
+        <TouchableOpacity
+          style={[styles.button, loading && styles.buttonDisabled]}
+          onPress={handleLogin}
+          disabled={loading}
+        >
+          {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>Ingresar</Text>}
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#f4f6f8',
+    justifyContent: 'flex-start',
+    paddingHorizontal: 24
+  },
+  logoContainer: {
+    alignItems: 'center',
+    marginBottom: 36
+  },
+  image: {
+    width: 140,
+    height: 140,
+    marginBottom: 8
+  },
+  title: {
+    fontSize: 32,
+    fontWeight: '700',
+    color: '#222',
+    textAlign: 'center'
+  },
+  subtitle: {
+    marginTop: 4,
+    fontSize: 15,
+    color: '#666'
+  },
+  form: {
+    gap: 16
+  },
+  input: {
+    height: 48,
+    backgroundColor: '#fff',
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 14,
+    paddingHorizontal: 16,
+    fontSize: 16
+  },
+  errorText: {
+    color: '#e53935',
+    fontSize: 14
+  },
+  button: {
+    backgroundColor: '#111',
+    paddingVertical: 16,
+    borderRadius: 14,
+    alignItems: 'center',
+    marginTop: 8
+  },
+  buttonDisabled: {
+    opacity: 0.7
+  },
+  buttonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600'
+  }
+});

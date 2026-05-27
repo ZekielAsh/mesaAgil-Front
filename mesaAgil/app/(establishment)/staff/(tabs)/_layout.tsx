@@ -1,12 +1,10 @@
 import { LogoutButton } from '@/components/LogOutButtom';
-import FoodIcon from '@/components/ui/food-icon';
-import StatsIcon from '@/components/ui/stats-icon';
-import TableIcon from '@/components/ui/table-icon';
+import PeopleIcon from '@/components/ui/people-icon';
 import { Fonts } from '@/constants/fonts';
 import { useProfile } from '@/context/ProfileContext';
 import { Redirect, Tabs } from 'expo-router';
 
-export default function AdminLayout() {
+export default function StaffLayout() {
   const { mode } = useProfile();
 
   if (mode !== 'ESTABLISHMENT') {
@@ -19,7 +17,7 @@ export default function AdminLayout() {
         headerShown: true,
         tabBarShowLabel: false,
         tabBarActiveTintColor: '#000000',
-        headerTitle: 'Administrador',
+        headerTitle: 'Staff',
         headerStyle: {
           backgroundColor: '#111827'
         },
@@ -36,22 +34,8 @@ export default function AdminLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Items',
-          tabBarIcon: ({ color }) => <FoodIcon color={color} />
-        }}
-      />
-      <Tabs.Screen
-        name="tables"
-        options={{
-          title: 'Tables',
-          tabBarIcon: ({ color }) => <TableIcon color={color} />
-        }}
-      />
-      <Tabs.Screen
-        name="stats"
-        options={{
-          title: 'Stats',
-          tabBarIcon: ({ color }) => <StatsIcon color={color} />
+          title: 'Staff',
+          tabBarIcon: ({ color }) => <PeopleIcon color={color} />
         }}
       />
     </Tabs>

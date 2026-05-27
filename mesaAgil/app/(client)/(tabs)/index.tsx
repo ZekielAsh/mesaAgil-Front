@@ -1,5 +1,6 @@
 import CartBottomSheet from '@/components/CartBottomSheet';
 import MenuItemCard from '@/components/MenuItemCard';
+import { Fonts } from '@/constants/fonts';
 import { useAddItems } from '@/hooks/useAddItem';
 import { useCart } from '@/hooks/useCart';
 import { useMenu } from '@/hooks/useMenu';
@@ -74,6 +75,11 @@ const MenuScreen = () => {
           keyExtractor={item => item.id.toString()}
           renderItem={({ item }) => <MenuItemCard item={item} addToCart={addToCart} />}
           contentContainerStyle={styles.menuContainer}
+          ListHeaderComponent={
+            <View style={styles.menuHeader}>
+              <Text style={styles.menuHeaderTitle}>Nuestro Menú</Text>
+            </View>
+          }
           refreshing={loading}
           onRefresh={refetch}
         />
@@ -114,5 +120,14 @@ const styles = StyleSheet.create({
   emptyText: {
     color: '#fff',
     fontSize: 16
+  },
+  menuHeader: {
+    paddingHorizontal: 8
+  },
+  menuHeaderTitle: {
+    fontSize: 24,
+    fontFamily: Fonts.bold,
+    paddingBottom: 4,
+    borderBottomWidth: 1
   }
 });

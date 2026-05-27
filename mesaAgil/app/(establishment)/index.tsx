@@ -17,17 +17,17 @@ export default function Index() {
   if (!user) {
     // TODO: fijarse si el token del "user" en local storage es válido.
     // algo como isExpiredToken(token) sino mandarlo al login.
-    return <Redirect href="./login" />;
+    return <Redirect href="/(establishment)/login" />;
   }
 
   switch (user.role) {
     case 'ADMIN':
-      return <Redirect href="./admin/admin" />;
+      return <Redirect href="./admin/(tabs)" />;
 
     case 'KITCHEN':
-      return <Redirect href="./kitchen/kitchen" />;
+      return <Redirect href="./kitchen/(tabs)" />;
 
     case 'STAFF':
-      return <Redirect href="./staff/staff" />;
+      return <Redirect href="./staff/(tabs)" />;
   }
 }
