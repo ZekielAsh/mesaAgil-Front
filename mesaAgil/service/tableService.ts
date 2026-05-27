@@ -73,3 +73,26 @@ export const resolveTableSessionByQr = async (qrToken: string): Promise<TableSes
   const data = await parseResponse<TableSessionResponse>(response, 'El QR no corresponde a una mesa');
   return mapSession(data);
 };
+
+export const createTable = async (number: number): Promise<TableQrInfo> => {
+  const response = await fetch(`${API_URL}/tables`, {
+    method: 'POST',
+    headers: await getAdminHeaders(),
+    body: JSON.stringify({ number })
+  });
+
+  if (response.status === 409) {
+    throw new Error('Ya existe una mesa con ese número');
+  }
+
+  if (response.status === 400) {
+    throw new Error('El número de mesa es obligatorio y debe ser mayor a cero');
+  }
+
+  if (!response.ok) {
+    throw new Error('Error al crear la mesa');
+  }
+
+  const data = await response.json() as RestaurantTableQrResponse;
+  return mapQrInfo(data);
+};
