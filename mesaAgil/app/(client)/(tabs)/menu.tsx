@@ -8,18 +8,39 @@ import { ActivityIndicator, Button, FlatList, StyleSheet, Text, View } from 'rea
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
+import { useEffect } from 'react';
+import ClientRouteGuard from '@/components/ClientRouteGuard';
 
 const MenuScreen = () => {
   const { menu, message, loading, error, refetch } = useMenu();
   const { execute, loadingAddingItems } = useAddItems();
   const { cart, total, addToCart, addItemQuantity, removeFromCart, clearCart } = useCart();
-  const { session, loading: loadingSession } = useTableSession();
+  const { session, clearSession } = useTableSession();
   const insets = useSafeAreaInsets();
+
+  useEffect(() => {
+    if (!session) {
+      return;
+    }
+
+    if (session.tableEnabled === false) {
+      clearSession();
+      return;
+    }
+
+    if (!session.activeSession || !session.orderId) {
+      clearSession();
+    }
+  }, [session, clearSession]);
 
   const handleAddItems = async () => {
     try {
       if (!session) {
         throw new Error('Escanea el QR de tu mesa para pedir');
+      }
+
+      if (session.tableEnabled === false) {
+        throw new Error('La mesa se encuentra cerrada.');
       }
 
       if (!session.activeSession || !session.orderId) {
@@ -48,7 +69,7 @@ const MenuScreen = () => {
     }
   };
 
-  if (loading || loadingSession) {
+  if (loading) {
     return <ActivityIndicator size="large" style={{ marginTop: 50 }} />;
   }
 
@@ -57,6 +78,15 @@ const MenuScreen = () => {
       <View style={styles.center}>
         <Text style={styles.emptyTitle}>Escanea el QR de tu mesa</Text>
         <Text style={styles.emptyDescription}>Asi vamos a saber a que mesa enviar tus pedidos.</Text>
+      </View>
+    );
+  }
+
+  if (session.tableEnabled === false) {
+    return (
+      <View style={styles.center}>
+        <Text style={styles.emptyTitle}>{session.tableLabel}</Text>
+        <Text style={styles.emptyDescription}>La mesa se encuentra cerrada.</Text>
       </View>
     );
   }
@@ -88,41 +118,43 @@ const MenuScreen = () => {
   }
 
   return (
-    <GestureHandlerRootView style={styles.container}>
-      <View
-        style={{
-          flex: 1,
-          paddingTop: insets.top,
-          paddingLeft: insets.left,
-          paddingRight: insets.right
-        }}
-      >
-        <FlatList
-          data={menu}
-          keyExtractor={item => item.id.toString()}
-          renderItem={({ item }) => <MenuItemCard item={item} addToCart={addToCart} />}
-          contentContainerStyle={styles.menuContainer}
-          ListHeaderComponent={
-            <View style={styles.sessionHeader}>
-              <Text style={styles.sessionLabel}>Pedido para</Text>
-              <Text style={styles.sessionTitle}>{session.tableLabel}</Text>
-            </View>
-          }
-          refreshing={loading}
-          onRefresh={refetch}
-        />
+    <ClientRouteGuard>
+      <GestureHandlerRootView style={styles.container}>
+        <View
+          style={{
+            flex: 1,
+            paddingTop: insets.top,
+            paddingLeft: insets.left,
+            paddingRight: insets.right
+          }}
+        >
+          <FlatList
+            data={menu}
+            keyExtractor={item => item.id.toString()}
+            renderItem={({ item }) => <MenuItemCard item={item} addToCart={addToCart} />}
+            contentContainerStyle={styles.menuContainer}
+            ListHeaderComponent={
+              <View style={styles.sessionHeader}>
+                <Text style={styles.sessionLabel}>Pedido para</Text>
+                <Text style={styles.sessionTitle}>{session.tableLabel}</Text>
+              </View>
+            }
+            refreshing={loading}
+            onRefresh={refetch}
+          />
 
-        <CartBottomSheet
-          cart={cart}
-          total={total}
-          loadingAddingItems={loadingAddingItems}
-          onIncrease={addItemQuantity}
-          onDecrease={removeFromCart}
-          onSubmit={handleAddItems}
-          onClear={clearCart}
-        />
-      </View>
-    </GestureHandlerRootView>
+          <CartBottomSheet
+            cart={cart}
+            total={total}
+            loadingAddingItems={loadingAddingItems}
+            onIncrease={addItemQuantity}
+            onDecrease={removeFromCart}
+            onSubmit={handleAddItems}
+            onClear={clearCart}
+          />
+        </View>
+      </GestureHandlerRootView>
+    </ClientRouteGuard>
   );
 };
 

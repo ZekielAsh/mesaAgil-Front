@@ -3,16 +3,9 @@ import FoodIcon from '@/components/ui/food-icon';
 import StatsIcon from '@/components/ui/stats-icon';
 import TableIcon from '@/components/ui/table-icon';
 import { Fonts } from '@/constants/fonts';
-import { useProfile } from '@/context/ProfileContext';
 import { Redirect, Tabs } from 'expo-router';
 
 export default function AdminLayout() {
-  const { mode } = useProfile();
-
-  if (mode !== 'ESTABLISHMENT') {
-    return <Redirect href="/(client)/(tabs)" />;
-  }
-
   return (
     <Tabs
       screenOptions={{

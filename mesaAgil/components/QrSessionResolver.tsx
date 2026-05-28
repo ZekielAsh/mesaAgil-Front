@@ -1,4 +1,3 @@
-import { useProfile } from '@/context/ProfileContext';
 import { useTableSession } from '@/hooks/useTableSession';
 import { resolveTableSessionByQr } from '@/service/tableService';
 import { router } from 'expo-router';
@@ -11,7 +10,6 @@ interface Props {
 
 export default function QrSessionResolver({ qrToken }: Props) {
   const { setSession } = useTableSession();
-  const { setMode } = useProfile();
   const [error, setError] = useState('');
 
   const resolveSession = useCallback(async () => {
@@ -24,12 +22,11 @@ export default function QrSessionResolver({ qrToken }: Props) {
 
       const session = await resolveTableSessionByQr(qrToken);
       await setSession(session);
-      setMode('CLIENT');
-      router.replace('/(client)/(tabs)');
+      router.replace('/(client)/(tabs)/menu');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'No se pudo abrir la mesa');
     }
-  }, [qrToken, setMode, setSession]);
+  }, [qrToken, setSession]);
 
   useEffect(() => {
     resolveSession();

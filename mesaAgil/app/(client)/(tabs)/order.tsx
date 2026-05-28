@@ -6,6 +6,7 @@ import { useTableSession } from '@/hooks/useTableSession';
 import { closeOrder } from '@/service/orderService';
 import { ActivityIndicator, Button, Pressable, StyleSheet, Text, View } from 'react-native';
 import Toast from 'react-native-toast-message';
+import { useEffect } from 'react';
 
 const formatPrice = (value: number) => {
   return new Intl.NumberFormat('es-AR', {
@@ -15,9 +16,25 @@ const formatPrice = (value: number) => {
 };
 
 export default function Orders() {
-  const { session, loading: loadingSession } = useTableSession();
+  const { session, clearSession } = useTableSession();
   const { order, isLoadingOrder, orderErrorMessage, refetch } = useGetOrderById(session?.orderId ?? undefined);
   const insets = useSafeAreaInsets();
+
+  useEffect(() => {
+    if (!session) {
+      return;
+    }
+
+    if (session.tableEnabled === false) {
+      clearSession();
+      return;
+    }
+
+    if (!session.activeSession || !session.orderId) {
+      clearSession();
+    }
+  }, [session, clearSession]);
+
   const orderTotal =
     order?.orderItems.reduce((total, orderItem) => total + Number(orderItem.price * orderItem.quantity), 0) ?? 0;
 
@@ -39,7 +56,7 @@ export default function Orders() {
       });
   };
 
-  if (isLoadingOrder || loadingSession) {
+  if (isLoadingOrder) {
     return <ActivityIndicator size="large" style={{ marginTop: 50 }} />;
   }
 
@@ -48,6 +65,15 @@ export default function Orders() {
       <View style={styles.center}>
         <Text style={styles.emptyTitle}>Escanea el QR de tu mesa</Text>
         <Text style={styles.emptyDescription}>Cuando ingreses por QR vas a ver aca tu pedido activo.</Text>
+      </View>
+    );
+  }
+
+  if (session.tableEnabled === false) {
+    return (
+      <View style={styles.center}>
+        <Text style={styles.emptyTitle}>{session.tableLabel}</Text>
+        <Text style={styles.emptyDescription}>La mesa se encuentra cerrada.</Text>
       </View>
     );
   }
