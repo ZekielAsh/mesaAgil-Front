@@ -200,7 +200,7 @@ const TableScreen = () => {
           </Pressable>
 
           <Pressable
-            style={styles.statusButton}
+            style={item.enabled ? styles.closeButton : styles.statusButton}
             onPress={() => handleOpenStatus(item)}
             disabled={enablingTable || closingTable}
           >
@@ -432,6 +432,14 @@ const styles = StyleSheet.create({
   },
   statusButton: {
     backgroundColor: '#10B981',
+    borderRadius: 8,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    flex: 1,
+    alignItems: 'center'
+  },
+  closeButton: {
+    backgroundColor: '#EF4444',
     borderRadius: 8,
     paddingVertical: 8,
     paddingHorizontal: 16,

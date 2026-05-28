@@ -22,6 +22,10 @@ const MenuScreen = () => {
         throw new Error('Escanea el QR de tu mesa para pedir');
       }
 
+      if (session.tableEnabled === false) {
+        throw new Error('La mesa se encuentra cerrada.');
+      }
+
       if (!session.activeSession || !session.orderId) {
         throw new Error('La mesa no tiene una orden abierta');
       }
@@ -57,6 +61,15 @@ const MenuScreen = () => {
       <View style={styles.center}>
         <Text style={styles.emptyTitle}>Escanea el QR de tu mesa</Text>
         <Text style={styles.emptyDescription}>Asi vamos a saber a que mesa enviar tus pedidos.</Text>
+      </View>
+    );
+  }
+
+  if (session.tableEnabled === false) {
+    return (
+      <View style={styles.center}>
+        <Text style={styles.emptyTitle}>{session.tableLabel}</Text>
+        <Text style={styles.emptyDescription}>La mesa se encuentra cerrada.</Text>
       </View>
     );
   }

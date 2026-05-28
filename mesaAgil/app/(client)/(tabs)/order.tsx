@@ -52,6 +52,15 @@ export default function Orders() {
     );
   }
 
+  if (session.tableEnabled === false) {
+    return (
+      <View style={styles.center}>
+        <Text style={styles.emptyTitle}>{session.tableLabel}</Text>
+        <Text style={styles.emptyDescription}>La mesa se encuentra cerrada.</Text>
+      </View>
+    );
+  }
+
   if (!session.activeSession || !session.orderId) {
     return (
       <View style={styles.center}>
