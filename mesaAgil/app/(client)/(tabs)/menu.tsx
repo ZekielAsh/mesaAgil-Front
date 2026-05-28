@@ -9,6 +9,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
 import { useEffect } from 'react';
+import ClientRouteGuard from '@/components/ClientRouteGuard';
 
 const MenuScreen = () => {
   const { menu, message, loading, error, refetch } = useMenu();
@@ -117,41 +118,43 @@ const MenuScreen = () => {
   }
 
   return (
-    <GestureHandlerRootView style={styles.container}>
-      <View
-        style={{
-          flex: 1,
-          paddingTop: insets.top,
-          paddingLeft: insets.left,
-          paddingRight: insets.right
-        }}
-      >
-        <FlatList
-          data={menu}
-          keyExtractor={item => item.id.toString()}
-          renderItem={({ item }) => <MenuItemCard item={item} addToCart={addToCart} />}
-          contentContainerStyle={styles.menuContainer}
-          ListHeaderComponent={
-            <View style={styles.sessionHeader}>
-              <Text style={styles.sessionLabel}>Pedido para</Text>
-              <Text style={styles.sessionTitle}>{session.tableLabel}</Text>
-            </View>
-          }
-          refreshing={loading}
-          onRefresh={refetch}
-        />
+    <ClientRouteGuard>
+      <GestureHandlerRootView style={styles.container}>
+        <View
+          style={{
+            flex: 1,
+            paddingTop: insets.top,
+            paddingLeft: insets.left,
+            paddingRight: insets.right
+          }}
+        >
+          <FlatList
+            data={menu}
+            keyExtractor={item => item.id.toString()}
+            renderItem={({ item }) => <MenuItemCard item={item} addToCart={addToCart} />}
+            contentContainerStyle={styles.menuContainer}
+            ListHeaderComponent={
+              <View style={styles.sessionHeader}>
+                <Text style={styles.sessionLabel}>Pedido para</Text>
+                <Text style={styles.sessionTitle}>{session.tableLabel}</Text>
+              </View>
+            }
+            refreshing={loading}
+            onRefresh={refetch}
+          />
 
-        <CartBottomSheet
-          cart={cart}
-          total={total}
-          loadingAddingItems={loadingAddingItems}
-          onIncrease={addItemQuantity}
-          onDecrease={removeFromCart}
-          onSubmit={handleAddItems}
-          onClear={clearCart}
-        />
-      </View>
-    </GestureHandlerRootView>
+          <CartBottomSheet
+            cart={cart}
+            total={total}
+            loadingAddingItems={loadingAddingItems}
+            onIncrease={addItemQuantity}
+            onDecrease={removeFromCart}
+            onSubmit={handleAddItems}
+            onClear={clearCart}
+          />
+        </View>
+      </GestureHandlerRootView>
+    </ClientRouteGuard>
   );
 };
 
