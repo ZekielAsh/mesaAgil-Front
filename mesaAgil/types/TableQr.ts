@@ -1,6 +1,7 @@
 export interface RestaurantTableQrResponse {
   tableId: number;
   tableNumber: number;
+  enabled: boolean;
   qrToken: string;
   scanUrl: string;
   qrImageUrl: string;
@@ -14,6 +15,7 @@ export interface TableQrInfo extends RestaurantTableQrResponse {
 export interface TableSessionResponse {
   tableId: number;
   tableNumber: number;
+  tableEnabled: boolean;
   qrToken: string;
   orderId: number | null;
   orderStatus: string | null;

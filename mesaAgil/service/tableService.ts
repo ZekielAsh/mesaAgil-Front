@@ -96,3 +96,54 @@ export const createTable = async (number: number): Promise<TableQrInfo> => {
   const data = await response.json() as RestaurantTableQrResponse;
   return mapQrInfo(data);
 };
+
+export const updateTable = async (tableId: number, number: number): Promise<TableQrInfo> => {
+  const response = await fetch(`${API_URL}/tables/${tableId}`, {
+    method: 'PUT',
+    headers: await getAdminHeaders(),
+    body: JSON.stringify({ number })
+  });
+
+  if (response.status === 409) {
+    throw new Error('Ya existe una mesa con ese número');
+  }
+
+  if (response.status === 400) {
+    throw new Error('El número de mesa es obligatorio y debe ser mayor a cero');
+  }
+
+  if (!response.ok) {
+    throw new Error('Error al editar la mesa');
+  }
+
+  const data = await response.json() as RestaurantTableQrResponse;
+  return mapQrInfo(data);
+};
+
+export const enableTable = async (tableId: number): Promise<TableQrInfo> => {
+  const response = await fetch(`${API_URL}/tables/${tableId}/enable`, {
+    method: 'PATCH',
+    headers: await getAdminHeaders()
+  });
+
+  if (!response.ok) {
+    throw new Error('Error al habilitar la mesa');
+  }
+
+  const data = await response.json() as RestaurantTableQrResponse;
+  return mapQrInfo(data);
+};
+
+export const closeTable = async (tableId: number): Promise<TableQrInfo> => {
+  const response = await fetch(`${API_URL}/tables/${tableId}/close`, {
+    method: 'PATCH',
+    headers: await getAdminHeaders()
+  });
+
+  if (!response.ok) {
+    throw new Error('Error al cerrar la mesa');
+  }
+
+  const data = await response.json() as RestaurantTableQrResponse;
+  return mapQrInfo(data);
+};

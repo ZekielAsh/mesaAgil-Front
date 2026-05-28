@@ -1,6 +1,11 @@
 import { Fonts } from '@/constants/fonts';
 import CreateTableModal from '@/components/tables/CreateTableModal';
+import EditTableModal from '@/components/tables/EditTableModal';
+import TableStatusModal from '@/components/tables/TableStatusModal';
 import { useCreateTable } from '@/hooks/useCreateTable';
+import { useUpdateTable } from '@/hooks/useUpdateTable';
+import { useEnableTable } from '@/hooks/useEnableTable';
+import { useCloseTable } from '@/hooks/useCloseTable';
 import { useTablesQrInfo } from '@/hooks/useTablesQrInfo';
 import { TableQrInfo } from '@/types/TableQr';
 import { ActivityIndicator, Button, FlatList, Image, Linking, Pressable, StyleSheet, Text, View } from 'react-native';
@@ -10,7 +15,15 @@ import { useState } from 'react';
 const TableScreen = () => {
   const { tables, loading, error, refetch } = useTablesQrInfo();
   const { execute: createTable, loading: creatingTable } = useCreateTable();
+  const { execute: updateTable, loading: updatingTable } = useUpdateTable();
+  const { execute: enableTable, loading: enablingTable } = useEnableTable();
+  const { execute: closeTable, loading: closingTable } = useCloseTable();
+
   const [createModalVisible, setCreateModalVisible] = useState(false);
+  const [editingTable, setEditingTable] = useState<TableQrInfo | null>(null);
+  const [statusTable, setStatusTable] = useState<TableQrInfo | null>(null);
+  const [editModalVisible, setEditModalVisible] = useState(false);
+  const [statusModalVisible, setStatusModalVisible] = useState(false);
 
   const handleDownload = (table: TableQrInfo) => {
     Linking.openURL(table.qrDownloadUrl);
@@ -38,6 +51,91 @@ const TableScreen = () => {
     }
   };
 
+  const handleEdit = (table: TableQrInfo) => {
+    setEditingTable(table);
+    setEditModalVisible(true);
+  };
+
+  const handleEditSubmit = async (tableNumber: number) => {
+    if (!editingTable) return;
+
+    try {
+      const updated = await updateTable(editingTable.tableId, tableNumber);
+
+      Toast.show({
+        type: 'success',
+        text1: 'Mesa editada',
+        text2: `La mesa fue actualizada correctamente`
+      });
+
+      setEditModalVisible(false);
+      setEditingTable(null);
+      refetch();
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Error al editar la mesa';
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: errorMessage
+      });
+    }
+  };
+
+  const handleOpenStatus = (table: TableQrInfo) => {
+    setStatusTable(table);
+    setStatusModalVisible(true);
+  };
+
+  const handleEnable = async () => {
+    if (!statusTable) return;
+
+    try {
+      const updated = await enableTable(statusTable.tableId);
+
+      Toast.show({
+        type: 'success',
+        text1: 'Mesa habilitada',
+        text2: `La mesa ${updated.tableNumber} fue habilitada`
+      });
+
+      setStatusModalVisible(false);
+      setStatusTable(null);
+      refetch();
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Error al habilitar la mesa';
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: errorMessage
+      });
+    }
+  };
+
+  const handleClose = async () => {
+    if (!statusTable) return;
+
+    try {
+      const updated = await closeTable(statusTable.tableId);
+
+      Toast.show({
+        type: 'success',
+        text1: 'Mesa cerrada',
+        text2: `La mesa ${updated.tableNumber} fue cerrada`
+      });
+
+      setStatusModalVisible(false);
+      setStatusTable(null);
+      refetch();
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Error al cerrar la mesa';
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: errorMessage
+      });
+    }
+  };
+
   const renderTable = ({ item }: { item: TableQrInfo }) => (
     <View style={styles.card}>
       <Image
@@ -49,18 +147,66 @@ const TableScreen = () => {
       />
 
       <View style={styles.cardContent}>
-        <Text style={styles.tableTitle}>{item.tableLabel}</Text>
+        <View style={styles.titleRow}>
+          <Text style={styles.tableTitle}>{item.tableLabel}</Text>
+          <View
+            style={[
+              styles.statusBadge,
+              item.enabled
+                ? styles.enabledBadge
+                : styles.disabledBadge
+            ]}
+          >
+            <Text
+              style={[
+                styles.badgeText,
+                item.enabled
+                  ? styles.enabledText
+                  : styles.disabledText
+              ]}
+            >
+              {item.enabled ? '✓ Habilitada' : '✗ Cerrada'}
+            </Text>
+          </View>
+        </View>
+
         <Text style={styles.token} numberOfLines={1}>
           Token: {item.qrToken}
         </Text>
 
         <View style={styles.actions}>
-          <Pressable style={styles.primaryButton} onPress={() => Linking.openURL(item.qrImageUrl)}>
+          <Pressable
+            style={styles.primaryButton}
+            onPress={() => Linking.openURL(item.qrImageUrl)}
+          >
             <Text style={styles.primaryButtonText}>Ver QR</Text>
           </Pressable>
 
-          <Pressable style={styles.secondaryButton} onPress={() => handleDownload(item)}>
+          <Pressable
+            style={styles.secondaryButton}
+            onPress={() => handleDownload(item)}
+          >
             <Text style={styles.secondaryButtonText}>Descargar</Text>
+          </Pressable>
+        </View>
+
+        <View style={styles.bottomActions}>
+          <Pressable
+            style={styles.editButton}
+            onPress={() => handleEdit(item)}
+            disabled={updatingTable}
+          >
+            <Text style={styles.editButtonText}>Editar</Text>
+          </Pressable>
+
+          <Pressable
+            style={styles.statusButton}
+            onPress={() => handleOpenStatus(item)}
+            disabled={enablingTable || closingTable}
+          >
+            <Text style={styles.statusButtonText}>
+              {item.enabled ? 'Cerrar' : 'Habilitar'}
+            </Text>
           </Pressable>
         </View>
       </View>
@@ -118,6 +264,27 @@ const TableScreen = () => {
         onClose={() => setCreateModalVisible(false)}
         onSubmit={handleCreate}
       />
+      <EditTableModal
+        visible={editModalVisible}
+        table={editingTable}
+        loading={updatingTable}
+        onClose={() => {
+          setEditModalVisible(false);
+          setEditingTable(null);
+        }}
+        onSubmit={handleEditSubmit}
+      />
+      <TableStatusModal
+        visible={statusModalVisible}
+        table={statusTable}
+        loading={enablingTable || closingTable}
+        onClose={() => {
+          setStatusModalVisible(false);
+          setStatusTable(null);
+        }}
+        onEnable={handleEnable}
+        onCloseTable={handleClose}
+      />
     </View>
   );
 };
@@ -169,7 +336,6 @@ const styles = StyleSheet.create({
     padding: 12,
     flexDirection: 'row',
     gap: 12,
-    alignItems: 'center',
     elevation: 2
   },
   qrImage: {
@@ -182,10 +348,38 @@ const styles = StyleSheet.create({
     flex: 1,
     gap: 8
   },
+  titleRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    gap: 8
+  },
   tableTitle: {
     color: '#111827',
     fontSize: 18,
+    fontFamily: Fonts.bold,
+    flex: 1
+  },
+  statusBadge: {
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 6
+  },
+  enabledBadge: {
+    backgroundColor: '#DCFCE7'
+  },
+  disabledBadge: {
+    backgroundColor: '#FEE2E2'
+  },
+  badgeText: {
+    fontSize: 11,
     fontFamily: Fonts.bold
+  },
+  enabledText: {
+    color: '#166534'
+  },
+  disabledText: {
+    color: '#991B1B'
   },
   token: {
     color: '#6B7280',
@@ -217,6 +411,37 @@ const styles = StyleSheet.create({
   secondaryButtonText: {
     color: '#111827',
     fontFamily: Fonts.bold
+  },
+  bottomActions: {
+    flexDirection: 'row',
+    gap: 8,
+    marginTop: 4
+  },
+  editButton: {
+    backgroundColor: '#3B82F6',
+    borderRadius: 8,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    flex: 1,
+    alignItems: 'center'
+  },
+  editButtonText: {
+    color: '#fff',
+    fontFamily: Fonts.bold,
+    fontSize: 14
+  },
+  statusButton: {
+    backgroundColor: '#10B981',
+    borderRadius: 8,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    flex: 1,
+    alignItems: 'center'
+  },
+  statusButtonText: {
+    color: '#fff',
+    fontFamily: Fonts.bold,
+    fontSize: 14
   },
   errorText: {
     color: '#B91C1C',

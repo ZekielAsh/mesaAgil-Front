@@ -5,21 +5,29 @@ import {
   TextInput,
   View
 } from 'react-native';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 type TableFormProps = {
   loading?: boolean;
   submitText: string;
+  initialValue?: number;
   onSubmit: (tableNumber: number) => void;
 };
 
 const TableForm = ({
   loading,
   submitText,
+  initialValue,
   onSubmit
 }: TableFormProps) => {
   const [tableNumber, setTableNumber] = useState('');
   const [error, setError] = useState('');
+
+  useEffect(() => {
+    if (initialValue) {
+      setTableNumber(initialValue.toString());
+    }
+  }, [initialValue]);
 
   const handleSubmit = () => {
     const number = parseInt(tableNumber.trim(), 10);
@@ -41,7 +49,7 @@ const TableForm = ({
   return (
     <View style={styles.container}>
       <Text style={styles.title}>
-        Creando mesa
+        {initialValue ? 'Editando mesa' : 'Creando mesa'}
       </Text>
 
       <TextInput
