@@ -8,13 +8,29 @@ import { ActivityIndicator, Button, FlatList, StyleSheet, Text, View } from 'rea
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
+import { useEffect } from 'react';
 
 const MenuScreen = () => {
   const { menu, message, loading, error, refetch } = useMenu();
   const { execute, loadingAddingItems } = useAddItems();
   const { cart, total, addToCart, addItemQuantity, removeFromCart, clearCart } = useCart();
-  const { session, loading: loadingSession } = useTableSession();
+  const { session, clearSession } = useTableSession();
   const insets = useSafeAreaInsets();
+
+  useEffect(() => {
+    if (!session) {
+      return;
+    }
+
+    if (session.tableEnabled === false) {
+      clearSession();
+      return;
+    }
+
+    if (!session.activeSession || !session.orderId) {
+      clearSession();
+    }
+  }, [session, clearSession]);
 
   const handleAddItems = async () => {
     try {
@@ -52,7 +68,7 @@ const MenuScreen = () => {
     }
   };
 
-  if (loading || loadingSession) {
+  if (loading) {
     return <ActivityIndicator size="large" style={{ marginTop: 50 }} />;
   }
 

@@ -1,17 +1,11 @@
-import { useProfile } from '@/context/ProfileContext';
 import { useAuth } from '@/hooks/useAuth';
 import { Redirect } from 'expo-router';
 
 export default function Index() {
   const { user, loading } = useAuth(); // carga usuario del local storage si hay.
-  const { mode } = useProfile();
 
   if (loading) {
     return null;
-  }
-
-  if (mode !== 'ESTABLISHMENT') {
-    return <Redirect href="/(client)/(tabs)" />;
   }
 
   if (!user) {
