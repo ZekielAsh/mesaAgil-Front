@@ -6,8 +6,9 @@ import { useAddItems } from '@/hooks/useAddItem';
 import { useCart } from '@/hooks/useCart';
 import { useMenu } from '@/hooks/useMenu';
 import { useTableSession } from '@/hooks/useTableSession';
-import { useEffect } from 'react';
-import { ActivityIndicator, Button, FlatList, StyleSheet, Text, View } from 'react-native';
+import { Item } from '@/types/model/Item';
+import { useEffect, useState } from 'react';
+import { ActivityIndicator, Button, Pressable, ScrollView, SectionList, StyleSheet, Text, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
@@ -17,6 +18,7 @@ const MenuScreen = () => {
   const { execute, loadingAddingItems } = useAddItems();
   const { cart, total, addToCart, addItemQuantity, removeFromCart, clearCart } = useCart();
   const { session, clearSession } = useTableSession();
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const insets = useSafeAreaInsets();
 
   useEffect(() => {
@@ -118,6 +120,44 @@ const MenuScreen = () => {
     );
   }
 
+  if (!menu) {
+    return (
+      <View style={styles.center}>
+        <Text>Menu not found</Text>
+      </View>
+    );
+  }
+
+  const categories = [...new Set(menu.map(item => item.category))];
+
+  const toggleCategory = (category: string) => {
+    setSelectedCategories(prev => (prev.includes(category) ? prev.filter(c => c !== category) : [...prev, category]));
+  };
+
+  const filteredMenu =
+    selectedCategories.length === 0 ? menu : menu.filter(item => selectedCategories.includes(item.category));
+
+  // ver de carmbien en back la response de menu a lista de <Category, Item[]>[]
+  const sections = Object.values(
+    filteredMenu.reduce(
+      (acc, item) => {
+        const categoryName = item.category;
+
+        if (!acc[categoryName]) {
+          acc[categoryName] = {
+            title: categoryName,
+            data: []
+          };
+        }
+
+        acc[categoryName].data.push(item);
+
+        return acc;
+      },
+      {} as Record<string, { title: string; data: Item[] }>
+    )
+  );
+
   return (
     <ClientRouteGuard>
       <GestureHandlerRootView style={styles.container}>
@@ -129,15 +169,52 @@ const MenuScreen = () => {
             paddingRight: insets.right
           }}
         >
-          <FlatList
-            data={menu}
+          <SectionList
+            sections={sections}
             keyExtractor={item => item.id.toString()}
             renderItem={({ item }) => <MenuItemCard item={item} addToCart={addToCart} />}
+            renderSectionHeader={({ section: { title } }) => (
+              <View style={styles.categoryHeader}>
+                <Text style={styles.categoryTitle}>{title}</Text>
+              </View>
+            )}
             contentContainerStyle={styles.menuContainer}
             ListHeaderComponent={
-              <View style={styles.sessionHeader}>
-                <Text style={styles.sessionLabel}>Nuestro menú</Text>
-                <Text style={styles.sessionTitle}>{session.tableLabel}</Text>
+              <View>
+                <View style={styles.sessionHeader}>
+                  <Text style={styles.sessionLabel}>Nuestro menú</Text>
+
+                  <Text style={styles.sessionTitle}>{session.tableLabel}</Text>
+                </View>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                  <Pressable
+                    style={[styles.filterChip, selectedCategories.length === 0 && styles.filterChipSelected]}
+                    onPress={() => setSelectedCategories([])}
+                  >
+                    <Text
+                      style={[styles.filterChipText, selectedCategories.length === 0 && styles.filterChipTextSelected]}
+                    >
+                      Todas
+                    </Text>
+                  </Pressable>
+
+                  {categories.map(category => (
+                    <Pressable
+                      key={category}
+                      style={[styles.filterChip, selectedCategories.includes(category) && styles.filterChipSelected]}
+                      onPress={() => toggleCategory(category)}
+                    >
+                      <Text
+                        style={[
+                          styles.filterChipText,
+                          selectedCategories.includes(category) && styles.filterChipTextSelected
+                        ]}
+                      >
+                        {category}
+                      </Text>
+                    </Pressable>
+                  ))}
+                </ScrollView>
               </View>
             }
             refreshing={loading}
@@ -214,5 +291,29 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     marginTop: 2,
     fontFamily: Fonts.bold
+  },
+  categoryHeader: {
+    borderBottomWidth: 1,
+    paddingVertical: 8
+  },
+  categoryTitle: {
+    fontSize: 20,
+    fontFamily: Fonts.bold
+  },
+  filterChip: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+    borderWidth: 1,
+    marginRight: 8
+  },
+  filterChipSelected: {
+    backgroundColor: '#000'
+  },
+  filterChipText: {
+    fontSize: 14
+  },
+  filterChipTextSelected: {
+    color: '#fff'
   }
 });
