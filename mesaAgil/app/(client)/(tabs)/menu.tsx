@@ -163,7 +163,8 @@ export default MenuScreen;
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1
+    flex: 1,
+    backgroundColor: '#f4f6f8'
   },
   menuContainer: {
     display: 'flex',

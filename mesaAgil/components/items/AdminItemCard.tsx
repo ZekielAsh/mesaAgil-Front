@@ -199,7 +199,7 @@ const styles = StyleSheet.create({
 
   statusText: {
     color: '#fff',
-    fontSize: 12,
+    fontSize: 14,
     fontWeight: 'bold'
   },
 

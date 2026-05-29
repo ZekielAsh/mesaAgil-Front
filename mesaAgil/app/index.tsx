@@ -11,17 +11,16 @@ export default function LandingPage() {
   return (
     <View style={styles.container}>
       <Image
-        source={{ uri: '' }}
+        source={require('@/assets/images/MesaAgil_Logo.png')}
         resizeMode="contain"
         style={styles.logo}
       />
-
       <Text style={styles.title}>
-        Mesa Agil
+        Mesa Ágil
       </Text>
 
       <Text style={styles.subtitle}>
-        Escaneá el QR de tu mesa para comenzar
+        Inicia sesión para comenzar.
       </Text>
 
       <Pressable
@@ -41,13 +40,13 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#f4f6f8',
     padding: 24
   },
 
   logo: {
-    width: 140,
-    height: 140,
+    width: 420,
+    height: 420,
     marginBottom: 24
   },
 

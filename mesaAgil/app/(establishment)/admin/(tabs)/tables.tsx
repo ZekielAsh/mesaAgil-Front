@@ -239,15 +239,15 @@ const TableScreen = () => {
           <View style={styles.header}>
             <View style={styles.headerTop}>
               <View>
-                <Text style={styles.title}>QR de mesas</Text>
-                <Text style={styles.subtitle}>Cada codigo permanece asociado a su mesa.</Text>
+                <Text style={styles.title}>Listado de Mesas</Text>
+                <Text style={styles.subtitle}>Cada mesa obtiene su propio codigo QR al crearse. El código no es modificable.</Text>
               </View>
               <Pressable
                 style={styles.createButton}
                 onPress={() => setCreateModalVisible(true)}
                 disabled={creatingTable}
               >
-                <Text style={styles.createButtonText}>+ Crear</Text>
+                <Text style={styles.createButtonText}>Crear</Text>
               </Pressable>
             </View>
           </View>
@@ -372,7 +372,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FEE2E2'
   },
   badgeText: {
-    fontSize: 11,
+    fontSize: 16,
     fontFamily: Fonts.bold
   },
   enabledText: {
@@ -475,6 +475,6 @@ const styles = StyleSheet.create({
   createButtonText: {
     color: '#fff',
     fontFamily: Fonts.bold,
-    fontSize: 14
+    fontSize: 18
   }
 });

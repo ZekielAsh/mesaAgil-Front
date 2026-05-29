@@ -106,7 +106,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     width: 28,
     height: 28,
-    borderRadius: 4
+    borderRadius: 4,
   },
   cartQuantity: {
     color: '#000',
