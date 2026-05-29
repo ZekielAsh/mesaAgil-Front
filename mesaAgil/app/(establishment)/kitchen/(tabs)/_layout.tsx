@@ -1,16 +1,9 @@
 import { LogoutButton } from '@/components/LogOutButtom';
 import FlameIcon from '@/components/ui/flame-icon';
 import { Fonts } from '@/constants/fonts';
-import { useProfile } from '@/context/ProfileContext';
-import { Redirect, Tabs } from 'expo-router';
+import { Tabs } from 'expo-router';
 
 export default function KitchenLayout() {
-  const { mode } = useProfile();
-
-  if (mode !== 'ESTABLISHMENT') {
-    return <Redirect href="/(client)/(tabs)" />;
-  }
-
   return (
     <Tabs
       screenOptions={{

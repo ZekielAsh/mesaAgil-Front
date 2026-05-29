@@ -2,8 +2,11 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import OrderTable from '@/components/OrderTable';
 import { useGetOrderById } from '@/hooks/useOrderById';
+import { useTableSession } from '@/hooks/useTableSession';
 import { closeOrder } from '@/service/orderService';
 import { ActivityIndicator, Button, Pressable, StyleSheet, Text, View } from 'react-native';
+import Toast from 'react-native-toast-message';
+import { useEffect } from 'react';
 
 const formatPrice = (value: number) => {
   return new Intl.NumberFormat('es-AR', {
@@ -13,9 +16,25 @@ const formatPrice = (value: number) => {
 };
 
 export default function Orders() {
-  const activeOrderId = 6;
-  const { order, isLoadingOrder, orderErrorMessage, refetch } = useGetOrderById(activeOrderId);
+  const { session, clearSession } = useTableSession();
+  const { order, isLoadingOrder, orderErrorMessage, refetch } = useGetOrderById(session?.orderId ?? undefined);
   const insets = useSafeAreaInsets();
+
+  useEffect(() => {
+    if (!session) {
+      return;
+    }
+
+    if (session.tableEnabled === false) {
+      clearSession();
+      return;
+    }
+
+    if (!session.activeSession || !session.orderId) {
+      clearSession();
+    }
+  }, [session, clearSession]);
+
   const orderTotal =
     order?.orderItems.reduce((total, orderItem) => total + Number(orderItem.price * orderItem.quantity), 0) ?? 0;
 
@@ -23,15 +42,49 @@ export default function Orders() {
   const onCloseOrder = (id: number) => {
     closeOrder(id)
       .then(() => {
-        console.log('request bill made');
+        Toast.show({
+          type: 'success',
+          text1: 'Cuenta solicitada'
+        });
+        refetch();
       })
       .catch(error => {
-        console.log(error);
+        Toast.show({
+          type: 'error',
+          text1: error instanceof Error ? error.message : 'Error al pedir cuenta'
+        });
       });
   };
 
   if (isLoadingOrder) {
     return <ActivityIndicator size="large" style={{ marginTop: 50 }} />;
+  }
+
+  if (!session) {
+    return (
+      <View style={styles.center}>
+        <Text style={styles.emptyTitle}>Escanea el QR de tu mesa</Text>
+        <Text style={styles.emptyDescription}>Cuando ingreses por QR vas a ver aca tu pedido activo.</Text>
+      </View>
+    );
+  }
+
+  if (session.tableEnabled === false) {
+    return (
+      <View style={styles.center}>
+        <Text style={styles.emptyTitle}>{session.tableLabel}</Text>
+        <Text style={styles.emptyDescription}>La mesa se encuentra cerrada.</Text>
+      </View>
+    );
+  }
+
+  if (!session.activeSession || !session.orderId) {
+    return (
+      <View style={styles.center}>
+        <Text style={styles.emptyTitle}>{session.tableLabel}</Text>
+        <Text style={styles.emptyDescription}>La mesa no tiene una orden abierta en este momento.</Text>
+      </View>
+    );
   }
 
   if (orderErrorMessage) {
@@ -56,7 +109,7 @@ export default function Orders() {
       {!isLoadingOrder && order ? (
         <>
           <View style={styles.titleContainer}>
-            <Text style={styles.title}>Orden de Mesa {order.id}</Text>
+            <Text style={styles.title}>Orden de {session.tableLabel}</Text>
           </View>
           <OrderTable orderItems={order.orderItems} />
           <View style={styles.totalContainer}>
@@ -124,6 +177,19 @@ const styles = StyleSheet.create({
   center: {
     flex: 1,
     justifyContent: 'center',
-    alignItems: 'center'
+    alignItems: 'center',
+    padding: 24,
+    gap: 8
+  },
+  emptyTitle: {
+    color: '#111827',
+    fontSize: 20,
+    fontWeight: '700',
+    textAlign: 'center'
+  },
+  emptyDescription: {
+    color: '#6B7280',
+    fontSize: 15,
+    textAlign: 'center'
   }
 });
