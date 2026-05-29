@@ -4,6 +4,6 @@ export interface Item {
   description: string;
   imageUrl: string;
   price: number;
-  categoryName: string;
+  category: string;
   active?: boolean;
 }
