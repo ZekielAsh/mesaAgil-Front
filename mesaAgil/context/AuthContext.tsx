@@ -49,7 +49,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     setUser(null);
 
-    router.replace('/(establishment)' as never);
+    router.replace('/login');
   }
 
   return (

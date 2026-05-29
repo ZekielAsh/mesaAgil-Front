@@ -21,7 +21,7 @@ export function LogoutButton() {
         }
       ]}
     >
-      <Text style={styles.buttonText}>Logout</Text>
+      <Text style={styles.buttonText}>Cerrar sesión</Text>
     </Pressable>
   );
 }
@@ -32,7 +32,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingLeft: 12,
     paddingRight: 12,
-    borderRadius: 12
+    borderRadius: 12,
+    marginRight: 12
   },
   buttonText: {
     color: '#fff',

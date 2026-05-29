@@ -1,15 +1,16 @@
 import CartBottomSheet from '@/components/CartBottomSheet';
+import ClientRouteGuard from '@/components/ClientRouteGuard';
 import MenuItemCard from '@/components/MenuItemCard';
+import { Fonts } from '@/constants/fonts';
 import { useAddItems } from '@/hooks/useAddItem';
 import { useCart } from '@/hooks/useCart';
 import { useMenu } from '@/hooks/useMenu';
 import { useTableSession } from '@/hooks/useTableSession';
+import { useEffect } from 'react';
 import { ActivityIndicator, Button, FlatList, StyleSheet, Text, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
-import { useEffect } from 'react';
-import ClientRouteGuard from '@/components/ClientRouteGuard';
 
 const MenuScreen = () => {
   const { menu, message, loading, error, refetch } = useMenu();
@@ -135,7 +136,7 @@ const MenuScreen = () => {
             contentContainerStyle={styles.menuContainer}
             ListHeaderComponent={
               <View style={styles.sessionHeader}>
-                <Text style={styles.sessionLabel}>Pedido para</Text>
+                <Text style={styles.sessionLabel}>Nuestro menú</Text>
                 <Text style={styles.sessionTitle}>{session.tableLabel}</Text>
               </View>
             }
@@ -203,12 +204,14 @@ const styles = StyleSheet.create({
   sessionLabel: {
     color: '#D1D5DB',
     fontSize: 12,
-    fontWeight: '600'
+    fontWeight: '600',
+    fontFamily: Fonts.bold
   },
   sessionTitle: {
     color: '#fff',
     fontSize: 18,
     fontWeight: '700',
-    marginTop: 2
+    marginTop: 2,
+    fontFamily: Fonts.bold
   }
 });
