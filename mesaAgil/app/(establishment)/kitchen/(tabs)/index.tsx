@@ -101,7 +101,7 @@ export default function KitchenScreen() {
         keyExtractor={item => item.id.toString()}
         renderItem={({ item }) => renderOrder(item)}
         showsVerticalScrollIndicator={false}
-        ListEmptyComponent={<Text style={styles.emptyText}>No hay solicitudes de cuenta pendientes</Text>}
+        ListEmptyComponent={<Text style={styles.emptyText}>No hay comandas pendientes</Text>}
         contentContainerStyle={styles.list}
       />
     </View>
