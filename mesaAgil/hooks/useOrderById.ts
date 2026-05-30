@@ -37,5 +37,5 @@ export function useGetOrderById(id?: number) {
     }
   }, [id, isFocused]);
 
-  return { order, isLoadingOrder, orderErrorMessage, refetch: fetchOrder };
+  return { order, setOrder, isLoadingOrder, orderErrorMessage, refetch: fetchOrder };
 }

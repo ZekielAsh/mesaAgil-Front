@@ -7,8 +7,8 @@ export function getOrderByTableId(orderId: number) {
   return apiClient.get<Order>(`/orders/${orderId}`);
 }
 
-export function closeOrder(orderId: number) {
-  return apiClient.post(`/orders/${orderId}/close`);
+export function requestBill(orderId: number) {
+  return apiClient.patch(`/orders/${orderId}/request-bill`);
 }
 
 export async function addItems(orderId: number, orderItemsList: CreateOrderItem[]) {

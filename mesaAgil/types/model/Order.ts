@@ -5,6 +5,7 @@ export interface Order {
   tableId: number;
   orderItems: OrderItem[];
   status: OrderStatus;
+  billRequested: boolean;
   createdAt: Date;
   closedAt?: Date | null;
 }

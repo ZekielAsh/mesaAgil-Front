@@ -63,11 +63,12 @@ const MenuScreen = () => {
         text1: 'Agregado a la orden'
       });
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Error desconocido';
+      const err = error as any;
+      let errorText = err.response?.data?.message || 'Error desconocido';
 
       Toast.show({
         type: 'error',
-        text1: errorMessage
+        text1: errorText
       });
     }
   };
