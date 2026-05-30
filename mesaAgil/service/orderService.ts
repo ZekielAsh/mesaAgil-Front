@@ -11,6 +11,26 @@ export function requestBill(orderId: number) {
   return apiClient.patch(`/orders/${orderId}/request-bill`);
 }
 
+export function getBillRequests(token: string) {
+  return apiClient.get(`/orders/bill-requests`, {
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  });
+}
+
+export function closeOrder(orderId: number, token: string) {
+  return apiClient.patch(
+    `/orders/${orderId}/close`,
+    {},
+    {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    }
+  );
+}
+
 export async function addItems(orderId: number, orderItemsList: CreateOrderItem[]) {
   return apiClient.post(`/orders/${orderId}/items`, {
     orderItemRequestList: orderItemsList

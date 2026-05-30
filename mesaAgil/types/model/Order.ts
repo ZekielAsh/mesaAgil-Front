@@ -11,6 +11,6 @@ export interface Order {
 }
 
 export enum OrderStatus {
-  OPEN,
-  CLOSED
+  OPEN = 'OPEN',
+  CLOSED = 'CLOSED'
 }

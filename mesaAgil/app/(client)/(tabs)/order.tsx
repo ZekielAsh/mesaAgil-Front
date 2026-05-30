@@ -5,6 +5,8 @@ import { Fonts } from '@/constants/fonts';
 import { useGetOrderById } from '@/hooks/useOrderById';
 import { useTableSession } from '@/hooks/useTableSession';
 import { requestBill } from '@/service/orderService';
+import { OrderStatus } from '@/types/model/Order';
+import { Redirect } from 'expo-router';
 import { useEffect } from 'react';
 import { ActivityIndicator, Button, Pressable, StyleSheet, Text, View } from 'react-native';
 import Toast from 'react-native-toast-message';
@@ -88,6 +90,10 @@ export default function Orders() {
         <Text style={styles.emptyDescription}>La mesa no tiene una orden abierta en este momento.</Text>
       </View>
     );
+  }
+
+  if (order?.status === OrderStatus.CLOSED) {
+    return <Redirect href="/waitingScreen" />;
   }
 
   if (orderErrorMessage) {
