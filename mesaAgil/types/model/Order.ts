@@ -5,11 +5,12 @@ export interface Order {
   tableId: number;
   orderItems: OrderItem[];
   status: OrderStatus;
+  billRequested: boolean;
   createdAt: Date;
   closedAt?: Date | null;
 }
 
 export enum OrderStatus {
-  OPEN,
-  CLOSED
+  OPEN = 'OPEN',
+  CLOSED = 'CLOSED'
 }

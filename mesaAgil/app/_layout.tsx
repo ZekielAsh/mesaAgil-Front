@@ -1,5 +1,5 @@
-import ProfileSwitcher from '@/components/profile/ProfileSwitcher';
-import { ProfileProvider } from '@/context/ProfileContext';
+import { AuthProvider } from '@/context/AuthContext';
+import { TableSessionProvider } from '@/context/TableSessionContext';
 import {
   Inter_400Regular,
   Inter_500Medium,
@@ -62,27 +62,35 @@ export default function RootLayout() {
   };
 
   return (
-    <ProfileProvider>
-      <ThemeProvider value={DefaultTheme}>
-        <View style={styles.container}>
-          <ProfileSwitcher />
+    <AuthProvider>
+      <TableSessionProvider>
+        <ThemeProvider value={DefaultTheme}>
+          <View style={styles.container}>
+            <View style={styles.content}>
+              <Stack
+                screenOptions={{
+                  headerShown: false
+                }}
+              >
+                <Stack.Screen name="index" />
 
-          <View style={styles.content}>
-            <Stack
-              screenOptions={{
-                headerShown: false
-              }}
-            >
-              <Stack.Screen name="(client)" />
+                <Stack.Screen name="login" />
 
-              <Stack.Screen name="(establishment)" />
-            </Stack>
+                <Stack.Screen name="(client)/(tabs)" />
+
+                <Stack.Screen name="(establishment)" />
+
+                <Stack.Screen name="qr" />
+              </Stack>
+            </View>
+
+            <StatusBar />
+
+            <Toast config={toastConfig} />
           </View>
-          <StatusBar />
-          <Toast config={toastConfig} />
-        </View>
-      </ThemeProvider>
-    </ProfileProvider>
+        </ThemeProvider>
+      </TableSessionProvider>
+    </AuthProvider>
   );
 }
 

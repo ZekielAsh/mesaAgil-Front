@@ -3,13 +3,19 @@ import { Order } from '@/types/model/Order';
 import { useIsFocused } from '@react-navigation/native';
 import { useEffect, useState } from 'react';
 
-export function useGetOrderById(id: number) {
+export function useGetOrderById(id?: number) {
   const [order, setOrder] = useState<Order>();
   const [isLoadingOrder, setIsLoadingOrder] = useState(true);
   const [orderErrorMessage, setOrderErrorMessage] = useState('');
   const isFocused = useIsFocused();
 
   const fetchOrder = () => {
+    if (!id) {
+      setOrder(undefined);
+      setIsLoadingOrder(false);
+      return;
+    }
+
     setIsLoadingOrder(true);
     setOrderErrorMessage('');
 
@@ -29,7 +35,7 @@ export function useGetOrderById(id: number) {
     if (isFocused) {
       fetchOrder();
     }
-  }, [isFocused]);
+  }, [id, isFocused]);
 
-  return { order, isLoadingOrder, orderErrorMessage, refetch: fetchOrder };
+  return { order, setOrder, isLoadingOrder, orderErrorMessage, refetch: fetchOrder };
 }

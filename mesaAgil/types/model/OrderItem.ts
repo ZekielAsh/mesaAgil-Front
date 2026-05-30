@@ -3,6 +3,7 @@ import { Item } from '@/types/model/Item';
 export interface OrderItem {
   id: number;
   orderId: number;
+  tableNumber: number;
   item: Item;
   quantity: number;
   price: number;
@@ -12,7 +13,7 @@ export interface OrderItem {
 
 export enum OrderItemStatus {
   PENDING = 'PENDING',
-  IN_PREPARATION = 'IN PREPARATION',
+  IN_PREPARATION = 'IN_PREPARATION',
   DELIVERED = 'DELIVERED',
   CANCELLED = 'CANCELLED'
 }

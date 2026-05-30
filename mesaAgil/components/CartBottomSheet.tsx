@@ -165,7 +165,7 @@ const styles = StyleSheet.create({
   },
   columnTitle: {
     color: '#000',
-    fontSize: 13,
+    fontSize: 15,
     fontFamily: Fonts.semiBold
   },
   productsColumn: {
@@ -176,13 +176,13 @@ const styles = StyleSheet.create({
     textAlign: 'right'
   },
   textGrey: {
-    fontSize: 14,
+    fontSize: 16,
     color: '#6c6c6c',
     fontFamily: Fonts.medium
   },
   title: {
     color: '#000',
-    fontSize: 20,
+    fontSize: 22,
     fontFamily: Fonts.semiBold
   },
   cartMiniButtom: {
@@ -201,6 +201,7 @@ const styles = StyleSheet.create({
   },
   cardButtonText: {
     color: '#fff',
+    fontSize: 16,
     fontFamily: Fonts.bold
   }
 });
