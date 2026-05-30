@@ -8,7 +8,7 @@ export default function KitchenScreen() {
   const { user } = useAuth();
   const { orderItems, setOrderItems, isLoadingOrders, ordersErrorMessage, refetch } = useOrders();
 
-  if (isLoadingOrders || orderItems === undefined) {
+  if (isLoadingOrders) {
     return (
       <ActivityIndicator
         size="large"
@@ -101,6 +101,7 @@ export default function KitchenScreen() {
         keyExtractor={item => item.id.toString()}
         renderItem={({ item }) => renderOrder(item)}
         showsVerticalScrollIndicator={false}
+        ListEmptyComponent={<Text style={styles.emptyText}>No hay solicitudes de cuenta pendientes</Text>}
         contentContainerStyle={styles.list}
       />
     </View>
@@ -112,12 +113,10 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#F3F4F6'
   },
-
   list: {
     padding: 16,
     paddingBottom: 100
   },
-
   card: {
     backgroundColor: '#FFFFFF',
     borderRadius: 20,
@@ -134,73 +133,66 @@ const styles = StyleSheet.create({
 
     elevation: 3
   },
-
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 14
   },
-
   tableText: {
     fontSize: 22,
     fontWeight: 'bold',
     color: '#111827'
   },
-
   statusBadge: {
     paddingHorizontal: 10,
     paddingVertical: 5,
     borderRadius: 999
   },
-
   pendingBadge: {
     backgroundColor: '#FEF3C7'
   },
-
   preparingBadge: {
     backgroundColor: '#DBEAFE'
   },
-
   statusText: {
     fontWeight: '600',
     fontSize: 12,
     color: '#111827'
   },
-
   content: {
     marginBottom: 18
   },
-
   itemName: {
     fontSize: 18,
     color: '#374151',
     fontWeight: '500'
   },
-
   button: {
     paddingVertical: 14,
     borderRadius: 14,
     alignItems: 'center'
   },
-
   startButton: {
     backgroundColor: '#2563EB'
   },
-
   readyButton: {
     backgroundColor: '#16A34A'
   },
-
   buttonText: {
     color: '#FFFFFF',
     fontSize: 16,
     fontWeight: 'bold'
   },
-
   center: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center'
+  },
+  emptyText: {
+    textAlign: 'center',
+    marginTop: 40,
+    fontSize: 16,
+    color: '#666'
   }
 });

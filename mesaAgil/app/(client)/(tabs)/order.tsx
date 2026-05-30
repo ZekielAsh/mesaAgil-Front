@@ -1,12 +1,15 @@
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import OrderTable from '@/components/OrderTable';
+import { Fonts } from '@/constants/fonts';
 import { useGetOrderById } from '@/hooks/useOrderById';
 import { useTableSession } from '@/hooks/useTableSession';
-import { closeOrder } from '@/service/orderService';
+import { requestBill } from '@/service/orderService';
+import { OrderStatus } from '@/types/model/Order';
+import { Redirect } from 'expo-router';
+import { useEffect } from 'react';
 import { ActivityIndicator, Button, Pressable, StyleSheet, Text, View } from 'react-native';
 import Toast from 'react-native-toast-message';
-import { useEffect } from 'react';
 
 const formatPrice = (value: number) => {
   return new Intl.NumberFormat('es-AR', {
@@ -17,7 +20,9 @@ const formatPrice = (value: number) => {
 
 export default function Orders() {
   const { session, clearSession } = useTableSession();
-  const { order, isLoadingOrder, orderErrorMessage, refetch } = useGetOrderById(session?.orderId ?? undefined);
+  const { order, setOrder, isLoadingOrder, orderErrorMessage, refetch } = useGetOrderById(
+    session?.orderId ?? undefined
+  );
   const insets = useSafeAreaInsets();
 
   useEffect(() => {
@@ -39,19 +44,19 @@ export default function Orders() {
     order?.orderItems.reduce((total, orderItem) => total + Number(orderItem.price * orderItem.quantity), 0) ?? 0;
 
   // TODO: pasar a hook y componente
-  const onCloseOrder = (id: number) => {
-    closeOrder(id)
+  const onRequestBill = (id: number) => {
+    requestBill(id)
       .then(() => {
         Toast.show({
           type: 'success',
           text1: 'Cuenta solicitada'
         });
-        refetch();
+        setOrder(prevOrder => (prevOrder ? { ...prevOrder, billRequested: true } : prevOrder));
       })
       .catch(error => {
         Toast.show({
           type: 'error',
-          text1: error instanceof Error ? error.message : 'Error al pedir cuenta'
+          text1: error.response.data.message
         });
       });
   };
@@ -87,6 +92,10 @@ export default function Orders() {
     );
   }
 
+  if (order?.status === OrderStatus.CLOSED) {
+    return <Redirect href="/waitingScreen" />;
+  }
+
   if (orderErrorMessage) {
     return (
       <View style={styles.center}>
@@ -120,10 +129,25 @@ export default function Orders() {
       ) : null}
       <View style={styles.buttonsContainer}>
         {!isLoadingOrder && order ? (
-          <Pressable onPress={() => onCloseOrder(order.id)} style={styles.button}>
+          <Pressable
+            style={({ pressed }) => [
+              styles.cardButton,
+              {
+                backgroundColor: order?.billRequested ? '#a94700' : pressed ? '#a94700' : '#F06400',
+                transform: [
+                  {
+                    scale: pressed ? 0.95 : 1
+                  }
+                ]
+              }
+            ]}
+            disabled={order?.billRequested}
+            onPress={() => onRequestBill(order.id)}
+          >
             <Text style={styles.buttonText}>Pedir cuenta</Text>
           </Pressable>
         ) : null}
+        {order && order.billRequested ? <Text style={styles.emptyDescription}>Esperando al mozo...</Text> : null}
       </View>
     </View>
   );
@@ -135,13 +159,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingBottom: 12
   },
-  button: {
-    backgroundColor: '#007AFF',
-    padding: 12,
-    borderRadius: 8,
-    alignItems: 'center'
-  },
-  buttonText: { color: '#fff', fontWeight: 'bold' },
+  buttonText: { color: '#fff', fontFamily: Fonts.bold },
   titleContainer: {
     paddingTop: 16,
     paddingHorizontal: 12
@@ -191,5 +209,12 @@ const styles = StyleSheet.create({
     color: '#6B7280',
     fontSize: 15,
     textAlign: 'center'
+  },
+  cardButton: {
+    height: 36,
+    justifyContent: 'center',
+    paddingLeft: 12,
+    paddingRight: 12,
+    borderRadius: 12
   }
 });
