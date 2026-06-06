@@ -1,28 +1,47 @@
-import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
-import {
-  VictoryAxis,
-  VictoryChart,
-  VictoryLine,
-  VictoryTheme,
-} from 'victory';
-
-type RevenuePoint = {
-  label: string;
-  revenue: number;
-};
+import { RevenuePointResponse } from '@/types/StatsResponses';
+import { Dimensions, StyleSheet, Text, View } from 'react-native';
+import { LineChart } from 'react-native-chart-kit';
 
 type Props = {
-  data: RevenuePoint[];
-  loading: boolean;
+  data: RevenuePointResponse[];
 };
 
 export default function RevenueChart({
-  data,
-  loading,
+  data
 }: Props) {
-  if (loading) {
-    return <ActivityIndicator />;
+  const screenWidth = Dimensions.get('window').width;
+  /*
+  if (data.length < 2) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.title}>
+          Evolución de ingresos
+        </Text>
+
+        <Text>
+          Se necesitan más datos para mostrar la evolución.
+        </Text>
+      </View>
+    );
   }
+
+  if (data.length === 1) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.title}>
+          Evolución de ingresos
+        </Text>
+
+        <Text>
+          Ingresos registrados el {data[0].label}
+        </Text>
+
+        <Text style={styles.singleValue}>
+          ${data[0].revenue}
+        </Text>
+      </View>
+    );
+  }*/
 
   return (
     <View style={styles.container}>
@@ -30,35 +49,69 @@ export default function RevenueChart({
         Evolución de ingresos
       </Text>
 
-      <VictoryChart
-        theme={VictoryTheme.material}
-      >
-        <VictoryAxis />
-
-        <VictoryAxis
-          dependentAxis
-        />
-
-        <VictoryLine
-          data={data}
-          x="label"
-          y="revenue"
-        />
-      </VictoryChart>
+      <LineChart
+        data={{
+          labels: data.map(item => item.label),
+          datasets: [
+            {
+              data: data.map(item => item.revenue)
+            }
+          ]
+        }}
+        width={screenWidth - 64}
+        height={220}
+        yAxisLabel="$"
+        chartConfig={chartConfig}
+        bezier
+        style={styles.chart}
+      />
     </View>
   );
 }
+
+const chartConfig = {
+  backgroundGradientFrom: '#FFFFFF',
+  backgroundGradientTo: '#FFFFFF',
+
+  decimalPlaces: 0,
+
+  color: (opacity = 1) =>
+    `rgba(33, 150, 243, ${opacity})`,
+
+  labelColor: (opacity = 1) =>
+    `rgba(0, 0, 0, ${opacity})`,
+
+  propsForLabels: {
+    fontSize: 12
+  },
+
+  propsForDots: {
+    r: '5'
+  }
+};
 
 const styles = StyleSheet.create({
   container: {
     backgroundColor: '#FFF',
     borderRadius: 12,
     padding: 16,
-    marginBottom: 24,
+    marginBottom: 16
   },
+
   title: {
     fontSize: 16,
     fontWeight: '600',
-    marginBottom: 12,
+    marginBottom: 12
   },
+
+  chart: {
+    borderRadius: 12
+  },
+
+  singleValue: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    marginTop: 12,
+    color: '#2196F3'
+  }
 });
