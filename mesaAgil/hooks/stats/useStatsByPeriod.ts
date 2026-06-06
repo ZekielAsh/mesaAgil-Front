@@ -1,5 +1,5 @@
 import { getStatsByPeriod } from '@/service/statsService';
-import { Period, StatsSummaryResponse } from '@/types/StatsSummaryResponse';
+import { Period, StatsSummaryResponse } from '@/types/StatsResponses';
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 

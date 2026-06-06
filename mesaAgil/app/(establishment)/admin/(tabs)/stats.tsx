@@ -1,5 +1,5 @@
-import { useStatsByPeriod } from '@/hooks/useStatsByPeriod';
-import { Period } from '@/types/StatsSummaryResponse';
+import { useStatsByPeriod } from '@/hooks/stats/useStatsByPeriod';
+import { Period } from '@/types/StatsResponses';
 import { useState } from 'react';
 import { ActivityIndicator, Button, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
