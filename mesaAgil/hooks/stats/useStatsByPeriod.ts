@@ -1,7 +1,7 @@
 import { getStatsByPeriod } from '@/service/statsService';
 import { Period, StatsSummaryResponse } from '@/types/StatsSummaryResponse';
 import { useEffect, useState } from 'react';
-import { useAuth } from './useAuth';
+import { useAuth } from '@/hooks/useAuth';
 
 export function useStatsByPeriod(initialPeriod: Period) {
   const [stats, setStats] = useState<StatsSummaryResponse>();

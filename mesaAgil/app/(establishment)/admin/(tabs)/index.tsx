@@ -8,15 +8,15 @@ import CreateItemModal from '@/components/items/CreateItemModal';
 import DeleteItemModal from '@/components/items/DeleteItemModal';
 import EditItemModal from '@/components/items/EditItemModal';
 
-import { useCategories } from '@/hooks/useCategories';
-import { useCreateCategory } from '@/hooks/useCreateCategory';
-import { useDeleteCategory } from '@/hooks/useDeleteCategory';
-import { useUpdateCategory } from '@/hooks/useUpdateCategory';
+import { useCategories } from '@/hooks/category/useCategories';
+import { useCreateCategory } from '@/hooks/category/useCreateCategory';
+import { useDeleteCategory } from '@/hooks/category/useDeleteCategory';
+import { useUpdateCategory } from '@/hooks/category/useUpdateCategory';
 
-import { useCreateItem } from '@/hooks/useCreateItem';
-import { useDeleteItem } from '@/hooks/useDeleteItem';
-import { useItems } from '@/hooks/useItems';
-import { useUpdateItem } from '@/hooks/useUpdateItem';
+import { useCreateItem } from '@/hooks/item/useCreateItem';
+import { useDeleteItem } from '@/hooks/item/useDeleteItem';
+import { useItems } from '@/hooks/order/useItems';
+import { useUpdateItem } from '@/hooks/item/useUpdateItem';
 
 import { Category } from '@/types/model/Category';
 import { Item } from '@/types/model/Item';
@@ -260,7 +260,7 @@ const ItemsScreen = () => {
         categories.find(
           currentCategory =>
             currentCategory.name ===
-            item.categoryName
+            item.category
         );
 
       if (!category) {
