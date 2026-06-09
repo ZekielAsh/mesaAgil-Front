@@ -1,40 +1,21 @@
 import { Item } from '@/types/model/Item';
-import {
-  Image,
-  Pressable,
-  StyleSheet,
-  Text,
-  View
-} from 'react-native';
+import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 
 type AdminItemCardProps = {
   item: Item;
 
   onEdit: (item: Item) => void;
 
-  onDelete: (item: Item) => void;
-
   onToggleActive: (item: Item) => void;
 
   toggling?: boolean;
 };
 
-export const AdminItemCard = ({
-  item,
-  onEdit,
-  onDelete,
-  onToggleActive,
-  toggling
-}: AdminItemCardProps) => {
+export const AdminItemCard = ({ item, onEdit, onToggleActive, toggling }: AdminItemCardProps) => {
   const isActive = item.active !== false;
 
   return (
-    <View
-      style={[
-        styles.card,
-        !isActive && styles.inactiveCard
-      ]}
-    >
+    <View style={[styles.card, !isActive && styles.inactiveCard]}>
       <Image
         source={{
           uri: item.imageUrl
@@ -43,100 +24,33 @@ export const AdminItemCard = ({
       />
 
       <View style={styles.content}>
-        <View>
-          <View style={styles.header}>
-            <Text style={styles.name}>
-              {item.name}
-            </Text>
-
-            <View
-              style={[
-                styles.statusBadge,
-                isActive
-                  ? styles.activeBadge
-                  : styles.inactiveBadge
-              ]}
-            >
-              <Text
-                style={
-                  styles.statusText
-                }
-              >
-                {isActive
-                  ? 'Activa'
-                  : 'Inactiva'}
-              </Text>
-            </View>
-          </View>
-
-          <Text style={styles.category}>
-            {item.categoryName}
-          </Text>
-
-          <Text style={styles.price}>
-            ${item.price}
-          </Text>
+        <View style={styles.header}>
+          <Text style={styles.name}>{item.name}</Text>
+          <Text style={styles.category}>{item.categoryName}</Text>
+          <Text style={styles.price}>${item.price}</Text>
         </View>
-
-        <View style={styles.actions}>
-          <Pressable
-            style={[
-              styles.toggleButton,
-              isActive
-                ? styles.disableButton
-                : styles.enableButton,
-              toggling &&
-                styles.disabledButton
-            ]}
-            onPress={() =>
-              onToggleActive(item)
-            }
-            disabled={toggling}
-          >
-            <Text
-              style={
-                styles.buttonText
-              }
+        <View style={styles.footer}>
+          <View style={[styles.statusBadge, isActive ? styles.activeBadge : styles.inactiveBadge]}>
+            <Text style={styles.statusText}>{isActive ? 'Activa' : 'Inactiva'}</Text>
+          </View>
+          <View style={styles.actions}>
+            <Pressable
+              style={[
+                styles.toggleButton,
+                isActive ? styles.disableButton : styles.enableButton,
+                toggling && styles.disabledButton
+              ]}
+              onPress={() => onToggleActive(item)}
+              disabled={toggling}
             >
-              {toggling
-                ? 'Guardando...'
-                : isActive
-                  ? 'Deshabilitar'
-                  : 'Habilitar'}
-            </Text>
-          </Pressable>
-
-          <Pressable
-            style={styles.editButton}
-            onPress={() =>
-              onEdit(item)
-            }
-          >
-            <Text
-              style={
-                styles.buttonText
-              }
-            >
-              Editar
-            </Text>
-          </Pressable>
-
-          <Pressable
-            style={
-              styles.deleteButton
-            }
-            onPress={() =>
-              onDelete(item)
-            }
-          >
-            <Text
-              style={
-                styles.buttonText
-              }
-            >
-              Eliminar
-            </Text>
-          </Pressable>
+              <Text style={styles.buttonText}>
+                {toggling ? 'Guardando...' : isActive ? 'Deshabilitar' : 'Habilitar'}
+              </Text>
+            </Pressable>
+            <Pressable style={styles.editButton} onPress={() => onEdit(item)}>
+              <Text style={styles.buttonText}>Editar</Text>
+            </Pressable>
+          </View>
         </View>
       </View>
     </View>
@@ -150,108 +64,81 @@ const styles = StyleSheet.create({
     padding: 12,
     flexDirection: 'row',
     gap: 12,
-    elevation: 3
+    elevation: 3,
+    boxShadow: '2px 2px 4px rgba(0,0,0,0.25)'
   },
-
   inactiveCard: {
     opacity: 0.72
   },
-
   image: {
     width: 90,
     height: 90,
     borderRadius: 12
   },
-
   content: {
     flex: 1,
-    justifyContent:
-      'space-between'
-  },
-
-  header: {
     flexDirection: 'row',
-    alignItems: 'flex-start',
-    justifyContent:
-      'space-between',
-    gap: 8
+    justifyContent: 'space-between'
   },
-
+  header: {
+    justifyContent: 'flex-start'
+  },
+  footer: {
+    justifyContent: 'space-between',
+    alignItems: 'flex-end'
+  },
   name: {
     fontSize: 18,
-    fontWeight: 'bold',
-    flex: 1
+    fontWeight: 'bold'
   },
-
   statusBadge: {
     paddingVertical: 4,
     paddingHorizontal: 8,
     borderRadius: 999
   },
-
   activeBadge: {
     backgroundColor: '#34C759'
   },
-
   inactiveBadge: {
     backgroundColor: '#8E8E93'
   },
-
   statusText: {
     color: '#fff',
     fontSize: 14,
     fontWeight: 'bold'
   },
-
   category: {
-    color: '#666',
-    marginTop: 4
+    color: '#666'
   },
-
   price: {
     marginTop: 8,
     fontSize: 16,
     fontWeight: '600'
   },
-
   actions: {
     flexDirection: 'row',
-    gap: 8,
-    marginTop: 12
+    gap: 8
   },
-
   toggleButton: {
     paddingVertical: 8,
     paddingHorizontal: 12,
     borderRadius: 8
   },
-
   enableButton: {
     backgroundColor: '#34C759'
   },
-
   disableButton: {
-    backgroundColor: '#5856D6'
+    backgroundColor: '#EF4444'
   },
-
   editButton: {
-    backgroundColor: '#FF9500',
+    backgroundColor: '#f48e00',
     paddingVertical: 8,
     paddingHorizontal: 12,
     borderRadius: 8
   },
-
-  deleteButton: {
-    backgroundColor: '#FF3B30',
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    borderRadius: 8
-  },
-
   disabledButton: {
     opacity: 0.6
   },
-
   buttonText: {
     color: '#fff',
     fontWeight: 'bold'

@@ -1,3 +1,4 @@
+import { Fonts } from '@/constants/fonts';
 import { useAuth } from '@/hooks/useAuth';
 import { useBillRequests } from '@/hooks/useBillRequests';
 import { closeOrder } from '@/service/orderService';
@@ -49,6 +50,11 @@ export default function StaffScreen() {
         keyExtractor={item => item.id.toString()}
         contentContainerStyle={styles.listContent}
         ListEmptyComponent={<Text style={styles.emptyText}>No hay solicitudes de cuenta pendientes</Text>}
+        ListHeaderComponent={
+          <View style={styles.categoryHeader}>
+            <Text style={styles.categoryTitle}>Solicitudes de cuenta</Text>
+          </View>
+        }
         renderItem={({ item }) => (
           <View style={styles.card}>
             <View>
@@ -75,8 +81,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#f5f5f5'
   },
   listContent: {
-    padding: 16,
-    gap: 12
+    padding: 16
   },
   card: {
     backgroundColor: '#fff',
@@ -85,7 +90,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    elevation: 3
+    boxShadow: '2px 2px 4px rgba(0,0,0,0.25)',
+    marginBottom: 12
   },
   tableLabel: {
     fontSize: 14,
@@ -121,5 +127,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 24,
     gap: 8
+  },
+  categoryHeader: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    borderBottomWidth: 1,
+    paddingVertical: 8,
+    marginBottom: 12
+  },
+  categoryTitle: {
+    fontSize: 20,
+    fontFamily: Fonts.bold
   }
 });
