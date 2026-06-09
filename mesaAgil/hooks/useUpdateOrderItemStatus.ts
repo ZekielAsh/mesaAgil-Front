@@ -3,17 +3,18 @@ import { useState } from 'react';
 import { useAuth } from './useAuth';
 
 export function useUpdateOrderItemStatus() {
-  const [loadingUpdateOrderItemStatus, setLoadingUpdateOrderItemStatus] = useState(true);
+  const [loadingUpdateOrderItemStatus, setLoadingUpdateOrderItemStatus] = useState(false);
   const [updateErrorMessage, setUpdateErrorMessage] = useState('');
   const { user } = useAuth();
 
-  async function updateStatus(orderId: number, orderItemId: number, status: string) {
+  async function updateStatus(orderItemId: number, status: string) {
     setLoadingUpdateOrderItemStatus(true);
     setUpdateErrorMessage('');
 
-    updateOrderItemStatus(orderId, orderItemId, status, user?.token ?? '')
+    updateOrderItemStatus(orderItemId, status, user?.token ?? '')
       .catch(error => {
         setUpdateErrorMessage(error.message);
+        throw error;
       })
       .finally(() => {
         setLoadingUpdateOrderItemStatus(false);
