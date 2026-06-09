@@ -129,20 +129,20 @@ const MenuScreen = () => {
     );
   }
 
-  const categories = [...new Set(menu.map(item => item.category))];
+  const categories = [...new Set(menu.map(item => item.categoryName))];
 
   const toggleCategory = (category: string) => {
     setSelectedCategories(prev => (prev.includes(category) ? prev.filter(c => c !== category) : [...prev, category]));
   };
 
   const filteredMenu =
-    selectedCategories.length === 0 ? menu : menu.filter(item => selectedCategories.includes(item.category));
+    selectedCategories.length === 0 ? menu : menu.filter(item => selectedCategories.includes(item.categoryName));
 
   // ver de carmbien en back la response de menu a lista de <Category, Item[]>[]
   const sections = Object.values(
     filteredMenu.reduce(
       (acc, item) => {
-        const categoryName = item.category;
+        const categoryName = item.categoryName;
 
         if (!acc[categoryName]) {
           acc[categoryName] = {
