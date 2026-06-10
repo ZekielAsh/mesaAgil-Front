@@ -1,7 +1,7 @@
 import { Item } from '@/types/model/Item';
 import { useFocusEffect } from '@react-navigation/native';
 import { useCallback, useState } from 'react';
-import { getMenu } from '../service/menuService';
+import { getMenu } from '../../service/menuService';
 
 export const useMenu = () => {
   const [menu, setMenu] = useState<Item[]>();

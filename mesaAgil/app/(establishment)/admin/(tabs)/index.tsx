@@ -6,13 +6,13 @@ import { AdminItemCard } from '@/components/items/AdminItemCard';
 import CreateItemModal from '@/components/items/CreateItemModal';
 import EditItemModal from '@/components/items/EditItemModal';
 
-import { useCategories } from '@/hooks/useCategories';
-import { useCreateCategory } from '@/hooks/useCreateCategory';
-import { useUpdateCategory } from '@/hooks/useUpdateCategory';
+import { useCategories } from '@/hooks/category/useCategories';
+import { useCreateCategory } from '@/hooks/category/useCreateCategory';
+import { useUpdateCategory } from '@/hooks/category/useUpdateCategory';
 
-import { useCreateItem } from '@/hooks/useCreateItem';
-import { useItems } from '@/hooks/useItems';
-import { useUpdateItem } from '@/hooks/useUpdateItem';
+import { useCreateItem } from '@/hooks/item/useCreateItem';
+import { useItems } from '@/hooks/order/useItems';
+import { useUpdateItem } from '@/hooks/item/useUpdateItem';
 
 import { Category } from '@/types/model/Category';
 import { Item } from '@/types/model/Item';
@@ -26,32 +26,22 @@ import { Toast } from 'react-native-toast-message/lib/src/Toast';
 
 const ItemsScreen = () => {
   const { items, loading, error, refetch } = useItems();
-
   const { categories, refetch: refetchCategories } = useCategories();
-
   const { execute: createItem, loading: creating } = useCreateItem();
-
   const { execute: updateItem, loading: updating } = useUpdateItem();
-
   const { execute: createCategory, loading: creatingCategory } = useCreateCategory();
-
   const { execute: updateCategory, loading: updatingCategory } = useUpdateCategory();
 
   const [createModalVisible, setCreateModalVisible] = useState(false);
-
   const [editModalVisible, setEditModalVisible] = useState(false);
-
   const [selectedItem, setSelectedItem] = useState<Item | null>(null);
-
   const [togglingItemId, setTogglingItemId] = useState<number | null>(null);
-
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
-
   const [createCategoryModalVisible, setCreateCategoryModalVisible] = useState(false);
-
   const [editCategoryModalVisible, setEditCategoryModalVisible] = useState(false);
+  
 
-  const handleCreate = async (values: any) => {
+ const handleCreate = async (values: any) => {
     try {
       await createItem(values);
 

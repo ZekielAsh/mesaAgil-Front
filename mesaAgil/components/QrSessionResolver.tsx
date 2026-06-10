@@ -1,4 +1,4 @@
-import { useTableSession } from '@/hooks/useTableSession';
+import { useTableSession } from '@/hooks/table/useTableSession';
 import { resolveTableSessionByQr } from '@/service/tableService';
 import { router } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
