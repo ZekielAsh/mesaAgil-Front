@@ -11,12 +11,16 @@ import { useTableRevenue } from '@/hooks/stats/useTableRevenue';
 import { useTopProducts } from '@/hooks/stats/useTopProducts';
 import { useTopRevenueProducts } from '@/hooks/stats/useTopRevenueProducts';
 
+import PeriodSelector from '@/components/stats/PeriodSelector';
 import { Period } from '@/types/StatsResponses';
 
-import { useState } from 'react';
+import {
+  useEffect,
+  useState
+} from 'react';
+
 import {
   ActivityIndicator,
-  Pressable,
   ScrollView,
   StyleSheet,
   Text,
@@ -26,7 +30,11 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function Stats() {
-  const [period, setPeriod] = useState<Period>('LAST_MONTH');
+  const [period, setPeriod] =
+    useState<Period>('LAST_MONTH');
+
+  const [hasLoadedOnce, setHasLoadedOnce] =
+    useState(false);
 
   const {
     stats,
@@ -63,6 +71,18 @@ export default function Stats() {
     topProducts.loading ||
     topRevenueProducts.loading;
 
+  useEffect(() => {
+    if (!isLoading && !hasLoadedOnce) {
+      setHasLoadedOnce(true);
+    }
+  }, [isLoading, hasLoadedOnce]);
+
+  const isInitialLoading =
+    !hasLoadedOnce && isLoading;
+
+  const isRefreshing =
+    hasLoadedOnce && isLoading;
+
   const errorMessage =
     statsErrorMessage ||
     revenueTimeline.errorMessage ||
@@ -95,12 +115,13 @@ export default function Stats() {
       p => p.value === period
     )?.text ?? '';
 
-  if (isLoading) {
+  if (isInitialLoading) {
     return (
-      <ActivityIndicator
-        size="large"
-        style={{ marginTop: 50 }}
-      />
+      <View style={styles.center}>
+        <ActivityIndicator
+          size="large"
+        />
+      </View>
     );
   }
 
@@ -115,119 +136,113 @@ export default function Stats() {
   if (!stats) {
     return (
       <View style={styles.center}>
-        <Text>No hay estadísticas disponibles.</Text>
+        <Text>
+          No hay estadísticas disponibles.
+        </Text>
       </View>
     );
   }
 
   return (
-    <ScrollView
-      style={[
-        styles.container,
-        {
+    <View style={styles.screen}>
+      {isRefreshing && (
+        <View style={styles.loadingOverlay}>
+          <ActivityIndicator
+            size="large"
+          />
+        </View>
+      )}
+
+      <ScrollView
+        style={styles.container}
+        contentContainerStyle={{
+          paddingHorizontal: 16,
           paddingTop: insets.top,
-          paddingBottom:
-            insets.bottom
-        }
-      ]}
-    >
-      <View style={styles.tabs}>
-        {periods.map(p => (
-          <Pressable
-            key={p.value}
-            onPress={() =>
-              setPeriod(
-                p.value as Period
-              )
-            }
-            style={[
-              styles.tab,
-              period === p.value &&
-                styles.activeTab
-            ]}
-          >
-            <Text
-              style={[
-                styles.tabText,
-                period === p.value &&
-                  styles.activeTabText
-              ]}
-            >
-              {p.label}
-            </Text>
-          </Pressable>
-        ))}
-      </View>
+          paddingBottom: insets.bottom
+        }}
+        stickyHeaderIndices={[0]}
+      >
+        <PeriodSelector
+          period={period}
+          periods={periods}
+          onChange={setPeriod}
+        />
 
-      <Text style={styles.title}>
-        {`ESTADÍSTICAS ${selectedPeriodText}`}
-      </Text>
+        <Text style={styles.title}>
+          {`ESTADÍSTICAS ${selectedPeriodText}`}
+        </Text>
 
-      <SummaryCards
-        stats={stats}
-      />
+        <SummaryCards
+          stats={stats}
+        />
 
-      <RevenueChart
-        data={
-          revenueTimeline.data
-        }
-      />
+        <RevenueChart
+          data={
+            revenueTimeline.data
+          }
+        />
 
-      <RankingBarChart
-        title="Comidas más vendidas"
-        data={topProducts.data.map(
-          item => ({
-            label: item.name,
-            value: item.total
-          })
-        )}
-      />
+        <RankingBarChart
+          title="Comidas más vendidas"
+          data={topProducts.data.map(
+            item => ({
+              label: item.name,
+              value: item.total
+            })
+          )}
+        />
 
-      <RankingBarChart
-        title="Comidas con mayor facturación"
-        data={topRevenueProducts.data.map(
-          item => ({
-            label: item.name,
-            value: item.totalRevenue
-          })
-        )}
-      />
+        <RankingBarChart
+          title="Comidas con mayor facturación"
+          data={topRevenueProducts.data.map(
+            item => ({
+              label: item.name,
+              value:
+                item.totalRevenue
+            })
+          )}
+        />
 
-      <CategoryPieChart
-        data={
-          categories.data
-        }
-      />
+        <CategoryPieChart
+          data={
+            categories.data
+          }
+        />
 
-      <RankingBarChart
-        title="Mesas más usadas"
-        data={tableOrders.data.map(
-          item => ({
-            label: `Mesa ${item.tableNumber}`,
-            value:
-              item.totalOrders
-          })
-        )}
-      />
+        <RankingBarChart
+          title="Mesas más usadas"
+          data={tableOrders.data.map(
+            item => ({
+              label: `Mesa ${item.tableNumber}`,
+              value:
+                item.totalOrders
+            })
+          )}
+        />
 
-      <RankingBarChart
-        title="Ingresos por mesa"
-        data={tableRevenue.data.map(
-          item => ({
-            label: `Mesa ${item.tableNumber}`,
-            value: item.revenue
-          })
-        )}
-      />
-    </ScrollView>
+        <RankingBarChart
+          title="Ingresos por mesa"
+          data={tableRevenue.data.map(
+            item => ({
+              label: `Mesa ${item.tableNumber}`,
+              value:
+                item.revenue
+            })
+          )}
+        />
+      </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  screen: {
+    flex: 1
+  },
+
   container: {
     flex: 1,
-    backgroundColor: '#EFEFEF',
-    paddingHorizontal: 16
+    backgroundColor: '#EFEFEF'
   },
 
   title: {
@@ -236,35 +251,18 @@ const styles = StyleSheet.create({
     marginBottom: 16
   },
 
-  tabs: {
-    flexDirection: 'row',
-    marginBottom: 12
-  },
-
-  tab: {
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    borderRadius: 20,
-    backgroundColor: '#EEE',
-    marginRight: 8
-  },
-
-  activeTab: {
-    backgroundColor: '#333'
-  },
-
-  tabText: {
-    fontSize: 12,
-    color: '#333'
-  },
-
-  activeTabText: {
-    color: '#FFF'
-  },
-
   center: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center'
+  },
+
+  loadingOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor:
+      'rgba(255,255,255,0.5)',
+    zIndex: 100
   }
 });

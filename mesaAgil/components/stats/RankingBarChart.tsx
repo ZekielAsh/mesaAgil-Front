@@ -1,13 +1,8 @@
 import {
-  Dimensions,
   StyleSheet,
   Text,
   View
 } from 'react-native';
-
-import {
-  BarChart
-} from 'react-native-gifted-charts';
 
 type ChartItem = {
   label: string;
@@ -18,20 +13,6 @@ type Props = {
   title: string;
   data: ChartItem[];
 };
-
-function calculateMaxValue(
-  maxValue: number
-) {
-  if (maxValue <= 4) {
-    return 4;
-  }
-
-  const step = Math.ceil(
-    maxValue / 4
-  );
-
-  return step * 4;
-}
 
 function formatValue(
   value: number
@@ -45,35 +26,19 @@ export default function RankingBarChart({
   title,
   data
 }: Props) {
-  const screenWidth =
-    Dimensions.get('window').width;
+  if (data.length === 0) {
+    return null;
+  }
 
-  const maxValue = Math.max(
-    ...data.map(item => item.value),
-    1
+  const sortedData = [...data].sort(
+    (a, b) => b.value - a.value
   );
 
-  const chartMax =
-    calculateMaxValue(maxValue);
-
-  const chartWidth =
-    Math.max(
-      screenWidth - 100,
-      data.length * 70
-    );
-
-  const chartData = data.map(
-    item => ({
-      value: item.value,
-      label: item.label,
-      frontColor: '#1B5E20',
-
-      topLabelComponent: () => (
-        <Text style={styles.topLabel}>
-          {formatValue(item.value)}
-        </Text>
-      )
-    })
+  const maxValue = Math.max(
+    ...sortedData.map(
+      item => item.value
+    ),
+    1
   );
 
   return (
@@ -82,29 +47,69 @@ export default function RankingBarChart({
         {title}
       </Text>
 
-      <BarChart
-        data={chartData}
-        width={chartWidth}
-        height={260}
-        maxValue={chartMax}
-        noOfSections={4}
+      {sortedData.map(
+        (item, index) => {
+          const percentage =
+            (item.value /
+              maxValue) *
+            100;
 
-        yAxisThickness={1}
-        xAxisThickness={1}
+          return (
+            <View
+              key={`${item.label}-${index}`}
+              style={styles.item}
+            >
+              <View
+                style={
+                  styles.header
+                }
+              >
+                <Text
+                  style={
+                    styles.rank
+                  }
+                >
+                  #{index + 1}
+                </Text>
 
-        spacing={30}
-        barWidth={36}
+                <Text
+                  style={
+                    styles.label
+                  }
+                  numberOfLines={1}
+                >
+                  {item.label}
+                </Text>
 
-        yAxisTextStyle={
-          styles.yAxisLabel
+                <Text
+                  style={
+                    styles.value
+                  }
+                >
+                  {formatValue(
+                    item.value
+                  )}
+                </Text>
+              </View>
+
+              <View
+                style={
+                  styles.track
+                }
+              >
+                <View
+                  style={[
+                    styles.fill,
+                    {
+                      width: `${percentage}%`
+                    }
+                  ]}
+                />
+              </View>
+            </View>
+          );
         }
-
-        hideRules={false}
-
-        rulesColor="#E0E0E0"
-
-        showValuesAsTopLabel={false}
-      />
+      )}
     </View>
   );
 }
@@ -120,17 +125,48 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 16,
     fontWeight: '600',
-    marginBottom: 12
+    marginBottom: 16
   },
 
-  topLabel: {
-    fontSize: 12,
-    fontWeight: '600',
+  item: {
+    marginBottom: 18
+  },
+
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
     marginBottom: 6
   },
 
-  yAxisLabel: {
-    fontSize: 12,
-    width: 60
+  rank: {
+    width: 30,
+    fontWeight: '700',
+    color: '#555'
+  },
+
+  label: {
+    flex: 1,
+    fontSize: 14,
+    color: '#222',
+    marginRight: 8
+  },
+
+  value: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#1B5E20'
+  },
+
+  track: {
+    height: 14,
+    backgroundColor: '#E8E8E8',
+    borderRadius: 7,
+    overflow: 'hidden'
+  },
+
+  fill: {
+    height: '100%',
+    backgroundColor: '#1B5E20',
+    borderRadius: 7
   }
 });
