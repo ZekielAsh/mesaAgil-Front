@@ -34,7 +34,7 @@ export default function KitchenScreen() {
       setOrderItems(prevOrderItems => {
         if (!prevOrderItems) return prevOrderItems;
 
-        if (status === OrderItemStatus.DELIVERED) {
+        if (status === OrderItemStatus.READY || status === OrderItemStatus.DELIVERED) {
           return prevOrderItems.filter(item => item.id !== orderItemId);
         }
 
@@ -100,7 +100,7 @@ export default function KitchenScreen() {
           {orderItem.status === OrderItemStatus.IN_PREPARATION && (
             <TouchableOpacity
               style={[styles.button, styles.readyButton]}
-              onPress={() => handleUpdateOrderItem(orderItem.id, OrderItemStatus.DELIVERED)}
+              onPress={() => handleUpdateOrderItem(orderItem.id, OrderItemStatus.READY)}
             >
               <Text style={styles.buttonText}>Marcar listo</Text>
             </TouchableOpacity>
