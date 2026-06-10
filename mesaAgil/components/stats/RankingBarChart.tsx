@@ -5,7 +5,9 @@ import {
   View
 } from 'react-native';
 
-import { BarChart } from 'react-native-chart-kit';
+import {
+  BarChart
+} from 'react-native-gifted-charts';
 
 type ChartItem = {
   label: string;
@@ -17,11 +19,62 @@ type Props = {
   data: ChartItem[];
 };
 
+function calculateMaxValue(
+  maxValue: number
+) {
+  if (maxValue <= 4) {
+    return 4;
+  }
+
+  const step = Math.ceil(
+    maxValue / 4
+  );
+
+  return step * 4;
+}
+
+function formatValue(
+  value: number
+) {
+  return new Intl.NumberFormat(
+    'es-AR'
+  ).format(value);
+}
+
 export default function RankingBarChart({
   title,
   data
 }: Props) {
-  const screenWidth = Dimensions.get('window').width;
+  const screenWidth =
+    Dimensions.get('window').width;
+
+  const maxValue = Math.max(
+    ...data.map(item => item.value),
+    1
+  );
+
+  const chartMax =
+    calculateMaxValue(maxValue);
+
+  const chartWidth =
+    Math.max(
+      screenWidth - 100,
+      data.length * 70
+    );
+
+  const chartData = data.map(
+    item => ({
+      value: item.value,
+      label: item.label,
+      frontColor: '#1B5E20',
+
+      topLabelComponent: () => (
+        <Text style={styles.topLabel}>
+          {formatValue(item.value)}
+        </Text>
+      )
+    })
+  );
 
   return (
     <View style={styles.container}>
@@ -30,45 +83,31 @@ export default function RankingBarChart({
       </Text>
 
       <BarChart
-        data={{
-          labels: data.map(item =>
-            item.label.replace('Mesa ', '')
-          ),
-          datasets: [
-            {
-              data: data.map(item => item.value)
-            }
-          ]
-        }}
-        width={screenWidth - 64}
-        height={220}
-        fromZero
-        showValuesOnTopOfBars
-        yAxisLabel=""
-        yAxisSuffix=""
-        chartConfig={chartConfig}
-        style={styles.chart}
+        data={chartData}
+        width={chartWidth}
+        height={260}
+        maxValue={chartMax}
+        noOfSections={4}
+
+        yAxisThickness={1}
+        xAxisThickness={1}
+
+        spacing={30}
+        barWidth={36}
+
+        yAxisTextStyle={
+          styles.yAxisLabel
+        }
+
+        hideRules={false}
+
+        rulesColor="#E0E0E0"
+
+        showValuesAsTopLabel={false}
       />
     </View>
   );
 }
-
-const chartConfig = {
-  backgroundGradientFrom: '#FFFFFF',
-  backgroundGradientTo: '#FFFFFF',
-
-  decimalPlaces: 0,
-
-  color: (opacity = 1) =>
-    `rgba(27, 94, 32, ${opacity})`,
-
-  labelColor: (opacity = 1) =>
-    `rgba(0, 0, 0, ${opacity})`,
-
-  propsForLabels: {
-    fontSize: 12
-  }
-};
 
 const styles = StyleSheet.create({
   container: {
@@ -84,7 +123,14 @@ const styles = StyleSheet.create({
     marginBottom: 12
   },
 
-  chart: {
-    borderRadius: 12
+  topLabel: {
+    fontSize: 12,
+    fontWeight: '600',
+    marginBottom: 6
+  },
+
+  yAxisLabel: {
+    fontSize: 12,
+    width: 60
   }
 });

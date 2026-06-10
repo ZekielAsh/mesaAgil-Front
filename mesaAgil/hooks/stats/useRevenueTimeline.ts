@@ -28,7 +28,7 @@ export function useRevenueTimeline(
       .finally(() => {
         setLoading(false);
       });
-  }, [period]);
+  }, [period, user?.token]);
 
   return {
     data,

@@ -18,18 +18,6 @@ export default function SummaryCards({ stats }: Props) {
     {
       title: 'Ticket Promedio',
       value: `$${stats.avgTicket}`
-    },
-    {
-      title: 'Más vendido',
-      value: `${stats.topItemName} (${stats.topItemQuantity})`
-    },
-    {
-      title: 'Mayor ingreso',
-      value: `${stats.topRevenueItemName}`
-    },
-    {
-      title: 'Monto generado',
-      value: `$${stats.topRevenueItemAmount}`
     }
   ];
 
@@ -59,7 +47,7 @@ const styles = StyleSheet.create({
   },
 
   card: {
-    width: '48%',
+    width: '100%',
     backgroundColor: '#F5F5F5',
     borderRadius: 12,
     padding: 16,

@@ -2,17 +2,17 @@ import { useEffect, useState } from 'react';
 
 import { useAuth } from '@/hooks/useAuth';
 
-import { getTableOrders } from '@/service/statsService';
+import { getTopRevenueProducts } from '@/service/statsService';
 
 import {
   Period,
-  TableOrdersResponse,
+  TopRevenueItemResponse,
 } from '@/types/StatsResponses';
 
-export function useTableOrders(
+export function useTopRevenueProducts(
   period: Period
 ) {
-  const [data, setData] = useState<TableOrdersResponse[]>([]);
+  const [data, setData] = useState<TopRevenueItemResponse[]>([]);
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState('');
 
@@ -22,7 +22,7 @@ export function useTableOrders(
     setLoading(true);
     setErrorMessage('');
 
-    getTableOrders(
+    getTopRevenueProducts(
       period,
       user?.token ?? ''
     )

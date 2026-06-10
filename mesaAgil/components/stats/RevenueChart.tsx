@@ -10,38 +10,7 @@ export default function RevenueChart({
   data
 }: Props) {
   const screenWidth = Dimensions.get('window').width;
-  /*
-  if (data.length < 2) {
-    return (
-      <View style={styles.container}>
-        <Text style={styles.title}>
-          Evolución de ingresos
-        </Text>
 
-        <Text>
-          Se necesitan más datos para mostrar la evolución.
-        </Text>
-      </View>
-    );
-  }
-
-  if (data.length === 1) {
-    return (
-      <View style={styles.container}>
-        <Text style={styles.title}>
-          Evolución de ingresos
-        </Text>
-
-        <Text>
-          Ingresos registrados el {data[0].label}
-        </Text>
-
-        <Text style={styles.singleValue}>
-          ${data[0].revenue}
-        </Text>
-      </View>
-    );
-  }*/
 
   return (
     <View style={styles.container}>

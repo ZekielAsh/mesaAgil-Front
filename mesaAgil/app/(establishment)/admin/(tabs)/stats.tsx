@@ -8,6 +8,8 @@ import { useRevenueTimeline } from '@/hooks/stats/useRevenueTimeline';
 import { useStatsByPeriod } from '@/hooks/stats/useStatsByPeriod';
 import { useTableOrders } from '@/hooks/stats/useTableOrders';
 import { useTableRevenue } from '@/hooks/stats/useTableRevenue';
+import { useTopProducts } from '@/hooks/stats/useTopProducts';
+import { useTopRevenueProducts } from '@/hooks/stats/useTopRevenueProducts';
 
 import { Period } from '@/types/StatsResponses';
 
@@ -38,6 +40,12 @@ export default function Stats() {
   const categories =
     useCategoryRevenue(period);
 
+  const topProducts =
+    useTopProducts(period);
+
+  const topRevenueProducts =
+    useTopRevenueProducts(period);
+
   const tableOrders =
     useTableOrders(period);
 
@@ -45,6 +53,24 @@ export default function Stats() {
     useTableRevenue(period);
 
   const insets = useSafeAreaInsets();
+
+  const isLoading =
+    isLoadingStats ||
+    revenueTimeline.loading ||
+    categories.loading ||
+    tableOrders.loading ||
+    tableRevenue.loading ||
+    topProducts.loading ||
+    topRevenueProducts.loading;
+
+  const errorMessage =
+    statsErrorMessage ||
+    revenueTimeline.errorMessage ||
+    categories.errorMessage ||
+    tableOrders.errorMessage ||
+    tableRevenue.errorMessage ||
+    topProducts.errorMessage ||
+    topRevenueProducts.errorMessage;
 
   const periods = [
     {
@@ -69,7 +95,7 @@ export default function Stats() {
       p => p.value === period
     )?.text ?? '';
 
-  if (isLoadingStats) {
+  if (isLoading) {
     return (
       <ActivityIndicator
         size="large"
@@ -78,15 +104,18 @@ export default function Stats() {
     );
   }
 
-  if (
-    statsErrorMessage ||
-    stats === undefined
-  ) {
+  if (errorMessage) {
     return (
       <View style={styles.center}>
-        <Text>
-          {statsErrorMessage}
-        </Text>
+        <Text>{errorMessage}</Text>
+      </View>
+    );
+  }
+
+  if (!stats) {
+    return (
+      <View style={styles.center}>
+        <Text>No hay estadísticas disponibles.</Text>
       </View>
     );
   }
@@ -142,6 +171,26 @@ export default function Stats() {
         data={
           revenueTimeline.data
         }
+      />
+
+      <RankingBarChart
+        title="Comidas más vendidas"
+        data={topProducts.data.map(
+          item => ({
+            label: item.name,
+            value: item.total
+          })
+        )}
+      />
+
+      <RankingBarChart
+        title="Comidas con mayor facturación"
+        data={topRevenueProducts.data.map(
+          item => ({
+            label: item.name,
+            value: item.totalRevenue
+          })
+        )}
       />
 
       <CategoryPieChart

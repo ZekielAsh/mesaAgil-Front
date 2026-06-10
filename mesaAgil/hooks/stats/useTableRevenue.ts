@@ -35,7 +35,7 @@ export function useTableRevenue(
       .finally(() => {
         setLoading(false);
       });
-  }, [period]);
+  }, [period, user?.token]);
 
   return {
     data,
