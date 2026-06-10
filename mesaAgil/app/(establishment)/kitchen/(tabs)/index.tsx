@@ -1,3 +1,4 @@
+import { Fonts } from '@/constants/fonts';
 import { useAuth } from '@/hooks/useAuth';
 import { useOrders } from '@/hooks/order/useOrderItems';
 import { updateOrderItemStatus } from '@/service/orderService';
@@ -33,7 +34,7 @@ export default function KitchenScreen() {
       setOrderItems(prevOrderItems => {
         if (!prevOrderItems) return prevOrderItems;
 
-        if (status === OrderItemStatus.DELIVERED) {
+        if (status === OrderItemStatus.READY || status === OrderItemStatus.DELIVERED) {
           return prevOrderItems.filter(item => item.id !== orderItemId);
         }
 
@@ -51,45 +52,60 @@ export default function KitchenScreen() {
     });
   };
 
+  const formatHourMinute = (dateString: string): string => {
+    const date = new Date(`${dateString}Z`);
+
+    return date.toLocaleTimeString('es-AR', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false
+    });
+  };
+
   const renderOrder = (orderItem: OrderItem) => {
     return (
       <View style={styles.card}>
-        <View style={styles.header}>
-          <Text style={styles.tableText}>Mesa {orderItem.tableNumber}</Text>
+        <Text style={styles.time}>{formatHourMinute(orderItem.createdAt.toString())}</Text>
+        <View style={styles.body}>
+          <View style={styles.header}>
+            <Text style={styles.tableText}>Mesa {orderItem.tableNumber}</Text>
 
-          <View
-            style={[
-              styles.statusBadge,
-              orderItem.status === OrderItemStatus.PENDING ? styles.pendingBadge : styles.preparingBadge
-            ]}
-          >
-            <Text style={styles.statusText}>{orderItem.status}</Text>
+            <View
+              style={[
+                styles.statusBadge,
+                orderItem.status === OrderItemStatus.PENDING ? styles.pendingBadge : styles.preparingBadge
+              ]}
+            >
+              <Text style={styles.statusText}>
+                {orderItem.status === OrderItemStatus.PENDING ? 'PENDIENTE' : 'PREPARANDO'}
+              </Text>
+            </View>
           </View>
+
+          <View style={styles.content}>
+            <Text style={styles.itemName}>
+              <Text style={styles.itemQuantity}>{orderItem.quantity}</Text>x {orderItem.item.name}
+            </Text>
+          </View>
+
+          {orderItem.status === OrderItemStatus.PENDING && (
+            <TouchableOpacity
+              style={[styles.button, styles.startButton]}
+              onPress={() => handleUpdateOrderItem(orderItem.id, OrderItemStatus.IN_PREPARATION)}
+            >
+              <Text style={styles.buttonText}>Comenzar</Text>
+            </TouchableOpacity>
+          )}
+
+          {orderItem.status === OrderItemStatus.IN_PREPARATION && (
+            <TouchableOpacity
+              style={[styles.button, styles.readyButton]}
+              onPress={() => handleUpdateOrderItem(orderItem.id, OrderItemStatus.READY)}
+            >
+              <Text style={styles.buttonText}>Marcar listo</Text>
+            </TouchableOpacity>
+          )}
         </View>
-
-        <View style={styles.content}>
-          <Text style={styles.itemName}>
-            {orderItem.quantity}x {orderItem.item.name}
-          </Text>
-        </View>
-
-        {orderItem.status === OrderItemStatus.PENDING && (
-          <TouchableOpacity
-            style={[styles.button, styles.startButton]}
-            onPress={() => handleUpdateOrderItem(orderItem.id, OrderItemStatus.IN_PREPARATION)}
-          >
-            <Text style={styles.buttonText}>Comenzar</Text>
-          </TouchableOpacity>
-        )}
-
-        {orderItem.status === OrderItemStatus.IN_PREPARATION && (
-          <TouchableOpacity
-            style={[styles.button, styles.readyButton]}
-            onPress={() => handleUpdateOrderItem(orderItem.id, OrderItemStatus.DELIVERED)}
-          >
-            <Text style={styles.buttonText}>Marcar listo</Text>
-          </TouchableOpacity>
-        )}
       </View>
     );
   };
@@ -102,6 +118,11 @@ export default function KitchenScreen() {
         renderItem={({ item }) => renderOrder(item)}
         showsVerticalScrollIndicator={false}
         ListEmptyComponent={<Text style={styles.emptyText}>No hay comandas pendientes</Text>}
+        ListHeaderComponent={
+          <View style={styles.categoryHeader}>
+            <Text style={styles.categoryTitle}>Comandas</Text>
+          </View>
+        }
         contentContainerStyle={styles.list}
       />
     </View>
@@ -118,26 +139,29 @@ const styles = StyleSheet.create({
     paddingBottom: 100
   },
   card: {
+    flexDirection: 'row',
     backgroundColor: '#FFFFFF',
     borderRadius: 20,
     padding: 16,
     marginBottom: 16,
 
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-
-    elevation: 3
+    boxShadow: '2px 2px 4px rgba(0,0,0,0.25)'
+  },
+  image: {
+    width: 128,
+    height: 128,
+    borderRadius: 8,
+    marginRight: 12
+  },
+  body: {
+    flex: 1,
+    gap: 12,
+    marginLeft: 12
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 14
+    alignItems: 'center'
   },
   tableText: {
     fontSize: 22,
@@ -160,9 +184,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#111827'
   },
-  content: {
-    marginBottom: 18
-  },
+  content: {},
   itemName: {
     fontSize: 18,
     color: '#374151',
@@ -194,5 +216,29 @@ const styles = StyleSheet.create({
     marginTop: 40,
     fontSize: 16,
     color: '#666'
+  },
+  categoryHeader: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    borderBottomWidth: 1,
+    paddingVertical: 8,
+    marginBottom: 12
+  },
+  categoryTitle: {
+    fontSize: 20,
+    fontFamily: Fonts.bold
+  },
+  time: {
+    fontSize: 36,
+    fontFamily: Fonts.bold,
+    alignContent: 'center',
+    paddingRight: 12,
+    borderRightWidth: 1.5,
+    borderColor: '#666'
+  },
+  itemQuantity: {
+    color: '#000',
+    fontSize: 20,
+    fontWeight: 700
   }
 });

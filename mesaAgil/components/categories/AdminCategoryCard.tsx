@@ -1,106 +1,58 @@
+import { Fonts } from '@/constants/fonts';
 import { Category } from '@/types/model/Category';
-import {
-  Pressable,
-  StyleSheet,
-  Text,
-  View
-} from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 type AdminCategoryCardProps = {
   category: Category;
 
-  onEdit: (
-    category: Category
-  ) => void;
-
-  onDelete: (
-    category: Category
-  ) => void;
+  onEdit: (category: Category) => void;
 };
 
-export const AdminCategoryCard = ({
-  category,
-  onEdit,
-  onDelete
-}: AdminCategoryCardProps) => {
+export const AdminCategoryCard = ({ category, onEdit }: AdminCategoryCardProps) => {
   return (
     <View style={styles.card}>
-      <Text style={styles.name}>
-        {category.name}
-      </Text>
+      <Text style={styles.name}>{category.name}</Text>
 
-      <View style={styles.actions}>
-        <Pressable
-          style={styles.editButton}
-          onPress={() =>
-            onEdit(category)
-          }
-        >
-          <Text style={styles.text}>
-            Editar
-          </Text>
-        </Pressable>
-
-        <Pressable
-          style={styles.deleteButton}
-          onPress={() =>
-            onDelete(category)
-          }
-        >
-          <Text style={styles.text}>
-            Eliminar
-          </Text>
-        </Pressable>
-      </View>
+      <Pressable style={styles.editButton} onPress={() => onEdit(category)}>
+        <Text style={styles.text}>Editar</Text>
+      </Pressable>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: '#333',
+    backgroundColor: '#fff',
     borderRadius: 12,
     padding: 12,
     marginRight: 12,
-    width: 220,
+    minWidth: 220,
     minHeight: 86,
-    justifyContent:
-      'space-between',
-    gap: 10
+    justifyContent: 'space-between',
+    gap: 10,
+    boxShadow: '2px 2px 4px rgba(0,0,0,0.25)'
   },
-
   name: {
-    color: '#fff',
+    color: '#000',
     fontWeight: 'bold',
     fontSize: 16
   },
-
   actions: {
     flexDirection: 'row',
     gap: 8
   },
-
   editButton: {
     flex: 1,
-    backgroundColor: '#FF9500',
+    backgroundColor: '#f48e00',
     paddingVertical: 6,
     paddingHorizontal: 8,
     borderRadius: 8,
-    alignItems: 'center'
+    alignItems: 'center',
+    justifyContent: 'center'
   },
-
-  deleteButton: {
-    flex: 1,
-    backgroundColor: '#FF3B30',
-    paddingVertical: 6,
-    paddingHorizontal: 8,
-    borderRadius: 8,
-    alignItems: 'center'
-  },
-
   text: {
     color: '#fff',
-    fontWeight: 'bold',
-    fontSize: 12
+    fontSize: 12,
+    fontFamily: Fonts.bold
   }
 });
