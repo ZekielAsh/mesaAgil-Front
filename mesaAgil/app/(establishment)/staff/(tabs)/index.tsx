@@ -1,7 +1,10 @@
 import { Fonts } from '@/constants/fonts';
 import { useAuth } from '@/hooks/useAuth';
 import { useBillRequests } from '@/hooks/useBillRequests';
+import { useWebSocket } from '@/hooks/useWebSocket';
 import { closeOrder } from '@/service/orderService';
+import { stompClient } from '@/service/websocket';
+import { useEffect } from 'react';
 import { ActivityIndicator, Button, FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 import Toast from 'react-native-toast-message';
 
@@ -9,6 +12,37 @@ export default function StaffScreen() {
   const { user } = useAuth();
   const { billRequests, setBillRequests, billRequestsErrorMessage, isLoadingBillRequests, refreshBillRequests } =
     useBillRequests();
+  const { connected } = useWebSocket();
+
+  useEffect(() => {
+    if (!connected) {
+      return;
+    }
+
+    const subscription = stompClient.subscribe('/room/staff', message => {
+      const event = JSON.parse(message.body);
+
+      if (event.type !== 'BILL_REQUESTED') {
+        return;
+      }
+
+      const newOrderRequestBill = event.payload;
+
+      setBillRequests(current => {
+        const exists = current.some(order => order.id === newOrderRequestBill.id);
+
+        if (exists) {
+          return current;
+        }
+
+        return [...current, newOrderRequestBill];
+      });
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [connected]);
 
   if (isLoadingBillRequests || billRequests === undefined) {
     return (
