@@ -1,156 +1,268 @@
-import { useStatsByPeriod } from '@/hooks/useStatsByPeriod';
-import { Period } from '@/types/StatsSummaryResponse';
-import { useState } from 'react';
-import { ActivityIndicator, Button, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import CategoryPieChart from '@/components/stats/CategoryPieChart';
+import RankingBarChart from '@/components/stats/RankingBarChart';
+import RevenueChart from '@/components/stats/RevenueChart';
+import SummaryCards from '@/components/stats/SummaryCards';
+
+import { useCategoryRevenue } from '@/hooks/stats/useCategoryRevenue';
+import { useRevenueTimeline } from '@/hooks/stats/useRevenueTimeline';
+import { useStatsByPeriod } from '@/hooks/stats/useStatsByPeriod';
+import { useTableOrders } from '@/hooks/stats/useTableOrders';
+import { useTableRevenue } from '@/hooks/stats/useTableRevenue';
+import { useTopProducts } from '@/hooks/stats/useTopProducts';
+import { useTopRevenueProducts } from '@/hooks/stats/useTopRevenueProducts';
+
+import PeriodSelector from '@/components/stats/PeriodSelector';
+import { Period } from '@/types/StatsResponses';
+
+import {
+  useEffect,
+  useState
+} from 'react';
+
+import {
+  ActivityIndicator,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View
+} from 'react-native';
+
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function Stats() {
-  const [period, setPeriod] = useState<Period>('LAST_MONTH');
-  const { stats, isLoadingStats, statsErrorMessage, refetch } = useStatsByPeriod(period);
+  const [period, setPeriod] =
+    useState<Period>('LAST_MONTH');
+
+  const [hasLoadedOnce, setHasLoadedOnce] =
+    useState(false);
+
+  const {
+    stats,
+    isLoadingStats,
+    statsErrorMessage
+  } = useStatsByPeriod(period);
+
+  const revenueTimeline =
+    useRevenueTimeline(period);
+
+  const categories =
+    useCategoryRevenue(period);
+
+  const topProducts =
+    useTopProducts(period);
+
+  const topRevenueProducts =
+    useTopRevenueProducts(period);
+
+  const tableOrders =
+    useTableOrders(period);
+
+  const tableRevenue =
+    useTableRevenue(period);
+
   const insets = useSafeAreaInsets();
 
-  const periods: { text: string; label: string; value: Period }[] = [
-    { text: 'DEL ÚLTIMO DÍA', label: 'Día', value: 'LAST_DAY' },
-    { text: 'DE LA ÚLTIMA SEMANA', label: 'Semana', value: 'LAST_WEEK' },
-    { text: 'DEL ÚLTIMO MES', label: 'Mes', value: 'LAST_MONTH' }
-  ];
+  const isLoading =
+    isLoadingStats ||
+    revenueTimeline.loading ||
+    categories.loading ||
+    tableOrders.loading ||
+    tableRevenue.loading ||
+    topProducts.loading ||
+    topRevenueProducts.loading;
 
-  const selectedPeriodText = periods.find(p => p.value === period)?.text || '';
+  useEffect(() => {
+    if (!isLoading && !hasLoadedOnce) {
+      setHasLoadedOnce(true);
+    }
+  }, [isLoading, hasLoadedOnce]);
 
-  if (isLoadingStats) {
-    return <ActivityIndicator size="large" style={{ marginTop: 50 }} />;
-  }
+  const isInitialLoading =
+    !hasLoadedOnce && isLoading;
 
-  if (statsErrorMessage || stats === undefined) {
+  const isRefreshing =
+    hasLoadedOnce && isLoading;
+
+  const errorMessage =
+    statsErrorMessage ||
+    revenueTimeline.errorMessage ||
+    categories.errorMessage ||
+    tableOrders.errorMessage ||
+    tableRevenue.errorMessage ||
+    topProducts.errorMessage ||
+    topRevenueProducts.errorMessage;
+
+  const periods = [
+    {
+      text: 'DEL ÚLTIMO DÍA',
+      label: 'Día',
+      value: 'LAST_DAY'
+    },
+    {
+      text: 'DE LA ÚLTIMA SEMANA',
+      label: 'Semana',
+      value: 'LAST_WEEK'
+    },
+    {
+      text: 'DEL ÚLTIMO MES',
+      label: 'Mes',
+      value: 'LAST_MONTH'
+    }
+  ] as const;
+
+  const selectedPeriodText =
+    periods.find(
+      p => p.value === period
+    )?.text ?? '';
+
+  if (isInitialLoading) {
     return (
       <View style={styles.center}>
-        <Text>{statsErrorMessage}</Text>
-        <Button title="Reintentar" onPress={() => refetch(period)} />
+        <ActivityIndicator
+          size="large"
+        />
       </View>
     );
   }
 
-  const statsList = [
-    {
-      label: 'Ingresos totales',
-      value: `$${stats.totalRevenue}`
-    },
-    {
-      label: 'Órdenes',
-      value: stats.totalOrders
-    },
-    {
-      label: 'Ticket promedio',
-      value: `$${stats.avgTicket}`
-    },
-    {
-      label: 'Más vendido',
-      value: `${stats.topItemName} (${stats.topItemQuantity})`
-    },
-    {
-      label: 'Mayor ingreso',
-      value: `${stats.topRevenueItemName} ($${stats.topRevenueItemAmount})`
-    }
-  ];
+  if (errorMessage) {
+    return (
+      <View style={styles.center}>
+        <Text>{errorMessage}</Text>
+      </View>
+    );
+  }
+
+  if (!stats) {
+    return (
+      <View style={styles.center}>
+        <Text>
+          No hay estadísticas disponibles.
+        </Text>
+      </View>
+    );
+  }
 
   return (
-    <View
-      style={{
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        paddingTop: insets.top,
-        paddingBottom: insets.bottom,
-        paddingLeft: insets.left,
-        paddingRight: insets.right,
-        padding: 16,
-        backgroundColor: '#fff'
-      }}
-    >
-      <View style={styles.tabs}>
-        {periods.map(p => (
-          <Pressable
-            key={p.value}
-            onPress={() => {
-              setPeriod(p.value);
-              refetch(p.value);
-            }}
-            style={[styles.tab, period === p.value && styles.activeTab]}
-          >
-            <Text style={[styles.tabText, period === p.value && styles.activeTabText]}>{p.label}</Text>
-          </Pressable>
-        ))}
-      </View>
-
-      <Text style={styles.title}>{`ESTADÍSTICAS ${selectedPeriodText}`}</Text>
+    <View style={styles.screen}>
+      {isRefreshing && (
+        <View style={styles.loadingOverlay}>
+          <ActivityIndicator
+            size="large"
+          />
+        </View>
+      )}
 
       <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={{ alignItems: 'flex-start' }}
+        style={styles.container}
+        contentContainerStyle={{
+          paddingHorizontal: 16,
+          paddingTop: insets.top,
+          paddingBottom: insets.bottom
+        }}
+        stickyHeaderIndices={[0]}
       >
-        {stats
-          ? statsList.map((stat, index) => (
-              <View key={index} style={styles.card}>
-                <Text style={styles.value}>{stat.value}</Text>
-                <Text style={styles.label}>{stat.label}</Text>
-              </View>
-            ))
-          : null}
+        <PeriodSelector
+          period={period}
+          periods={periods}
+          onChange={setPeriod}
+        />
+
+        <Text style={styles.title}>
+          {`ESTADÍSTICAS ${selectedPeriodText}`}
+        </Text>
+
+        <SummaryCards
+          stats={stats}
+        />
+
+        <RevenueChart
+          data={
+            revenueTimeline.data
+          }
+        />
+
+        <RankingBarChart
+          title="Comidas más vendidas"
+          data={topProducts.data.map(
+            item => ({
+              label: item.name,
+              value: item.total
+            })
+          )}
+        />
+
+        <RankingBarChart
+          title="Comidas con mayor facturación"
+          data={topRevenueProducts.data.map(
+            item => ({
+              label: item.name,
+              value:
+                item.totalRevenue
+            })
+          )}
+        />
+
+        <CategoryPieChart
+          data={
+            categories.data
+          }
+        />
+
+        <RankingBarChart
+          title="Mesas más usadas"
+          data={tableOrders.data.map(
+            item => ({
+              label: `Mesa ${item.tableNumber}`,
+              value:
+                item.totalOrders
+            })
+          )}
+        />
+
+        <RankingBarChart
+          title="Ingresos por mesa"
+          data={tableRevenue.data.map(
+            item => ({
+              label: `Mesa ${item.tableNumber}`,
+              value:
+                item.revenue
+            })
+          )}
+        />
       </ScrollView>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  screen: {
+    flex: 1
+  },
+
+  container: {
+    flex: 1,
+    backgroundColor: '#EFEFEF'
+  },
+
   title: {
     fontSize: 12,
     color: '#888',
-    marginBottom: 10
+    marginBottom: 16
   },
-  card: {
-    backgroundColor: '#f5f5f5',
-    padding: 16,
-    borderRadius: 10,
-    marginRight: 10,
-    minWidth: 120,
-    alignItems: 'center'
-  },
-  value: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#333'
-  },
-  label: {
-    fontSize: 12,
-    color: '#777',
-    textAlign: 'center',
-    marginTop: 5
-  },
-  tabs: {
-    flexDirection: 'row',
-    marginBottom: 10
-  },
-  tab: {
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    borderRadius: 20,
-    backgroundColor: '#eee',
-    marginRight: 8
-  },
-  activeTab: {
-    backgroundColor: '#333'
-  },
-  tabText: {
-    fontSize: 12,
-    color: '#333'
-  },
-  activeTabText: {
-    color: '#fff'
-  },
+
   center: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center'
+  },
+
+  loadingOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor:
+      'rgba(255,255,255,0.5)',
+    zIndex: 100
   }
 });

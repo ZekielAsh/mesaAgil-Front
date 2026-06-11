@@ -2,8 +2,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import OrderTable from '@/components/OrderTable';
 import { Fonts } from '@/constants/fonts';
-import { useGetOrderById } from '@/hooks/useOrderById';
-import { useTableSession } from '@/hooks/useTableSession';
+import { useGetOrderById } from '@/hooks/order/useOrderById';
+import { useTableSession } from '@/hooks/table/useTableSession';
 import { useWebSocket } from '@/hooks/useWebSocket';
 import { requestBill } from '@/service/orderService';
 import { stompClient } from '@/service/websocket';

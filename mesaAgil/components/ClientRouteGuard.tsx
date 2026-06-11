@@ -1,7 +1,7 @@
 import { ReactNode, useEffect } from 'react';
 import { router } from 'expo-router';
 
-import { useTableSession } from '@/hooks/useTableSession';
+import { useTableSession } from '@/hooks/table/useTableSession';
 
 interface Props {
   children: ReactNode;
