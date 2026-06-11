@@ -1,7 +1,10 @@
 import { Fonts } from '@/constants/fonts';
 import { useReadyOrderItems } from '@/hooks/useReadyOrderItems';
 import { useUpdateOrderItemStatus } from '@/hooks/useUpdateOrderItemStatus';
+import { useWebSocket } from '@/hooks/useWebSocket';
+import { stompClient } from '@/service/websocket';
 import { OrderItem, OrderItemStatus } from '@/types/model/OrderItem';
+import { useEffect } from 'react';
 import { ActivityIndicator, Button, FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 import Toast from 'react-native-toast-message';
 
@@ -14,6 +17,37 @@ export default function ReadyScreen() {
     isLoadingReadyOrderItems,
     refreshReadyOrderItems
   } = useReadyOrderItems();
+  const { connected } = useWebSocket();
+
+  useEffect(() => {
+    if (!connected) {
+      return;
+    }
+
+    const subscription = stompClient.subscribe('/room/orderItems', message => {
+      const event = JSON.parse(message.body);
+
+      if (event.type !== 'ORDER_ITEM_STATUS_UPDATED') {
+        return;
+      }
+
+      const updatedOrderItem = event.payload;
+
+      setReadyOrderItems(current => {
+        const filtered = current.filter(item => item.id !== updatedOrderItem.id);
+
+        if (updatedOrderItem.status === OrderItemStatus.READY) {
+          filtered.push(updatedOrderItem);
+        }
+
+        return filtered;
+      });
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [connected]);
 
   if (isLoadingReadyOrderItems || readyOrderItems === undefined) {
     return (
@@ -87,7 +121,7 @@ export default function ReadyScreen() {
         ListEmptyComponent={<Text style={styles.emptyText}>No hay ordenes listas</Text>}
         ListHeaderComponent={
           <View style={styles.categoryHeader}>
-            <Text style={styles.categoryTitle}>Ordenes listas</Text>
+            <Text style={styles.categoryTitle}>Comandas listas</Text>
           </View>
         }
         renderItem={({ item }) => renderOrder(item)}
