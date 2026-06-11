@@ -1,6 +1,6 @@
+import { useAuth } from '@/hooks/useAuth';
 import { updateOrderItemStatus } from '@/service/orderService';
 import { useState } from 'react';
-import { useAuth } from './useAuth';
 
 export function useUpdateOrderItemStatus() {
   const [loadingUpdateOrderItemStatus, setLoadingUpdateOrderItemStatus] = useState(false);

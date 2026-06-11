@@ -1,6 +1,6 @@
 import { Fonts } from '@/constants/fonts';
+import { useUpdateOrderItemStatus } from '@/hooks/order/useUpdateOrderItemStatus';
 import { useReadyOrderItems } from '@/hooks/useReadyOrderItems';
-import { useUpdateOrderItemStatus } from '@/hooks/useUpdateOrderItemStatus';
 import { useWebSocket } from '@/hooks/useWebSocket';
 import { stompClient } from '@/service/websocket';
 import { OrderItem, OrderItemStatus } from '@/types/model/OrderItem';
