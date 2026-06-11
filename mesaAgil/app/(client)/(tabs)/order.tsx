@@ -4,7 +4,9 @@ import OrderTable from '@/components/OrderTable';
 import { Fonts } from '@/constants/fonts';
 import { useGetOrderById } from '@/hooks/order/useOrderById';
 import { useTableSession } from '@/hooks/table/useTableSession';
+import { useWebSocket } from '@/hooks/useWebSocket';
 import { requestBill } from '@/service/orderService';
+import { stompClient } from '@/service/websocket';
 import { OrderStatus } from '@/types/model/Order';
 import { Redirect } from 'expo-router';
 import { useEffect } from 'react';
@@ -24,6 +26,7 @@ export default function Orders() {
     session?.orderId ?? undefined
   );
   const insets = useSafeAreaInsets();
+  const { connected } = useWebSocket();
 
   useEffect(() => {
     if (!session) {
@@ -40,10 +43,49 @@ export default function Orders() {
     }
   }, [session, clearSession]);
 
+  useEffect(() => {
+    if (!connected) {
+      return;
+    }
+
+    const tableSubscription = stompClient.subscribe(`/room/table/${session?.orderId}`, message => {
+      const event = JSON.parse(message.body);
+
+      if (event.type === 'ORDER_CLOSED') {
+        clearSession();
+      }
+    });
+
+    const orderItemsSubscription = stompClient.subscribe(`/room/orderItems`, message => {
+      const event = JSON.parse(message.body);
+
+      if (event.type !== 'ORDER_ITEM_STATUS_UPDATED') {
+        return;
+      }
+
+      const updatedOrderItem = event.payload;
+
+      setOrder(current => {
+        if (!current) {
+          return current;
+        }
+
+        return {
+          ...current,
+          orderItems: current.orderItems.map(item => (item.id === updatedOrderItem.id ? updatedOrderItem : item))
+        };
+      });
+    });
+
+    return () => {
+      tableSubscription.unsubscribe();
+      orderItemsSubscription.unsubscribe();
+    };
+  }, [connected]);
+
   const orderTotal =
     order?.orderItems.reduce((total, orderItem) => total + Number(orderItem.price * orderItem.quantity), 0) ?? 0;
 
-  // TODO: pasar a hook y componente
   const onRequestBill = (id: number) => {
     requestBill(id)
       .then(() => {

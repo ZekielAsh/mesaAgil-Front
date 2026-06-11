@@ -1,7 +1,7 @@
+import { useAuth } from '@/hooks/useAuth';
 import { getKitchenOrderItems } from '@/service/orderService';
 import { OrderItem } from '@/types/model/OrderItem';
 import { useEffect, useState } from 'react';
-import { useAuth } from '@/hooks/useAuth';
 
 export function useOrders() {
   const [orderItems, setOrderItems] = useState<OrderItem[]>();
