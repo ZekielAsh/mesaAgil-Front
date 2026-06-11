@@ -1,5 +1,6 @@
 import { AuthProvider } from '@/context/AuthContext';
 import { TableSessionProvider } from '@/context/TableSessionContext';
+import { WebSocketProvider } from '@/context/WebSocketContext';
 import {
   Inter_400Regular,
   Inter_500Medium,
@@ -64,31 +65,33 @@ export default function RootLayout() {
   return (
     <AuthProvider>
       <TableSessionProvider>
-        <ThemeProvider value={DefaultTheme}>
-          <View style={styles.container}>
-            <View style={styles.content}>
-              <Stack
-                screenOptions={{
-                  headerShown: false
-                }}
-              >
-                <Stack.Screen name="index" />
+        <WebSocketProvider>
+          <ThemeProvider value={DefaultTheme}>
+            <View style={styles.container}>
+              <View style={styles.content}>
+                <Stack
+                  screenOptions={{
+                    headerShown: false
+                  }}
+                >
+                  <Stack.Screen name="index" />
 
-                <Stack.Screen name="login" />
+                  <Stack.Screen name="login" />
 
-                <Stack.Screen name="(client)/(tabs)" />
+                  <Stack.Screen name="(client)/(tabs)" />
 
-                <Stack.Screen name="(establishment)" />
+                  <Stack.Screen name="(establishment)" />
 
-                <Stack.Screen name="qr" />
-              </Stack>
+                  <Stack.Screen name="qr" />
+                </Stack>
+              </View>
+
+              <StatusBar />
+
+              <Toast config={toastConfig} />
             </View>
-
-            <StatusBar />
-
-            <Toast config={toastConfig} />
-          </View>
-        </ThemeProvider>
+          </ThemeProvider>
+        </WebSocketProvider>
       </TableSessionProvider>
     </AuthProvider>
   );
