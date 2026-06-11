@@ -1,15 +1,37 @@
 import { Fonts } from '@/constants/fonts';
 import { useAuth } from '@/hooks/useAuth';
-import { useOrders } from '@/hooks/useOrderItems';
+import { useKitchenOrderItems } from '@/hooks/useKitchenOrderItems';
+import { useWebSocket } from '@/hooks/useWebSocket';
 import { updateOrderItemStatus } from '@/service/orderService';
+import { stompClient } from '@/service/websocket';
 import { OrderItem, OrderItemStatus } from '@/types/model/OrderItem';
+import { useEffect } from 'react';
 import { ActivityIndicator, Button, FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 export default function KitchenScreen() {
   const { user } = useAuth();
-  const { orderItems, setOrderItems, isLoadingOrders, ordersErrorMessage, refetch } = useOrders();
+  const { orderItems, setOrderItems, isLoadingOrderItems, orderItemsErrorMessage, refetch } = useKitchenOrderItems();
+  const { connected } = useWebSocket();
 
-  if (isLoadingOrders) {
+  useEffect(() => {
+    if (!connected) {
+      return;
+    }
+
+    const subscription = stompClient.subscribe('/room/kitchen', message => {
+      const event = JSON.parse(message.body);
+
+      if (event.type === 'ORDER_ITEMS_ADDED') {
+        refetch();
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [connected]);
+
+  if (isLoadingOrderItems) {
     return (
       <ActivityIndicator
         size="large"
@@ -20,10 +42,10 @@ export default function KitchenScreen() {
     );
   }
 
-  if (ordersErrorMessage) {
+  if (orderItemsErrorMessage) {
     return (
       <View style={styles.center}>
-        <Text>{ordersErrorMessage}</Text>
+        <Text>{orderItemsErrorMessage}</Text>
         <Button title="Reintentar" onPress={refetch} />
       </View>
     );
