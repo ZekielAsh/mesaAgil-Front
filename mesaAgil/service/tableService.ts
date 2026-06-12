@@ -1,5 +1,6 @@
 import API_URL from '@/constants/api';
 import { getAuth } from '@/storage/auth.storage';
+import { TableOccupancy } from '@/types/TableOccupancy';
 import { RestaurantTableQrResponse, TableQrInfo, TableSession, TableSessionResponse } from '@/types/TableQr';
 
 async function getAdminHeaders() {
@@ -146,4 +147,37 @@ export const closeTable = async (tableId: number): Promise<TableQrInfo> => {
 
   const data = await response.json() as RestaurantTableQrResponse;
   return mapQrInfo(data);
+};
+
+export const getTableOccupancy = async (): Promise<TableOccupancy[]> => {
+  const response = await fetch(`${API_URL}/tables/occupancy`, {
+    headers: await getAdminHeaders()
+  });
+
+  return parseResponse<TableOccupancy[]>(
+    response,
+    'Error al obtener ocupación de mesas'
+  );
+};
+
+export const updateCustomerCount = async (
+  sessionId: number,
+  customerCount: number
+) => {
+  const response = await fetch(
+    `${API_URL}/table-sessions/${sessionId}/customers`,
+    {
+      method: 'PATCH',
+      headers: await getAdminHeaders(),
+      body: JSON.stringify({
+        customerCount
+      })
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error('Error al actualizar cantidad de personas');
+  }
+
+  return response.json();
 };

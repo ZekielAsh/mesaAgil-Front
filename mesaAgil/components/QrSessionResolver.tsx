@@ -21,7 +21,19 @@ export default function QrSessionResolver({ qrToken }: Props) {
       }
 
       const session = await resolveTableSessionByQr(qrToken);
-      await setSession(session);
+
+      if (!session.tableEnabled) {
+        throw new Error(
+          'La mesa se encuentra cerrada'
+        );
+      }
+
+      if (!session.activeSession) {
+        throw new Error(
+          'La mesa todavía no fue abierta por el personal'
+        );
+      }
+      
       router.replace('/(client)/(tabs)/menu');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'No se pudo abrir la mesa');

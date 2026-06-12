@@ -3,7 +3,7 @@ import { CreateOrderItem } from '@/types/CreateOrderItem';
 import { Order } from '@/types/model/Order';
 import { OrderItem } from '@/types/model/OrderItem';
 
-export function getOrderByTableId(orderId: number) {
+export function getOrderById(orderId: number) {
   return apiClient.get<Order>(`/orders/${orderId}`);
 }
 

@@ -17,8 +17,8 @@ export interface TableSessionResponse {
   tableNumber: number;
   tableEnabled: boolean;
   qrToken: string;
+  sessionId: number | null;
   orderId: number | null;
-  orderStatus: string | null;
   activeSession: boolean;
 }
 
