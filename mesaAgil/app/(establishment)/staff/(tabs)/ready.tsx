@@ -1,6 +1,6 @@
 import { Fonts } from '@/constants/fonts';
 import { useReadyOrderItems } from '@/hooks/useReadyOrderItems';
-import { useUpdateOrderItemStatus } from '@/hooks/useUpdateOrderItemStatus';
+import { useUpdateOrderItemStatus } from '@/hooks/order/useUpdateOrderItemStatus';
 import { OrderItem, OrderItemStatus } from '@/types/model/OrderItem';
 import { ActivityIndicator, Button, FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 import Toast from 'react-native-toast-message';

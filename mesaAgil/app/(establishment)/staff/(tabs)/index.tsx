@@ -1,9 +1,12 @@
 import { Fonts } from '@/constants/fonts';
+import { useTableOccupancy } from '@/hooks/table/useTableOccupancy';
 import { useAuth } from '@/hooks/useAuth';
 import { useBillRequests } from '@/hooks/useBillRequests';
 import { closeOrder } from '@/service/orderService';
+import { useState } from 'react';
 import { ActivityIndicator, Button, FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 import Toast from 'react-native-toast-message';
+import TableOccupancyModal from '@/components/tables/TableOccupancyModal';
 
 export default function StaffScreen() {
   const { user } = useAuth();
@@ -43,33 +46,71 @@ export default function StaffScreen() {
       });
   };
 
+  const [occupancyVisible, setOccupancyVisible] = useState(false);
+
+  const { tables, loading: occupancyLoading } = useTableOccupancy();
+
   return (
     <View style={styles.container}>
+      <View style={styles.topActions}>
+        <Pressable
+          style={styles.managementButton}
+          onPress={() => setOccupancyVisible(true)}
+        >
+          <Text style={styles.managementButtonText}>
+            Ver ocupación de mesas
+          </Text>
+        </Pressable>
+      </View>
+
       <FlatList
         data={billRequests}
         keyExtractor={item => item.id.toString()}
         contentContainerStyle={styles.listContent}
-        ListEmptyComponent={<Text style={styles.emptyText}>No hay solicitudes de cuenta pendientes</Text>}
+        ListEmptyComponent={
+          <Text style={styles.emptyText}>
+            No hay solicitudes de cuenta pendientes
+          </Text>
+        }
         ListHeaderComponent={
           <View style={styles.categoryHeader}>
-            <Text style={styles.categoryTitle}>Solicitudes de cuenta</Text>
+            <Text style={styles.categoryTitle}>
+              Solicitudes de cuenta
+            </Text>
           </View>
         }
         renderItem={({ item }) => (
           <View style={styles.card}>
             <View>
-              <Text style={styles.tableLabel}>Pedido de cuenta de:</Text>
-              <Text style={styles.tableNumber}>MESA {item.tableId}</Text>
+              <Text style={styles.tableLabel}>
+                Pedido de cuenta de:
+              </Text>
+
+              <Text style={styles.tableNumber}>
+                MESA {item.tableId}
+              </Text>
             </View>
 
             <Pressable
-              style={({ pressed }) => [styles.closeButton, pressed && styles.closeButtonPressed]}
+              style={({ pressed }) => [
+                styles.closeButton,
+                pressed && styles.closeButtonPressed
+              ]}
               onPress={() => handleCloseOrder(item.id)}
             >
-              <Text style={styles.closeButtonText}>Cerrar cuenta</Text>
+              <Text style={styles.closeButtonText}>
+                Cerrar cuenta
+              </Text>
             </Pressable>
           </View>
         )}
+      />
+
+      <TableOccupancyModal
+        visible={occupancyVisible}
+        tables={tables}
+        onClose={() => setOccupancyVisible(false)}
+        onSelectTable={() => {}}
       />
     </View>
   );
@@ -138,5 +179,22 @@ const styles = StyleSheet.create({
   categoryTitle: {
     fontSize: 20,
     fontFamily: Fonts.bold
-  }
+  },
+  topActions: {
+    paddingHorizontal: 16,
+    paddingTop: 16
+  },
+
+  managementButton: {
+    backgroundColor: '#111827',
+    borderRadius: 10,
+    paddingVertical: 14,
+    alignItems: 'center'
+  },
+
+  managementButtonText: {
+    color: '#fff',
+    fontFamily: Fonts.bold,
+    fontSize: 16
+  },
 });
