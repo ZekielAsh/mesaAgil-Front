@@ -34,6 +34,8 @@ export default function QrSessionResolver({ qrToken }: Props) {
         );
       }
       
+      await setSession(session);
+
       router.replace('/(client)/(tabs)/menu');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'No se pudo abrir la mesa');

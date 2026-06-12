@@ -15,6 +15,8 @@ export default function StaffScreen() {
   const { billRequests, setBillRequests, billRequestsErrorMessage, isLoadingBillRequests, refreshBillRequests } =
     useBillRequests();
   const { connected } = useWebSocket();
+  const [occupancyVisible, setOccupancyVisible] = useState(false);
+  const { tables, loading: occupancyLoading } = useTableOccupancy();
 
   useEffect(() => {
     if (!connected) {
@@ -31,22 +33,43 @@ export default function StaffScreen() {
       const newOrderRequestBill = event.payload;
 
       setBillRequests(current => {
-        const exists = current.some(order => order.id === newOrderRequestBill.id);
+        const list = current ?? [];
+        const exists = list.some(order => order.id === newOrderRequestBill.id);
 
         if (exists) {
-          return current;
+          return list;
         }
 
-        return [...current, newOrderRequestBill];
+        return [...list, newOrderRequestBill];
       });
-    });
+    }
+  );
 
     return () => {
       subscription.unsubscribe();
     };
-  }, [connected]);
+  }, [connected, setBillRequests]);
 
-  if (isLoadingBillRequests || billRequests === undefined) {
+  const handleCloseOrder = (orderId: number) => {
+    closeOrder(orderId, user?.token ?? '')
+      .then(() => {
+        setBillRequests(prev =>
+          prev.filter(
+            billRequest => billRequest.id !== orderId
+          )
+        );
+      })
+      .catch(error => {
+        Toast.show({
+          type: 'error',
+          text1:
+            error?.response?.data?.message ??
+            'Error al cerrar la cuenta'
+        });
+      });
+  };
+
+  if (isLoadingBillRequests) {
     return (
       <ActivityIndicator
         size="large"
@@ -66,23 +89,6 @@ export default function StaffScreen() {
     );
   }
 
-  const handleCloseOrder = (orderId: number) => {
-    closeOrder(orderId, user?.token ?? '')
-      .then(() => {
-        setBillRequests(prev => prev.filter(billRequest => billRequest.id !== orderId));
-      })
-      .catch(error => {
-        Toast.show({
-          type: 'error',
-          text1: error.response.data.message
-        });
-      });
-  };
-
-  const [occupancyVisible, setOccupancyVisible] = useState(false);
-
-  const { tables, loading: occupancyLoading } = useTableOccupancy();
-
   return (
     <View style={styles.container}>
       <View style={styles.topActions}>
@@ -97,7 +103,7 @@ export default function StaffScreen() {
       </View>
 
       <FlatList
-        data={billRequests}
+        data={billRequests ?? []}
         keyExtractor={item => item.id.toString()}
         contentContainerStyle={styles.listContent}
         ListEmptyComponent={
@@ -217,14 +223,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingTop: 16
   },
-
   managementButton: {
     backgroundColor: '#111827',
     borderRadius: 10,
     paddingVertical: 14,
     alignItems: 'center'
   },
-
   managementButtonText: {
     color: '#fff',
     fontFamily: Fonts.bold,
