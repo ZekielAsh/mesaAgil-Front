@@ -19,7 +19,7 @@ export default function StaffScreen() {
       return;
     }
 
-    const subscription = stompClient.subscribe('/room/staff', message => {
+    const subscription = stompClient.subscribe('/room/staff', (message: any) => {
       const event = JSON.parse(message.body);
 
       if (event.type !== 'BILL_REQUESTED') {

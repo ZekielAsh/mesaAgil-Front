@@ -48,7 +48,7 @@ export default function Orders() {
       return;
     }
 
-    const tableSubscription = stompClient.subscribe(`/room/table/${session?.orderId}`, message => {
+    const tableSubscription = stompClient.subscribe(`/room/table/${session?.orderId}`, (message: any) => {
       const event = JSON.parse(message.body);
 
       if (event.type === 'ORDER_CLOSED') {
@@ -56,7 +56,7 @@ export default function Orders() {
       }
     });
 
-    const orderItemsSubscription = stompClient.subscribe(`/room/orderItems`, message => {
+    const orderItemsSubscription = stompClient.subscribe(`/room/orderItems`, (message: any) => {
       const event = JSON.parse(message.body);
 
       if (event.type !== 'ORDER_ITEM_STATUS_UPDATED') {
