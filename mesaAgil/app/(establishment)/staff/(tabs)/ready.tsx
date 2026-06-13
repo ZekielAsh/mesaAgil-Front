@@ -24,7 +24,7 @@ export default function ReadyScreen() {
       return;
     }
 
-    const subscription = stompClient.subscribe('/room/orderItems', message => {
+    const subscription = stompClient.subscribe('/room/orderItems', (message: any) => {
       const event = JSON.parse(message.body);
 
       if (event.type !== 'ORDER_ITEM_STATUS_UPDATED') {
