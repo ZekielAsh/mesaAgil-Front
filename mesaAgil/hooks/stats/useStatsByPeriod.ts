@@ -1,25 +1,26 @@
 import { getStatsByPeriod } from '@/service/statsService';
-import { Period, StatsSummaryResponse } from '@/types/StatsSummaryResponse';
+import { Period, StatsSummaryResponse } from '@/types/StatsResponses';
 import { useEffect, useState } from 'react';
-import { useAuth } from './useAuth';
+import { useAuth } from '@/hooks/useAuth';
 
-export function useStatsByPeriod(initialPeriod: Period) {
+export function useStatsByPeriod(
+  period: Period
+) {
   const [stats, setStats] = useState<StatsSummaryResponse>();
   const [isLoadingStats, setIsLoadingStats] = useState(true);
   const [statsErrorMessage, setStatsErrorMessage] = useState('');
-  const [period, setPeriod] = useState<Period>(initialPeriod);
   const { user } = useAuth();
 
-  const fetchStats = (newPeriod?: Period) => {
-    const periodToUse = newPeriod ?? period;
-
+  const fetchStats = () => {
     setIsLoadingStats(true);
     setStatsErrorMessage('');
 
-    getStatsByPeriod(periodToUse, user?.token ?? '')
+    getStatsByPeriod(
+      period,
+      user?.token ?? ''
+    )
       .then(response => {
         setStats(response.data);
-        setPeriod(periodToUse);
       })
       .catch(error => {
         setStatsErrorMessage(error.message);
@@ -30,8 +31,8 @@ export function useStatsByPeriod(initialPeriod: Period) {
   };
 
   useEffect(() => {
-    fetchStats(period);
-  }, []);
+    fetchStats();
+  }, [period, user?.token]);
 
-  return { stats, isLoadingStats, statsErrorMessage, refetch: fetchStats };
+  return { stats, isLoadingStats, statsErrorMessage };
 }

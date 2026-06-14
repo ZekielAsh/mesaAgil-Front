@@ -3,7 +3,7 @@ import { CreateOrderItem } from '@/types/CreateOrderItem';
 import { Order } from '@/types/model/Order';
 import { OrderItem } from '@/types/model/OrderItem';
 
-export function getOrderByTableId(orderId: number) {
+export function getOrderById(orderId: number) {
   return apiClient.get<Order>(`/orders/${orderId}`);
 }
 
@@ -38,7 +38,7 @@ export async function addItems(orderId: number, orderItemsList: CreateOrderItem[
 }
 
 export function getKitchenOrderItems(token: string) {
-  return apiClient.get<OrderItem[]>('/orderItems', {
+  return apiClient.get<OrderItem[]>('/orderItems/kitchen', {
     headers: {
       Authorization: `Bearer ${token}`
     }
@@ -57,4 +57,12 @@ export function updateOrderItemStatus(orderItemId: number, status: string, token
       }
     }
   );
+}
+
+export function getReadyOrderItems(token: string) {
+  return apiClient.get<OrderItem[]>('/orderItems/ready', {
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  });
 }

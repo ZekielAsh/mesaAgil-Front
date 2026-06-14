@@ -1,15 +1,75 @@
+import { Fonts } from '@/constants/fonts';
+import { useTableOccupancy } from '@/hooks/table/useTableOccupancy';
 import { useAuth } from '@/hooks/useAuth';
 import { useBillRequests } from '@/hooks/useBillRequests';
+import { useWebSocket } from '@/hooks/useWebSocket';
 import { closeOrder } from '@/service/orderService';
+import { stompClient } from '@/service/websocket';
+import { useEffect, useState } from 'react';
 import { ActivityIndicator, Button, FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 import Toast from 'react-native-toast-message';
+import TableOccupancyModal from '@/components/tables/TableOccupancyModal';
 
 export default function StaffScreen() {
   const { user } = useAuth();
   const { billRequests, setBillRequests, billRequestsErrorMessage, isLoadingBillRequests, refreshBillRequests } =
     useBillRequests();
+  const { connected } = useWebSocket();
+  const [occupancyVisible, setOccupancyVisible] = useState(false);
+  const { tables, loading: occupancyLoading } = useTableOccupancy();
 
-  if (isLoadingBillRequests || billRequests === undefined) {
+  useEffect(() => {
+    if (!connected) {
+      return;
+    }
+
+    const subscription = stompClient.subscribe('/room/staff', (message: any) => {
+      const event = JSON.parse(message.body);
+
+      if (event.type !== 'BILL_REQUESTED') {
+        return;
+      }
+
+      const newOrderRequestBill = event.payload;
+
+      setBillRequests(current => {
+        const list = current ?? [];
+        const exists = list.some(order => order.id === newOrderRequestBill.id);
+
+        if (exists) {
+          return list;
+        }
+
+        return [...list, newOrderRequestBill];
+      });
+    }
+  );
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [connected, setBillRequests]);
+
+  const handleCloseOrder = (orderId: number) => {
+    closeOrder(orderId, user?.token ?? '')
+      .then(() => {
+        setBillRequests(prev =>
+          prev.filter(
+            billRequest => billRequest.id !== orderId
+          )
+        );
+      })
+      .catch(error => {
+        Toast.show({
+          type: 'error',
+          text1:
+            error?.response?.data?.message ??
+            'Error al cerrar la cuenta'
+        });
+      });
+  };
+
+  if (isLoadingBillRequests) {
     return (
       <ActivityIndicator
         size="large"
@@ -29,41 +89,67 @@ export default function StaffScreen() {
     );
   }
 
-  const handleCloseOrder = (orderId: number) => {
-    closeOrder(orderId, user?.token ?? '')
-      .then(() => {
-        setBillRequests(prev => prev.filter(billRequest => billRequest.id !== orderId));
-      })
-      .catch(error => {
-        Toast.show({
-          type: 'error',
-          text1: error.response.data.message
-        });
-      });
-  };
-
   return (
     <View style={styles.container}>
+      <View style={styles.topActions}>
+        <Pressable
+          style={styles.managementButton}
+          onPress={() => setOccupancyVisible(true)}
+        >
+          <Text style={styles.managementButtonText}>
+            Ver ocupación de mesas
+          </Text>
+        </Pressable>
+      </View>
+
       <FlatList
-        data={billRequests}
+        data={billRequests ?? []}
         keyExtractor={item => item.id.toString()}
         contentContainerStyle={styles.listContent}
-        ListEmptyComponent={<Text style={styles.emptyText}>No hay solicitudes de cuenta pendientes</Text>}
+        ListEmptyComponent={
+          <Text style={styles.emptyText}>
+            No hay solicitudes de cuenta pendientes
+          </Text>
+        }
+        ListHeaderComponent={
+          <View style={styles.categoryHeader}>
+            <Text style={styles.categoryTitle}>
+              Solicitudes de cuenta
+            </Text>
+          </View>
+        }
         renderItem={({ item }) => (
           <View style={styles.card}>
             <View>
-              <Text style={styles.tableLabel}>Pedido de cuenta de:</Text>
-              <Text style={styles.tableNumber}>MESA {item.tableId}</Text>
+              <Text style={styles.tableLabel}>
+                Pedido de cuenta de:
+              </Text>
+
+              <Text style={styles.tableNumber}>
+                MESA {item.tableId}
+              </Text>
             </View>
 
             <Pressable
-              style={({ pressed }) => [styles.closeButton, pressed && styles.closeButtonPressed]}
+              style={({ pressed }) => [
+                styles.closeButton,
+                pressed && styles.closeButtonPressed
+              ]}
               onPress={() => handleCloseOrder(item.id)}
             >
-              <Text style={styles.closeButtonText}>Cerrar cuenta</Text>
+              <Text style={styles.closeButtonText}>
+                Cerrar cuenta
+              </Text>
             </Pressable>
           </View>
         )}
+      />
+
+      <TableOccupancyModal
+        visible={occupancyVisible}
+        tables={tables}
+        onClose={() => setOccupancyVisible(false)}
+        onSelectTable={() => {}}
       />
     </View>
   );
@@ -75,8 +161,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#f5f5f5'
   },
   listContent: {
-    padding: 16,
-    gap: 12
+    padding: 16
   },
   card: {
     backgroundColor: '#fff',
@@ -85,7 +170,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    elevation: 3
+    boxShadow: '2px 2px 4px rgba(0,0,0,0.25)',
+    marginBottom: 12
   },
   tableLabel: {
     fontSize: 14,
@@ -121,5 +207,31 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 24,
     gap: 8
-  }
+  },
+  categoryHeader: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    borderBottomWidth: 1,
+    paddingVertical: 8,
+    marginBottom: 12
+  },
+  categoryTitle: {
+    fontSize: 20,
+    fontFamily: Fonts.bold
+  },
+  topActions: {
+    paddingHorizontal: 16,
+    paddingTop: 16
+  },
+  managementButton: {
+    backgroundColor: '#111827',
+    borderRadius: 10,
+    paddingVertical: 14,
+    alignItems: 'center'
+  },
+  managementButtonText: {
+    color: '#fff',
+    fontFamily: Fonts.bold,
+    fontSize: 16
+  },
 });

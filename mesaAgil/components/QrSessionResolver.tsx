@@ -1,4 +1,4 @@
-import { useTableSession } from '@/hooks/useTableSession';
+import { useTableSession } from '@/hooks/table/useTableSession';
 import { resolveTableSessionByQr } from '@/service/tableService';
 import { router } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
@@ -21,7 +21,21 @@ export default function QrSessionResolver({ qrToken }: Props) {
       }
 
       const session = await resolveTableSessionByQr(qrToken);
+
+      if (!session.tableEnabled) {
+        throw new Error(
+          'La mesa se encuentra cerrada'
+        );
+      }
+
+      if (!session.activeSession) {
+        throw new Error(
+          'La mesa todavía no fue abierta por el personal'
+        );
+      }
+      
       await setSession(session);
+
       router.replace('/(client)/(tabs)/menu');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'No se pudo abrir la mesa');

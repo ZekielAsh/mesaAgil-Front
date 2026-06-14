@@ -1,10 +1,12 @@
+import { getTableSession, removeTableSession, saveTableSession } from '@/storage/tableSession.storage';
 import { TableSession } from '@/types/TableQr';
-import { createContext, ReactNode, useContext, useState } from 'react';
+import { createContext, ReactNode, useContext, useEffect, useState } from 'react';
 
 interface TableSessionContextType {
   session: TableSession | null;
   setSession: (session: TableSession) => void;
   clearSession: () => void;
+  loading: boolean;
 }
 
 const TableSessionContext = createContext<TableSessionContextType | undefined>(undefined);
@@ -14,13 +16,33 @@ interface Props {
 }
 
 export const TableSessionProvider = ({ children }: Props) => {
-  const [session, setSessionState] = useState<TableSession | null>(null);
+  const [session, setSessionState] =
+    useState<TableSession | null>(null);
 
-  const setSession = (newSession: TableSession) => {
+  const [loading, setLoading] =
+    useState(true);
+
+  useEffect(() => {
+    getTableSession()
+      .then(saved => {
+        if (saved) {
+          setSessionState(saved);
+        }
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }, []);
+
+  const setSession = async (
+    newSession: TableSession
+  ) => {
+    await saveTableSession(newSession);
     setSessionState(newSession);
   };
 
-  const clearSession = () => {
+  const clearSession = async () => {
+    await removeTableSession();
     setSessionState(null);
   };
 
@@ -29,7 +51,8 @@ export const TableSessionProvider = ({ children }: Props) => {
       value={{
         session,
         setSession,
-        clearSession
+        clearSession,
+        loading
       }}
     >
       {children}

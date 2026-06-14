@@ -1,4 +1,4 @@
-import { getOrderByTableId } from '@/service/orderService';
+import { getOrderById } from '@/service/orderService';
 import { Order } from '@/types/model/Order';
 import { useIsFocused } from '@react-navigation/native';
 import { useEffect, useState } from 'react';
@@ -19,7 +19,7 @@ export function useGetOrderById(id?: number) {
     setIsLoadingOrder(true);
     setOrderErrorMessage('');
 
-    getOrderByTableId(id)
+    getOrderById(id)
       .then(response => {
         setOrder(response.data);
       })
