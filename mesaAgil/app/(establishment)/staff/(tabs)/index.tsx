@@ -1,27 +1,25 @@
 import TableAssignmentModal from '@/components/tables/TableAssignmentModal';
 import TableStatusGrid from '@/components/tables/TableStatusGrid';
+import AssignedTableCard from '@/components/tables/AssignedTableCard';
 import { Fonts } from '@/constants/fonts';
 import { useAssignedTables } from '@/hooks/table/useAssignedTables';
 import { useTableAssignment } from '@/hooks/table/useTableAssignment';
 import { useTableOccupancy } from '@/hooks/table/useTableOccupancy';
 import { useAuth } from '@/hooks/useAuth';
 import { TableOccupancy } from '@/types/TableOccupancy';
+import { useTableSessionManagement } from '@/hooks/table/useTableSessionManagement';
 import { useState } from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-native';
 import Toast from 'react-native-toast-message';
 
 export default function TablesScreen() {
   const { user } = useAuth();
-
   const { tables, loading, refresh } = useTableOccupancy();
-
   const { tables: assignedTables } = useAssignedTables();
-
   const { assign, unassign } = useTableAssignment();
-
   const [selectedTable, setSelectedTable] = useState<TableOccupancy | null>(null);
-
   const [modalVisible, setModalVisible] = useState(false);
+  const { openSession, closeSession } = useTableSessionManagement();
 
   const handleSelectTable = (table: TableOccupancy) => {
     setSelectedTable(table);
@@ -110,30 +108,22 @@ export default function TablesScreen() {
           Mis mesas ({assignedTables.length})
         </Text>
 
-        {assignedTables.length === 0 ? (
-          <Text style={styles.emptyText}>
-            No tienes mesas asignadas
-          </Text>
-        ) : (
-          assignedTables.map(table => (
-            <View
-              key={table.tableId}
-              style={styles.assignedCard}
-            >
-              <Text style={styles.assignedTitle}>
-                Mesa {table.tableNumber}
-              </Text>
-
-              <Text>
-                Clientes: {table.customerCount}
-              </Text>
-
-              <Text>
-                Estado: {table.status}
-              </Text>
-            </View>
-          ))
-        )}
+        <View style={styles.assignedTablesContainer}>
+          {assignedTables.length === 0 ? (
+            <Text style={styles.emptyText}>
+              No tienes mesas asignadas
+            </Text>
+          ) : (
+            assignedTables.map(table => (
+              <AssignedTableCard
+                key={table.tableId}
+                table={table}
+                onOpenSession={openSession}
+                onCloseSession={closeSession}
+              />
+            ))
+          )}
+        </View>
       </View>
 
       <TableAssignmentModal
@@ -196,5 +186,9 @@ const styles = StyleSheet.create({
 
   emptyText: {
     color: '#6B7280'
-  }
+  },
+  
+  assignedTablesContainer: {
+    marginTop: 8
+  },
 });
