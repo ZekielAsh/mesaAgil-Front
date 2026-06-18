@@ -1,6 +1,7 @@
 import { LogoutButton } from '@/components/LogOutButtom';
 import OrderIcon from '@/components/ui/order-icon';
 import PeopleIcon from '@/components/ui/people-icon';
+import TableChairIcon from '@/components/ui/table-chair-icon';
 import { Fonts } from '@/constants/fonts';
 import { Tabs } from 'expo-router';
 
@@ -28,15 +29,28 @@ export default function StaffLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Staff',
-          tabBarIcon: ({ color }) => <PeopleIcon color={color} />
+          title: 'Mesas',
+          tabBarIcon: ({ color }) => (
+            <TableChairIcon color={color} />
+          )
         }}
       />
       <Tabs.Screen
         name="ready"
         options={{
-          title: 'ready',
-          tabBarIcon: ({ color }) => <OrderIcon color={color} />
+          title: 'Comandas',
+          tabBarIcon: ({ color }) => (
+            <OrderIcon color={color} />
+          )
+        }}
+      />
+      <Tabs.Screen
+        name="requests"
+        options={{
+          title: 'Solicitudes',
+          tabBarIcon: ({ color }) => (
+            <PeopleIcon color={color} />
+          )
         }}
       />
     </Tabs>

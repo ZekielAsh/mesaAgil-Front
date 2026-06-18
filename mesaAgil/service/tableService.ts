@@ -160,10 +160,7 @@ export const getTableOccupancy = async (): Promise<TableOccupancy[]> => {
   );
 };
 
-export const updateCustomerCount = async (
-  sessionId: number,
-  customerCount: number
-) => {
+export const updateCustomerCount = async (sessionId: number, customerCount: number) => {
   const response = await fetch(
     `${API_URL}/table-sessions/${sessionId}/customers`,
     {
@@ -180,4 +177,47 @@ export const updateCustomerCount = async (
   }
 
   return response.json();
+};
+
+export const assignTable = async (tableId: number): Promise<TableOccupancy> => {
+  const response = await fetch(
+    `${API_URL}/tables/${tableId}/assign`,
+    {
+      method: 'PATCH',
+      headers: await getAdminHeaders()
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error('No se pudo asignar la mesa');
+  }
+
+  return response.json();
+};
+
+export const unassignTable = async (tableId: number): Promise<TableOccupancy> => {
+  const response = await fetch(
+    `${API_URL}/tables/${tableId}/unassign`,
+    {
+      method: 'PATCH',
+      headers: await getAdminHeaders()
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error('No se pudo liberar la mesa');
+  }
+
+  return response.json();
+};
+
+export const getAssignedTables = async (): Promise<TableOccupancy[]> => {
+  const response = await fetch(
+    `${API_URL}/tables/assigned`,
+    {
+      headers: await getAdminHeaders()
+    }
+  );
+
+  return parseResponse<TableOccupancy[]>(response, 'Error al obtener mesas asignadas');
 };
