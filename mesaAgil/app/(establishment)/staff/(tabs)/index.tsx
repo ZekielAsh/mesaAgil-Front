@@ -8,17 +8,26 @@ import { useTableOccupancy } from '@/hooks/table/useTableOccupancy';
 import { useAuth } from '@/hooks/useAuth';
 import { TableOccupancy } from '@/types/TableOccupancy';
 import { useTableSessionManagement } from '@/hooks/table/useTableSessionManagement';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { stompClient } from '@/service/websocket';
+import { useWebSocket } from '@/hooks/useWebSocket';
 import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-native';
 import Toast from 'react-native-toast-message';
 
 export default function TablesScreen() {
   const { user } = useAuth();
-  const { tables, loading, refresh } = useTableOccupancy();
-  const { tables: assignedTables, refresh: refreshAssignedTables} = useAssignedTables();
+  const { tables, loading, setTables } = useTableOccupancy();
+  const { tables: assignedTables, setTables: setAssignedTables } = useAssignedTables();
+  const { connected } = useWebSocket();
   const { assign, unassign } = useTableAssignment();
   const [selectedTable, setSelectedTable] = useState<TableOccupancy | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
+  const TABLE_EVENTS = [
+    'TABLE_ASSIGNED',
+    'TABLE_UNASSIGNED',
+    'SESSION_OPENED',
+    'SESSION_CLOSED'
+  ];
   const { openSession, closeSession } = useTableSessionManagement();
 
   const handleSelectTable = (table: TableOccupancy) => {
@@ -29,9 +38,6 @@ export default function TablesScreen() {
   const handleAssign = async (tableId: number) => {
     try {
       await assign(tableId);
-
-      await refresh();
-
       Toast.show({
         type: 'success',
         text1: 'Mesa asignada'
@@ -52,9 +58,6 @@ export default function TablesScreen() {
   const handleUnassign = async (tableId: number) => {
     try {
       await unassign(tableId);
-
-      await refresh();
-
       Toast.show({
         type: 'success',
         text1: 'Mesa liberada'
@@ -71,6 +74,59 @@ export default function TablesScreen() {
       });
     }
   };
+
+  useEffect(() => {
+    if (!connected) { return; }
+
+    const subscription = stompClient.subscribe(
+      `/room/staff/${user?.username}`,
+      message => {
+        const event = JSON.parse(message.body);
+        const updatedTable: TableOccupancy = event.payload;
+        if (!TABLE_EVENTS.includes(event.type)) { return; }
+        
+        setTables((current: TableOccupancy[]) =>
+          current.map((table: TableOccupancy) =>
+            table.tableId === updatedTable.tableId
+              ? updatedTable
+              : table
+          )
+        );
+
+        if (updatedTable.assignedStaffUsername === user?.username) {
+          setAssignedTables((current: TableOccupancy[]) => {
+            const exists =
+              current.some((t: TableOccupancy) =>
+                t.tableId === updatedTable.tableId
+              );
+            if (!exists) {
+              return [...current, updatedTable];
+            }
+            return current.map((t: TableOccupancy) =>
+              t.tableId === updatedTable.tableId
+                ? updatedTable
+                : t
+            );
+          });
+        } else {
+          setAssignedTables(current =>
+            current.filter((t: TableOccupancy) =>
+              t.tableId !== updatedTable.tableId
+            )
+          );
+
+        }
+      }
+    );
+
+    return () => subscription.unsubscribe();
+
+  }, [
+    connected,
+    user?.username,
+    setTables,
+    setAssignedTables
+  ]);
 
   if (loading) {
     return (
@@ -118,16 +174,8 @@ export default function TablesScreen() {
               <AssignedTableCard
                 key={table.tableId}
                 table={table}
-                onOpenSession={async tableId => {
-                  await openSession(tableId);
-                  await refresh();
-                  await refreshAssignedTables();
-                }}
-                onCloseSession={async tableId => {
-                  await closeSession(tableId);
-                  await refresh();
-                  await refreshAssignedTables();
-                }}
+                onOpenSession={openSession}
+                onCloseSession={closeSession}
             />
             ))
           )}

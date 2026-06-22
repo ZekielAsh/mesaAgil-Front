@@ -37,6 +37,7 @@ export function useTableOccupancy() {
     tables,
     loading,
     error,
-    refresh: fetchOccupancy
+    refresh: fetchOccupancy,
+    setTables
   };
 }
