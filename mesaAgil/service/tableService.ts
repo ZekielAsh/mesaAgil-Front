@@ -221,3 +221,36 @@ export const getAssignedTables = async (): Promise<TableOccupancy[]> => {
 
   return parseResponse<TableOccupancy[]>(response, 'Error al obtener mesas asignadas');
 };
+
+export const openTableSession = async (tableId: number) => {
+  const response = await fetch(
+    `${API_URL}/table-sessions/table/${tableId}`,
+    {
+      method: 'POST',
+      headers: await getAdminHeaders(),
+      body: JSON.stringify({
+        customerCount: 0
+      })
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error('No se pudo abrir la sesión');
+  }
+
+  return response.json();
+};
+
+export const closeTableSession = async (tableId: number) => {
+  const response = await fetch(
+    `${API_URL}/table-sessions/table/${tableId}/close`,
+    {
+      method: 'PATCH',
+      headers: await getAdminHeaders()
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error('No se pudo cerrar la sesión');
+  }
+};

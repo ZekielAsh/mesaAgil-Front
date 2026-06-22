@@ -19,7 +19,7 @@ export default function RequestsScreen() {
       return;
     }
 
-    const subscription = stompClient.subscribe('/room/staff', (message: any) => {
+    const subscription = stompClient.subscribe(`/room/staff/${user?.username}`, (message: any) => {
       const event = JSON.parse(message.body);
 
       if (event.type !== 'BILL_REQUESTED') {

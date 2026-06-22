@@ -15,7 +15,7 @@ import Toast from 'react-native-toast-message';
 export default function TablesScreen() {
   const { user } = useAuth();
   const { tables, loading, refresh } = useTableOccupancy();
-  const { tables: assignedTables } = useAssignedTables();
+  const { tables: assignedTables, refresh: refreshAssignedTables} = useAssignedTables();
   const { assign, unassign } = useTableAssignment();
   const [selectedTable, setSelectedTable] = useState<TableOccupancy | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
@@ -118,9 +118,17 @@ export default function TablesScreen() {
               <AssignedTableCard
                 key={table.tableId}
                 table={table}
-                onOpenSession={openSession}
-                onCloseSession={closeSession}
-              />
+                onOpenSession={async tableId => {
+                  await openSession(tableId);
+                  await refresh();
+                  await refreshAssignedTables();
+                }}
+                onCloseSession={async tableId => {
+                  await closeSession(tableId);
+                  await refresh();
+                  await refreshAssignedTables();
+                }}
+            />
             ))
           )}
         </View>
