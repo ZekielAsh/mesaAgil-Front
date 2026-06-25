@@ -23,10 +23,7 @@ export default function TablesScreen() {
   const [selectedTable, setSelectedTable] = useState<TableOccupancy | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
   const TABLE_EVENTS = [
-    'TABLE_ASSIGNED',
-    'TABLE_UNASSIGNED',
-    'SESSION_OPENED',
-    'SESSION_CLOSED'
+    'ASSIGNED_TABLE_UPDATED'
   ];
   const { openSession, closeSession } = useTableSessionManagement();
 
