@@ -10,4 +10,6 @@ export interface TableOccupancy {
   status: TableStatus;
   customerCount: number;
   sessionId: number | null;
+  assignedStaffId: number | null;
+  assignedStaffUsername: string | null;
 }

@@ -48,10 +48,10 @@ export default function Orders() {
       return;
     }
 
-    const tableSubscription = stompClient.subscribe(`/room/table/${session?.orderId}`, (message: any) => {
+    const orderSubscription = stompClient.subscribe(`/room/order/${session?.orderId}`, (message: any) => {
       const event = JSON.parse(message.body);
 
-      if (event.type === 'ORDER_CLOSED') {
+      if (event.type === 'ORDER_CLOSED' || event.type === 'ORDER_CANCELLED') {
         clearSession();
       }
     });
@@ -70,6 +70,15 @@ export default function Orders() {
           return current;
         }
 
+        if (updatedOrderItem.status === 'CANCELLED') {
+          return {
+            ...current,
+            orderItems: current.orderItems.filter(
+              item => item.id !== updatedOrderItem.id
+            )
+          };
+        }
+
         return {
           ...current,
           orderItems: current.orderItems.map(item => (item.id === updatedOrderItem.id ? updatedOrderItem : item))
@@ -78,7 +87,7 @@ export default function Orders() {
     });
 
     return () => {
-      tableSubscription.unsubscribe();
+      orderSubscription.unsubscribe();
       orderItemsSubscription.unsubscribe();
     };
   }, [connected]);

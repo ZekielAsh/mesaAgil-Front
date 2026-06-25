@@ -1,26 +1,31 @@
-import { getTableOccupancy } from '@/service/tableService';
+import { getAssignedTables } from '@/service/tableService';
 import { TableOccupancy } from '@/types/TableOccupancy';
 import { useFocusEffect } from '@react-navigation/native';
 import { useCallback, useState } from 'react';
 
-export function useTableOccupancy() {
-  const [tables, setTables] = useState<TableOccupancy[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+export function useAssignedTables() {
+  const [tables, setTables] =
+    useState<TableOccupancy[]>([]);
 
-  const fetchOccupancy = useCallback(async () => {
+  const [loading, setLoading] =
+    useState(true);
+
+  const [error, setError] =
+    useState('');
+
+  const fetchTables = useCallback(async () => {
     try {
       setLoading(true);
       setError('');
 
-      const response = await getTableOccupancy();
+      const response = await getAssignedTables();
 
       setTables(response);
     } catch (error) {
       setError(
         error instanceof Error
           ? error.message
-          : 'Error al cargar ocupación'
+          : 'Error al cargar mesas'
       );
     } finally {
       setLoading(false);
@@ -29,15 +34,15 @@ export function useTableOccupancy() {
 
   useFocusEffect(
     useCallback(() => {
-      fetchOccupancy();
-    }, [fetchOccupancy])
+      fetchTables();
+    }, [fetchTables])
   );
 
   return {
     tables,
     loading,
     error,
-    refresh: fetchOccupancy,
+    refresh: fetchTables,
     setTables
   };
 }
