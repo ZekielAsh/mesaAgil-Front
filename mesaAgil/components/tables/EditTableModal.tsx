@@ -1,12 +1,7 @@
-import TableForm from './TableForm';
 import { TableQrInfo } from '@/types/TableQr';
-import {
-  Modal,
-  Pressable,
-  StyleSheet,
-  Text,
-  View
-} from 'react-native';
+import { Modal, Pressable, StyleSheet, View } from 'react-native';
+import CloseIcon from '../ui/close-icon';
+import TableForm from './TableForm';
 
 type EditTableModalProps = {
   visible: boolean;
@@ -16,34 +11,17 @@ type EditTableModalProps = {
   onSubmit: (tableNumber: number) => void;
 };
 
-const EditTableModal = ({
-  visible,
-  table,
-  loading,
-  onClose,
-  onSubmit
-}: EditTableModalProps) => {
+const EditTableModal = ({ visible, table, loading, onClose, onSubmit }: EditTableModalProps) => {
   if (!table) {
     return null;
   }
 
   return (
-    <Modal
-      visible={visible}
-      animationType="slide"
-      transparent
-      onRequestClose={onClose}
-    >
+    <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
       <View style={styles.overlay}>
         <View style={styles.content}>
-          <Pressable
-            style={styles.closeButton}
-            onPress={onClose}
-            disabled={loading}
-          >
-            <Text style={styles.closeText}>
-              ✕
-            </Text>
+          <Pressable style={styles.closeButton} onPress={onClose} disabled={loading}>
+            <CloseIcon color="#000000" />
           </Pressable>
           <TableForm
             initialValue={table.tableNumber}
@@ -62,25 +40,18 @@ export default EditTableModal;
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor:
-      'rgba(0,0,0,0.5)',
+    backgroundColor: 'rgba(0,0,0,0.5)',
     justifyContent: 'center',
     padding: 16
   },
 
   content: {
-    backgroundColor: '#222',
-    borderRadius: 16
+    backgroundColor: '#ffffff',
+    borderRadius: 16,
+    padding: 16
   },
 
   closeButton: {
-    alignSelf: 'flex-end',
-    padding: 12
-  },
-
-  closeText: {
-    color: '#fff',
-    fontSize: 20,
-    fontWeight: 'bold'
+    alignSelf: 'flex-end'
   }
 });
