@@ -25,14 +25,16 @@ export const AdminItemCard = ({ item, onEdit, onToggleActive, toggling }: AdminI
 
       <View style={styles.content}>
         <View style={styles.header}>
-          <Text style={styles.name}>{item.name}</Text>
-          <Text style={styles.category}>{item.categoryName}</Text>
-          <Text style={styles.price}>${item.price}</Text>
-        </View>
-        <View style={styles.footer}>
+          <View style={styles.info}>
+            <Text style={styles.name}>{item.name}</Text>
+            <Text style={styles.category}>{item.categoryName}</Text>
+            <Text style={styles.price}>${item.price}</Text>
+          </View>
           <View style={[styles.statusBadge, isActive ? styles.activeBadge : styles.inactiveBadge]}>
             <Text style={styles.statusText}>{isActive ? 'Activa' : 'Inactiva'}</Text>
           </View>
+        </View>
+        <View style={styles.footer}>
           <View style={styles.actions}>
             <Pressable
               style={[
@@ -81,11 +83,15 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between'
   },
   header: {
+    flexDirection: 'row',
+    alignItems: 'flex-start'
+  },
+  info: {
     justifyContent: 'flex-start'
   },
   footer: {
-    justifyContent: 'space-between',
-    alignItems: 'flex-end'
+    alignItems: 'flex-end',
+    justifyContent: 'flex-end'
   },
   name: {
     fontSize: 18,
@@ -94,7 +100,8 @@ const styles = StyleSheet.create({
   statusBadge: {
     paddingVertical: 4,
     paddingHorizontal: 8,
-    borderRadius: 999
+    borderRadius: 999,
+    marginLeft: 8
   },
   activeBadge: {
     backgroundColor: '#34C759'
