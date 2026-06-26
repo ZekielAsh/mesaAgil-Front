@@ -1,13 +1,8 @@
-import ItemForm from './ItemForm';
 import { Category } from '@/types/model/Category';
 import { Item } from '@/types/model/Item';
-import {
-  Modal,
-  Pressable,
-  StyleSheet,
-  Text,
-  View
-} from 'react-native';
+import { Modal, Pressable, StyleSheet, View } from 'react-native';
+import CloseIcon from '../ui/close-icon';
+import ItemForm from './ItemForm';
 
 type EditItemModalProps = {
   visible: boolean;
@@ -26,34 +21,17 @@ type EditItemModalProps = {
   }) => void;
 };
 
-const EditItemModal = ({
-  visible,
-  item,
-  categories,
-  loading,
-  onClose,
-  onSubmit
-}: EditItemModalProps) => {
+const EditItemModal = ({ visible, item, categories, loading, onClose, onSubmit }: EditItemModalProps) => {
   if (!item) {
     return null;
   }
 
   return (
-    <Modal
-      visible={visible}
-      animationType="slide"
-      transparent
-      onRequestClose={onClose}
-    >
+    <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
       <View style={styles.overlay}>
         <View style={styles.content}>
-          <Pressable
-            style={styles.closeButton}
-            onPress={onClose}
-          >
-            <Text style={styles.closeText}>
-              ✕
-            </Text>
+          <Pressable style={styles.closeButton} onPress={onClose}>
+            <CloseIcon color="#000000" />
           </Pressable>
           <ItemForm
             initialValues={item}
@@ -73,26 +51,19 @@ export default EditItemModal;
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor:
-      'rgba(0,0,0,0.5)',
+    backgroundColor: 'rgba(0,0,0,0.5)',
     justifyContent: 'center',
     padding: 16
   },
 
   content: {
-    backgroundColor: '#222',
+    backgroundColor: '#ffffff',
     borderRadius: 16,
-    maxHeight: '90%'
+    padding: 16
+    // maxHeight: '90%'
   },
 
   closeButton: {
-    alignSelf: 'flex-end',
-    padding: 12
-  },
-
-  closeText: {
-    color: '#fff',
-    fontSize: 20,
-    fontWeight: 'bold'
+    alignSelf: 'flex-end'
   }
 });
