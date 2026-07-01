@@ -75,7 +75,7 @@ export default function KitchenScreen() {
   };
 
   const formatHourMinute = (dateString: string): string => {
-    const date = new Date(`${dateString}Z`);
+    const date = new Date(dateString);
 
     return date.toLocaleTimeString('es-AR', {
       hour: '2-digit',

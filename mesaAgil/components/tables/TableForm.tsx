@@ -1,11 +1,5 @@
-import {
-  Pressable,
-  StyleSheet,
-  Text,
-  TextInput,
-  View
-} from 'react-native';
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 
 type TableFormProps = {
   loading?: boolean;
@@ -14,12 +8,7 @@ type TableFormProps = {
   onSubmit: (tableNumber: number) => void;
 };
 
-const TableForm = ({
-  loading,
-  submitText,
-  initialValue,
-  onSubmit
-}: TableFormProps) => {
+const TableForm = ({ loading, submitText, initialValue, onSubmit }: TableFormProps) => {
   const [tableNumber, setTableNumber] = useState('');
   const [error, setError] = useState('');
 
@@ -48,39 +37,31 @@ const TableForm = ({
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>
-        {initialValue ? 'Editando mesa' : 'Creando mesa'}
-      </Text>
+      <Text style={styles.title}>{initialValue ? 'Editando mesa' : 'Mesa'}</Text>
 
-      <TextInput
-        placeholder="Número de mesa"
-        placeholderTextColor="#999"
-        value={tableNumber}
-        onChangeText={(text) => {
-          setTableNumber(text);
-          setError('');
-        }}
-        keyboardType="number-pad"
-        style={styles.input}
-        editable={!loading}
-      />
+      <View style={styles.inputListContainer}>
+        <View>
+          <Text style={styles.inputTitle}>Número</Text>
+          <TextInput
+            placeholder="Número de mesa"
+            placeholderTextColor="#999"
+            value={tableNumber}
+            onChangeText={text => {
+              setTableNumber(text);
+              setError('');
+            }}
+            keyboardType="number-pad"
+            cursorColor={'#000000'}
+            style={styles.input}
+            editable={!loading}
+          />
+        </View>
 
-      {!!error && (
-        <Text style={styles.error}>
-          {error}
-        </Text>
-      )}
+        {!!error && <Text style={styles.error}>{error}</Text>}
+      </View>
 
-      <Pressable
-        style={styles.submitButton}
-        onPress={handleSubmit}
-        disabled={loading}
-      >
-        <Text style={styles.submitText}>
-          {loading
-            ? 'Guardando...'
-            : submitText}
-        </Text>
+      <Pressable style={styles.submitButton} onPress={handleSubmit} disabled={loading}>
+        <Text style={styles.submitText}>{loading ? 'Guardando...' : submitText}</Text>
       </Pressable>
     </View>
   );
@@ -90,20 +71,35 @@ export default TableForm;
 
 const styles = StyleSheet.create({
   container: {
-    padding: 16,
     gap: 12
   },
 
   title: {
-    color: '#fff',
+    color: '#000000',
     fontSize: 24,
     fontWeight: 'bold'
   },
 
+  inputListContainer: {
+    paddingVertical: 12,
+    gap: 8
+  },
+
+  inputTitle: {
+    color: '#000000',
+    fontSize: 16,
+    fontWeight: '500',
+    marginBottom: 8
+  },
+
   input: {
-    backgroundColor: '#fff',
-    borderRadius: 10,
-    padding: 14
+    height: 40,
+    backgroundColor: '#efefef',
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 8,
+    paddingHorizontal: 16,
+    fontSize: 16
   },
 
   error: {
@@ -112,12 +108,10 @@ const styles = StyleSheet.create({
   },
 
   submitButton: {
-    backgroundColor: '#222',
-    borderRadius: 10,
-    padding: 14,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#fff'
+    backgroundColor: '#2563EB',
+    padding: 16,
+    borderRadius: 12,
+    alignItems: 'center'
   },
 
   submitText: {
