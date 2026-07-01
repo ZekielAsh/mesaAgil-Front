@@ -1,5 +1,6 @@
 import { Category } from '@/types/model/Category';
 import { Item } from '@/types/model/Item';
+import * as ImagePicker from 'expo-image-picker';
 import { Modal, Pressable, StyleSheet, View } from 'react-native';
 import CloseIcon from '../ui/close-icon';
 import ItemForm from './ItemForm';
@@ -18,6 +19,7 @@ type EditItemModalProps = {
     imageUrl: string;
     price: number;
     categoryId: number;
+    imageFile?: ImagePicker.ImagePickerAsset;
   }) => void;
 };
 
@@ -59,8 +61,8 @@ const styles = StyleSheet.create({
   content: {
     backgroundColor: '#ffffff',
     borderRadius: 16,
-    padding: 16
-    // maxHeight: '90%'
+    padding: 16,
+    maxHeight: '90%'
   },
 
   closeButton: {
