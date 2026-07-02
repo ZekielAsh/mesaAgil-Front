@@ -2,9 +2,9 @@ import { Fonts } from '@/constants/fonts';
 import { useAuth } from '@/hooks/useAuth';
 import { useBillRequests } from '@/hooks/useBillRequests';
 import { useWebSocket } from '@/hooks/useWebSocket';
-import { closeOrder } from '@/service/orderService';
+import { cancelBillRequest, closeOrder } from '@/service/orderService';
 import { stompClient } from '@/service/websocket';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { ActivityIndicator, Button, FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 import Toast from 'react-native-toast-message';
 
@@ -38,8 +38,7 @@ export default function RequestsScreen() {
 
         return [...list, newOrderRequestBill];
       });
-    }
-  );
+    });
 
     return () => {
       subscription.unsubscribe();
@@ -49,18 +48,25 @@ export default function RequestsScreen() {
   const handleCloseOrder = (orderId: number) => {
     closeOrder(orderId, user?.token ?? '')
       .then(() => {
-        setBillRequests(prev =>
-          prev.filter(
-            billRequest => billRequest.id !== orderId
-          )
-        );
+        setBillRequests(prev => prev.filter(billRequest => billRequest.id !== orderId));
       })
       .catch(error => {
         Toast.show({
           type: 'error',
-          text1:
-            error?.response?.data?.message ??
-            'Error al cerrar la cuenta'
+          text1: error?.response?.data?.message ?? 'Error al cerrar la cuenta'
+        });
+      });
+  };
+
+  const handleCancelRequestBill = (orderId: number) => {
+    cancelBillRequest(orderId, user?.token ?? '')
+      .then(() => {
+        setBillRequests(prev => prev.filter(billRequest => billRequest.id !== orderId));
+      })
+      .catch(error => {
+        Toast.show({
+          type: 'error',
+          text1: error?.response?.data?.message ?? 'Error al cerrar la cuenta'
         });
       });
   };
@@ -91,41 +97,33 @@ export default function RequestsScreen() {
         data={billRequests ?? []}
         keyExtractor={item => item.id.toString()}
         contentContainerStyle={styles.listContent}
-        ListEmptyComponent={
-          <Text style={styles.emptyText}>
-            No hay solicitudes de cuenta pendientes
-          </Text>
-        }
+        ListEmptyComponent={<Text style={styles.emptyText}>No hay solicitudes de cuenta pendientes</Text>}
         ListHeaderComponent={
           <View style={styles.categoryHeader}>
-            <Text style={styles.categoryTitle}>
-              Solicitudes de cuenta
-            </Text>
+            <Text style={styles.categoryTitle}>Solicitudes de cuenta</Text>
           </View>
         }
         renderItem={({ item }) => (
           <View style={styles.card}>
             <View>
-              <Text style={styles.tableLabel}>
-                Pedido de cuenta de:
-              </Text>
+              <Text style={styles.tableLabel}>Pedido de cuenta de:</Text>
 
-              <Text style={styles.tableNumber}>
-                MESA {item.tableId}
-              </Text>
+              <Text style={styles.tableNumber}>MESA {item.tableId}</Text>
             </View>
-
-            <Pressable
-              style={({ pressed }) => [
-                styles.closeButton,
-                pressed && styles.closeButtonPressed
-              ]}
-              onPress={() => handleCloseOrder(item.id)}
-            >
-              <Text style={styles.closeButtonText}>
-                Cerrar cuenta
-              </Text>
-            </Pressable>
+            <View style={styles.buttons}>
+              <Pressable
+                style={({ pressed }) => [styles.cancelButton, pressed && styles.cancelPressed]}
+                onPress={() => handleCancelRequestBill(item.id)}
+              >
+                <Text style={styles.closeButtonText}>Cancelar petición</Text>
+              </Pressable>
+              <Pressable
+                style={({ pressed }) => [styles.closeButton, pressed && styles.closeButtonPressed]}
+                onPress={() => handleCloseOrder(item.id)}
+              >
+                <Text style={styles.closeButtonText}>Cerrar cuenta</Text>
+              </Pressable>
+            </View>
           </View>
         )}
       />
@@ -173,6 +171,15 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontWeight: '600'
   },
+  cancelButton: {
+    backgroundColor: '#565656',
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 8
+  },
+  cancelPressed: {
+    backgroundColor: '#5656566c'
+  },
   emptyText: {
     textAlign: 'center',
     marginTop: 40,
@@ -212,4 +219,8 @@ const styles = StyleSheet.create({
     fontFamily: Fonts.bold,
     fontSize: 16
   },
+  buttons: {
+    flexDirection: 'row',
+    gap: 8
+  }
 });

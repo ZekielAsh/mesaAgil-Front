@@ -54,6 +54,9 @@ export default function Orders() {
       if (event.type === 'ORDER_CLOSED' || event.type === 'ORDER_CANCELLED') {
         clearSession();
       }
+      if (event.type === 'ORDER_REOPEN') {
+        setOrder(prevOrder => (prevOrder ? { ...prevOrder, billRequested: false } : prevOrder));
+      }
     });
 
     const orderItemsSubscription = stompClient.subscribe(`/room/orderItems`, (message: any) => {
@@ -73,9 +76,7 @@ export default function Orders() {
         if (updatedOrderItem.status === 'CANCELLED') {
           return {
             ...current,
-            orderItems: current.orderItems.filter(
-              item => item.id !== updatedOrderItem.id
-            )
+            orderItems: current.orderItems.filter(item => item.id !== updatedOrderItem.id)
           };
         }
 
