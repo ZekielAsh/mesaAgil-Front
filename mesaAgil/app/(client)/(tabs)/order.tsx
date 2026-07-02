@@ -168,16 +168,17 @@ export default function Orders() {
       }}
     >
       {!isLoadingOrder && order ? (
-        <>
-          <View style={styles.titleContainer}>
-            <Text style={styles.title}>Orden de {session.tableLabel}</Text>
+        <View style={styles.container}>
+          <View style={styles.sessionHeader}>
+            <Text style={styles.sessionLabel}>Resumen de orden</Text>
+            <Text style={styles.sessionTitle}>{session.tableLabel}</Text>
           </View>
           <OrderTable orderItems={order.orderItems} />
           <View style={styles.totalContainer}>
             <Text style={styles.totalLabel}>Total de la orden</Text>
             <Text style={styles.totalValue}>{formatPrice(orderTotal)}</Text>
           </View>
-        </>
+        </View>
       ) : null}
       <View style={styles.buttonsContainer}>
         {!isLoadingOrder && order ? (
@@ -206,6 +207,12 @@ export default function Orders() {
 }
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    paddingTop: 12,
+    paddingLeft: 12,
+    paddingRight: 12
+  },
   buttonsContainer: {
     justifyContent: 'center',
     alignItems: 'center',
@@ -225,10 +232,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginHorizontal: 12,
-    marginBottom: 16,
-    paddingVertical: 14,
+    marginBottom: 12,
     paddingHorizontal: 12,
+    paddingVertical: 14,
     backgroundColor: '#fff',
     borderTopWidth: 1,
     borderBottomWidth: 1,
@@ -268,5 +274,24 @@ const styles = StyleSheet.create({
     paddingLeft: 12,
     paddingRight: 12,
     borderRadius: 12
+  },
+  sessionHeader: {
+    backgroundColor: '#111827',
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 4
+  },
+  sessionLabel: {
+    color: '#D1D5DB',
+    fontSize: 12,
+    fontWeight: '600',
+    fontFamily: Fonts.bold
+  },
+  sessionTitle: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: '700',
+    marginTop: 2,
+    fontFamily: Fonts.bold
   }
 });

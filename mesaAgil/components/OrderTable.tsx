@@ -13,6 +13,22 @@ interface OrderTableProps {
 }
 
 export default function OrderTable({ orderItems }: OrderTableProps) {
+  const statusStyles = {
+    PENDING: styles.pending,
+    IN_PREPARATION: styles.processing,
+    READY: styles.ready,
+    DELIVERED: styles.delivered,
+    CANCELLED: styles.pending
+  };
+
+  const statusRename = {
+    PENDING: 'Pendiente',
+    IN_PREPARATION: 'En proceso',
+    READY: 'Listo',
+    DELIVERED: 'Entregado',
+    CANCELLED: ''
+  };
+
   return (
     <View style={styles.container}>
       <FlatList
@@ -38,7 +54,9 @@ export default function OrderTable({ orderItems }: OrderTableProps) {
               {formatPrice(Number(item.price * item.quantity))}
             </Text>
 
-            <Text style={[styles.cell, styles.statusCell, styles.center]}>{item.status}</Text>
+            <Text style={[styles.cell, styles.statusCell, styles.center]}>
+              <Text style={[statusStyles[item.status], styles.statusBar]}>{statusRename[item.status]}</Text>
+            </Text>
           </View>
         )}
         ItemSeparatorComponent={() => <View style={styles.separator} />}
@@ -49,8 +67,7 @@ export default function OrderTable({ orderItems }: OrderTableProps) {
 
 export const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    padding: 12
+    flex: 1
   },
 
   row: {
@@ -101,5 +118,24 @@ export const styles = StyleSheet.create({
 
   separator: {
     height: 8
+  },
+  pending: {
+    backgroundColor: '#F97316'
+  },
+  processing: {
+    backgroundColor: '#F59E0B'
+  },
+  ready: {
+    backgroundColor: '#22C55E'
+  },
+  delivered: {
+    backgroundColor: '#3B82F6'
+  },
+  statusBar: {
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 8,
+    color: '#000000',
+    fontWeight: 500
   }
 });
