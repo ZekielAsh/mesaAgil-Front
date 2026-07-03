@@ -201,9 +201,11 @@ export default function Stats() {
                 item.totalRevenue
             })
           )}
+          isCurrency
         />
 
         <CategoryPieChart
+          key={period}
           data={
             categories.data
           }
@@ -229,6 +231,7 @@ export default function Stats() {
                 item.revenue
             })
           )}
+          isCurrency
         />
       </ScrollView>
     </View>

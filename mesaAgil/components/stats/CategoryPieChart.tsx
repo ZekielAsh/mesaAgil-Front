@@ -1,20 +1,9 @@
 import { CategoryRevenueResponse } from '@/types/StatsResponses';
+import { StyleSheet, Text, View } from 'react-native';
+import { useEffect, useMemo, useState } from 'react';
+import { PieChart } from 'react-native-gifted-charts';
 
-import {
-  StyleSheet,
-  Text,
-  View
-} from 'react-native';
-
-import { useMemo, useState } from 'react';
-
-import {
-  PieChart
-} from 'react-native-gifted-charts';
-
-type Props = {
-  data: CategoryRevenueResponse[];
-};
+type Props = { data: CategoryRevenueResponse[]; };
 
 type SelectedCategory = {
   category: string;
@@ -24,58 +13,26 @@ type SelectedCategory = {
   color: string;
 };
 
-function formatCurrency(
-  value: number
-) {
-  return new Intl.NumberFormat(
-    'es-AR'
-  ).format(value);
+function formatCurrency(value: number) {
+  return new Intl.NumberFormat('es-AR').format(value);
 }
 
-function lightenColor(
-    color: string
-  ) {
-    const num = parseInt(
-      color.replace('#', ''),
-      16
-    );
-
+function lightenColor(color: string) {
+    const num = parseInt(color.replace('#', ''), 16);
     const amt = 40;
-
-    const r = Math.min(
-      255,
-      (num >> 16) + amt
-    );
-
-    const g = Math.min(
-      255,
-      ((num >> 8) & 0x00ff) +
-        amt
-    );
-
-    const b = Math.min(
-      255,
-      (num & 0x0000ff) + amt
-    );
+    const r = Math.min(255, (num >> 16)           + amt);
+    const g = Math.min(255, ((num >> 8) & 0x00ff) + amt);
+    const b = Math.min(255, (num & 0x0000ff)      + amt);
 
     return `rgb(${r},${g},${b})`;
   }
 
-export default function CategoryPieChart({
-  data
-}: Props) {
-  const totalRevenue = data.reduce(
-    (sum, item) =>
-      sum + item.revenue,
-    0
-  );
+export default function CategoryPieChart({ data }: Props) {
+  const totalRevenue = data.reduce((sum, item) => sum + item.revenue, 0);
 
   const sortedData = useMemo(
     () =>
-      [...data].sort(
-        (a, b) =>
-          b.revenue - a.revenue
-      ),
+      [...data].sort((a, b) => b.revenue - a.revenue),
     [data]
   );
 
@@ -87,55 +44,36 @@ export default function CategoryPieChart({
     '#F44336'
   ];
 
-  const getCategoryInfo = (
-  category: string
-): SelectedCategory => {
-  const item = data.find(
-    c => c.category === category
-  )!;
-
-  const index = data.findIndex(
-    c => c.category === category
-  );
-
-  const rank =
-    sortedData.findIndex(
-      c =>
-        c.category === category
-    ) + 1;
+  const getCategoryInfo = (category: string): SelectedCategory => {
+    const item = data.find(c => c.category === category)!;
+    const index = data.findIndex(c => c.category === category);
+    const rank = sortedData.findIndex(c => c.category === category) + 1;
 
     return {
       category,
       revenue: item.revenue,
-
-      percentage:
-        totalRevenue > 0
-          ? Number(
-              (
-                (item.revenue /
-                  totalRevenue) *
-                100
-              ).toFixed(1)
-            )
-          : 0,
-
+      percentage: totalRevenue > 0
+        ? Number(((item.revenue / totalRevenue) * 100).toFixed(1))
+        : 0,
       rank,
-
-      color:
-        colors[
-          index % colors.length
-        ]
+      color: colors[index % colors.length]
     };
   };
 
   const [selectedItem, setSelectedItem] =
     useState<SelectedCategory | null>(
       data.length > 0
-        ? getCategoryInfo(
-            sortedData[0].category
-          )
+        ? getCategoryInfo(sortedData[0].category)
         : null
     );
+  
+  useEffect(() => {
+    if (sortedData.length > 0) {
+      setSelectedItem(getCategoryInfo(sortedData[0].category));
+    } else {
+      setSelectedItem(null);
+    }
+  }, [sortedData]);
 
   const chartData = data.map(
     (item, index) => {
