@@ -62,29 +62,39 @@ export default function Orders() {
     const orderItemsSubscription = stompClient.subscribe(`/room/orderItems`, (message: any) => {
       const event = JSON.parse(message.body);
 
-      if (event.type !== 'ORDER_ITEM_STATUS_UPDATED') {
-        return;
-      }
+      if (event.type === 'ORDER_ITEM_STATUS_UPDATED') {
+        const updatedOrderItem = event.payload;
 
-      const updatedOrderItem = event.payload;
+        setOrder(current => {
+          if (!current) {
+            return current;
+          }
 
-      setOrder(current => {
-        if (!current) {
-          return current;
-        }
+          if (updatedOrderItem.status === 'CANCELLED') {
+            return {
+              ...current,
+              orderItems: current.orderItems.filter(item => item.id !== updatedOrderItem.id)
+            };
+          }
 
-        if (updatedOrderItem.status === 'CANCELLED') {
           return {
             ...current,
-            orderItems: current.orderItems.filter(item => item.id !== updatedOrderItem.id)
+            orderItems: current.orderItems.map(item => (item.id === updatedOrderItem.id ? updatedOrderItem : item))
           };
-        }
+        });
+      } else if (event.type === 'ORDER_ITEM_CANCELED') {
+        const deletedOrderItemId = event.payload;
 
-        return {
-          ...current,
-          orderItems: current.orderItems.map(item => (item.id === updatedOrderItem.id ? updatedOrderItem : item))
-        };
-      });
+        setOrder(current => {
+          if (!current) {
+            return current;
+          }
+          return {
+            ...current,
+            orderItems: current.orderItems.filter(item => item.id !== deletedOrderItemId)
+          };
+        });
+      }
     });
 
     return () => {

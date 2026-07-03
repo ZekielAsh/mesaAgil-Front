@@ -78,3 +78,7 @@ export function getReadyOrderItems(token: string) {
     }
   });
 }
+
+export function cancelPendingOrderItem(orderId: number, orderItemId: number) {
+  return apiClient.delete(`orders/${orderId}/items/${orderItemId}`);
+}
