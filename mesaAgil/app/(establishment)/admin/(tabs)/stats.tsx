@@ -2,6 +2,9 @@ import CategoryPieChart from '@/components/stats/CategoryPieChart';
 import RankingBarChart from '@/components/stats/RankingBarChart';
 import RevenueChart from '@/components/stats/RevenueChart';
 import SummaryCards from '@/components/stats/SummaryCards';
+import PeriodSelector from '@/components/stats/PeriodSelector';
+import { Period } from '@/types/StatsResponses';
+import ChartSection from '@/components/stats/ChartSection';
 
 import { useCategoryRevenue } from '@/hooks/stats/useCategoryRevenue';
 import { useRevenueTimeline } from '@/hooks/stats/useRevenueTimeline';
@@ -11,59 +14,30 @@ import { useTableRevenue } from '@/hooks/stats/useTableRevenue';
 import { useTopProducts } from '@/hooks/stats/useTopProducts';
 import { useTopRevenueProducts } from '@/hooks/stats/useTopRevenueProducts';
 
-import PeriodSelector from '@/components/stats/PeriodSelector';
-import { Period } from '@/types/StatsResponses';
-
-import {
-  useEffect,
-  useState
-} from 'react';
-
-import {
-  ActivityIndicator,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View
-} from 'react-native';
-
+import { useEffect, useState } from 'react';
+import { ActivityIndicator, NativeScrollEvent, NativeSyntheticEvent, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function Stats() {
-  const [period, setPeriod] =
-    useState<Period>('LAST_MONTH');
+  const [period, setPeriod] = useState<Period>('LAST_MONTH');
+  const [hasLoadedOnce, setHasLoadedOnce] = useState(false);
+  const [currentChartTitle, setCurrentChartTitle] = useState('Datos de negocio');
+  const [headerHeight, setHeaderHeight] = useState(0);
+  const [sections, setSections] = useState<
+    { id: string;
+      title: string;
+      y: number; }[]> ([]);
+  const { stats, isLoadingStats, statsErrorMessage } = useStatsByPeriod(period);
 
-  const [hasLoadedOnce, setHasLoadedOnce] =
-    useState(false);
-
-  const {
-    stats,
-    isLoadingStats,
-    statsErrorMessage
-  } = useStatsByPeriod(period);
-
-  const revenueTimeline =
-    useRevenueTimeline(period);
-
-  const categories =
-    useCategoryRevenue(period);
-
-  const topProducts =
-    useTopProducts(period);
-
-  const topRevenueProducts =
-    useTopRevenueProducts(period);
-
-  const tableOrders =
-    useTableOrders(period);
-
-  const tableRevenue =
-    useTableRevenue(period);
+  const revenueTimeline = useRevenueTimeline(period);
+  const categories = useCategoryRevenue(period);
+  const topProducts = useTopProducts(period);
+  const topRevenueProducts = useTopRevenueProducts(period);
+  const tableOrders = useTableOrders(period);
+  const tableRevenue = useTableRevenue(period);
 
   const insets = useSafeAreaInsets();
-
-  const isLoading =
-    isLoadingStats ||
+  const isLoading = isLoadingStats ||
     revenueTimeline.loading ||
     categories.loading ||
     tableOrders.loading ||
@@ -72,19 +46,12 @@ export default function Stats() {
     topRevenueProducts.loading;
 
   useEffect(() => {
-    if (!isLoading && !hasLoadedOnce) {
-      setHasLoadedOnce(true);
-    }
+    if (!isLoading && !hasLoadedOnce) { setHasLoadedOnce(true); }
   }, [isLoading, hasLoadedOnce]);
 
-  const isInitialLoading =
-    !hasLoadedOnce && isLoading;
-
-  const isRefreshing =
-    hasLoadedOnce && isLoading;
-
-  const errorMessage =
-    statsErrorMessage ||
+  const isInitialLoading = !hasLoadedOnce && isLoading;
+  const isRefreshing = hasLoadedOnce && isLoading;
+  const errorMessage = statsErrorMessage ||
     revenueTimeline.errorMessage ||
     categories.errorMessage ||
     tableOrders.errorMessage ||
@@ -110,17 +77,42 @@ export default function Stats() {
     }
   ] as const;
 
-  const selectedPeriodText =
-    periods.find(
-      p => p.value === period
-    )?.text ?? '';
+  const selectedPeriodText = periods.find(p => p.value === period)?.text ?? '';
+
+  const registerSection = (id: string, title: string, y: number) => {
+    setSections(previous => {
+      const filtered = previous.filter(
+        section => section.id !== id
+      );
+
+      return [...filtered, { id, title, y }]
+        .sort((a, b) => a.y - b.y);
+    });
+  };
+
+  const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+    const triggerPoint = event.nativeEvent.contentOffset.y + headerHeight;
+
+    let activeTitle = sections[0]?.title ?? '';
+
+    for (const section of sections) {
+      if (section.y <= triggerPoint) {
+        activeTitle = section.title;
+      } else {
+        break; 
+      }
+    }
+
+    if (activeTitle && activeTitle !== currentChartTitle) {
+      setCurrentChartTitle(activeTitle);
+    }
+  };
+  
 
   if (isInitialLoading) {
     return (
       <View style={styles.center}>
-        <ActivityIndicator
-          size="large"
-        />
+        <ActivityIndicator size="large" />
       </View>
     );
   }
@@ -147,92 +139,139 @@ export default function Stats() {
     <View style={styles.screen}>
       {isRefreshing && (
         <View style={styles.loadingOverlay}>
-          <ActivityIndicator
-            size="large"
-          />
+          <ActivityIndicator size="large" />
         </View>
       )}
 
+      <View
+        onLayout={(event) =>
+          setHeaderHeight(event.nativeEvent.layout.height)
+        }
+        style={[
+          styles.stickyHeader,
+          { paddingTop: insets.top }
+        ]}
+      >
+        <View style={styles.headerTopRow}>
+          <Text style={styles.title}>
+            {`ESTADÍSTICAS ${selectedPeriodText}`}
+          </Text>
+
+          <PeriodSelector
+            period={period}
+            periods={periods}
+            onChange={setPeriod}
+          />
+        </View>
+
+        <Text style={styles.currentChart}>
+          {currentChartTitle}
+        </Text>
+      </View>
+
       <ScrollView
+        onScroll={handleScroll}
+        scrollEventThrottle={16}
         style={styles.container}
         contentContainerStyle={{
           paddingHorizontal: 16,
-          paddingTop: insets.top,
           paddingBottom: insets.bottom
         }}
-        stickyHeaderIndices={[0]}
       >
-        <PeriodSelector
-          period={period}
-          periods={periods}
-          onChange={setPeriod}
-        />
+        <ChartSection
+          id="cards"
+          title="Datos de negocio"
+          onLayout={registerSection}
+        >
+          <SummaryCards
+            stats={stats}
+          />
+        </ChartSection>
 
-        <Text style={styles.title}>
-          {`ESTADÍSTICAS ${selectedPeriodText}`}
-        </Text>
+        <ChartSection
+          id="revenue"
+          title="Evolución de ingresos"
+          onLayout={registerSection}
+        >
+          <RevenueChart
+            data={revenueTimeline.data}
+          />
+        </ChartSection>
 
-        <SummaryCards
-          stats={stats}
-        />
-
-        <RevenueChart
-          data={
-            revenueTimeline.data
-          }
-        />
-
-        <RankingBarChart
+        <ChartSection
+          id="topProducts"
           title="Comidas más vendidas"
-          data={topProducts.data.map(
-            item => ({
-              label: item.name,
-              value: item.total
-            })
-          )}
-        />
+          onLayout={registerSection}
+        >
+          <RankingBarChart
+            title="Comidas más vendidas"
+            data={topProducts.data.map(
+              item => ({
+                label: item.name,
+                value: item.total
+              })
+            )}
+          />
+        </ChartSection>
 
-        <RankingBarChart
+        <ChartSection
+          id="topRevenueProducts"
           title="Comidas con mayor facturación"
-          data={topRevenueProducts.data.map(
-            item => ({
-              label: item.name,
-              value:
-                item.totalRevenue
-            })
-          )}
-          isCurrency
-        />
+          onLayout={registerSection}
+        >
+          <RankingBarChart
+            title="Comidas con mayor facturación"
+            data={topRevenueProducts.data.map(
+              item => ({ 
+                label: item.name, 
+                value: item.totalRevenue })
+            )}
+            isCurrency
+          />
+        </ChartSection>
 
-        <CategoryPieChart
-          key={period}
-          data={
-            categories.data
-          }
-        />
+        <ChartSection
+          id="categories"
+          title="Participación por categoría"
+          onLayout={registerSection}
+        >
+          <CategoryPieChart
+            key={period}
+            data={ categories.data }
+          />
+        </ChartSection>
 
-        <RankingBarChart
+        <ChartSection
+          id="tables"
           title="Mesas más usadas"
-          data={tableOrders.data.map(
-            item => ({
-              label: `Mesa ${item.tableNumber}`,
-              value:
-                item.totalOrders
-            })
-          )}
-        />
+          onLayout={registerSection}
+        >
+          <RankingBarChart
+            title="Mesas más usadas"
+            data={tableOrders.data.map(
+              item => ({ 
+                label: `Mesa ${item.tableNumber}`, 
+                value: item.totalOrders })
+            )}
+          />
+        </ChartSection>
 
-        <RankingBarChart
+        <ChartSection
+          id="tableRevenue"
           title="Ingresos por mesa"
-          data={tableRevenue.data.map(
-            item => ({
-              label: `Mesa ${item.tableNumber}`,
-              value:
-                item.revenue
-            })
-          )}
-          isCurrency
-        />
+          onLayout={registerSection}
+        >
+          <RankingBarChart
+            title="Ingresos por mesa"
+            data={tableRevenue.data.map(
+              item => ({
+                label: `Mesa ${item.tableNumber}`,
+                value: item.revenue
+              })
+            )}
+            isCurrency
+          />
+        </ChartSection>
       </ScrollView>
     </View>
   );
@@ -250,13 +289,35 @@ const styles = StyleSheet.create({
 
   title: {
     fontSize: 12,
-    color: '#888',
-    marginBottom: 16
+    color: '#888'
+  },
+
+  header: {
+    marginBottom: 8
+  },
+
+  currentChart: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#222',
+    marginTop: 6
   },
 
   center: {
     flex: 1,
     justifyContent: 'center',
+    alignItems: 'center'
+  },
+
+  stickyHeader: {
+    backgroundColor: '#EFEFEF',
+    paddingHorizontal: 16,
+    paddingBottom: 12
+  },
+
+  headerTopRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center'
   },
 
