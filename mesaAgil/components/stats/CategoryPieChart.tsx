@@ -75,6 +75,12 @@ export default function CategoryPieChart({ data }: Props) {
     }
   }, [sortedData]);
 
+  
+
+  if (data.length === 0) {
+    return null;
+  }
+
   const chartData = data.map(
     (item, index) => {
 

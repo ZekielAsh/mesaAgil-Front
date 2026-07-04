@@ -43,10 +43,30 @@ function buildSmoothPath(points: ChartPoint[]) {
     const p3 = points[Math.min(i + 2, points.length - 1)];
 
     const cp1x = p1.x + (p2.x - p0.x) / 6;
-    const cp1y = p1.y + (p2.y - p0.y) / 6;
-
     const cp2x = p2.x - (p3.x - p1.x) / 6;
-    const cp2y = p2.y - (p3.y - p1.y) / 6;
+
+    let tangent1 = (p2.y - p0.y) / 6;
+    let tangent2 = (p3.y - p1.y) / 6;
+
+    const minY = Math.min(p1.y, p2.y);
+    const maxY = Math.max(p1.y, p2.y);
+
+    // Primer punto de control
+    if (p1.y + tangent1 < minY) {
+      tangent1 = minY - p1.y;
+    } else if (p1.y + tangent1 > maxY) {
+      tangent1 = maxY - p1.y;
+    }
+
+    // Segundo punto de control
+    if (p2.y - tangent2 < minY) {
+      tangent2 = p2.y - minY;
+    } else if (p2.y - tangent2 > maxY) {
+      tangent2 = p2.y - maxY;
+    }
+
+    const cp1y = p1.y + tangent1;
+    const cp2y = p2.y - tangent2;
 
     path += ` C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${p2.x} ${p2.y}`;
   }
