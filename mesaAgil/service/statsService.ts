@@ -8,7 +8,7 @@ import {
   TableOrdersResponse, 
   TableRevenueResponse, 
   TopRevenueItemResponse,
-  TopItemResponse
+  TopProductsResponse
 } from '@/types/StatsResponses';
 
 const authHeader = (token: string) => ({
@@ -71,7 +71,7 @@ export function getTopProducts(
   period: Period,
   token: string
 ) {
-  return apiClient.get<TopItemResponse[]>(
+  return apiClient.get<TopProductsResponse[]>(
     `/stats/items/quantity?period=${period}`,
     authHeader(token)
   );
@@ -84,5 +84,18 @@ export function getTopRevenueProducts(
   return apiClient.get<TopRevenueItemResponse[]>(
     `/stats/items/revenue?period=${period}`,
     authHeader(token)
+  );
+}
+
+export function downloadStatsReport(
+  period: Period,
+  token: string
+) {
+  return apiClient.get<Blob>(
+    `/stats/report?period=${period}`,
+    {
+      ...authHeader(token),
+      responseType: 'blob',
+    }
   );
 }

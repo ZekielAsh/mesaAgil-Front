@@ -13,9 +13,10 @@ import { useTableOrders } from '@/hooks/stats/useTableOrders';
 import { useTableRevenue } from '@/hooks/stats/useTableRevenue';
 import { useTopProducts } from '@/hooks/stats/useTopProducts';
 import { useTopRevenueProducts } from '@/hooks/stats/useTopRevenueProducts';
+import { useDownloadStatsReport } from '@/hooks/stats/useDownloadStatsReport';
 
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, NativeScrollEvent, NativeSyntheticEvent, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, NativeScrollEvent, NativeSyntheticEvent, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function Stats() {
@@ -35,6 +36,7 @@ export default function Stats() {
   const topRevenueProducts = useTopRevenueProducts(period);
   const tableOrders = useTableOrders(period);
   const tableRevenue = useTableRevenue(period);
+  const { downloadReport } = useDownloadStatsReport();
 
   const insets = useSafeAreaInsets();
   const isLoading = isLoadingStats ||
@@ -51,6 +53,7 @@ export default function Stats() {
 
   const isInitialLoading = !hasLoadedOnce && isLoading;
   const isRefreshing = hasLoadedOnce && isLoading;
+  const isDownloading = false;
   const errorMessage = statsErrorMessage ||
     revenueTimeline.errorMessage ||
     categories.errorMessage ||
@@ -157,6 +160,7 @@ export default function Stats() {
           { paddingTop: insets.top }
         ]}
       >
+
         <View style={styles.headerTopRow}>
           <Text style={styles.title}>
             {`ESTADÍSTICAS ${selectedPeriodText}`}
@@ -169,9 +173,24 @@ export default function Stats() {
           />
         </View>
 
-        <Text style={styles.currentChart}>
-          {currentChartTitle}
-        </Text>
+        <View style={styles.headerBottomRow}>
+          <Text style={styles.currentChart}>
+            {currentChartTitle}
+          </Text>
+
+          <Pressable
+            style={styles.downloadButton}
+            onPress={() => downloadReport(period)}
+            disabled={isDownloading}
+          >
+            <Text style={styles.downloadButtonText}>
+              {isDownloading
+                ? 'Generando...'
+                : 'Descargar informe'}
+            </Text>
+          </Pressable>
+        </View>
+
       </View>
 
       <ScrollView
@@ -318,6 +337,31 @@ const styles = StyleSheet.create({
     backgroundColor: '#EFEFEF',
     paddingHorizontal: 16,
     paddingBottom: 12
+  },
+
+  headerBottomRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 8,
+  },
+
+  headerActions: {
+    alignItems: 'flex-end',
+    marginTop: 8,
+  },
+
+  downloadButton: {
+    backgroundColor: '#111827',
+    borderRadius: 8,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+  },
+
+  downloadButtonText: {
+    color: '#FFF',
+    fontWeight: '600',
+    fontSize: 13,
   },
 
   headerTopRow: {

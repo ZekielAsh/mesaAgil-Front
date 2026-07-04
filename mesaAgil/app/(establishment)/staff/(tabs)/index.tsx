@@ -148,7 +148,7 @@ export default function TablesScreen() {
       <View style={styles.legend}>
         <Text>🔵 Libre</Text>
         <Text>🟠 Ocupada</Text>
-        <Text>🔴 Cerrada</Text>
+        <Text>🔴 Deshabilitada</Text>
       </View>
 
       <TableStatusGrid

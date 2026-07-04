@@ -51,14 +51,12 @@ function buildSmoothPath(points: ChartPoint[]) {
     const minY = Math.min(p1.y, p2.y);
     const maxY = Math.max(p1.y, p2.y);
 
-    // Primer punto de control
     if (p1.y + tangent1 < minY) {
       tangent1 = minY - p1.y;
     } else if (p1.y + tangent1 > maxY) {
       tangent1 = maxY - p1.y;
     }
 
-    // Segundo punto de control
     if (p2.y - tangent2 < minY) {
       tangent2 = p2.y - minY;
     } else if (p2.y - tangent2 > maxY) {
