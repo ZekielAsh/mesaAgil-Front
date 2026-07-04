@@ -31,6 +31,18 @@ export function closeOrder(orderId: number, token: string) {
   );
 }
 
+export function cancelBillRequest(orderId: number, token: string) {
+  return apiClient.patch(
+    `/orders/${orderId}/cancel`,
+    {},
+    {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    }
+  );
+}
+
 export async function addItems(orderId: number, orderItemsList: CreateOrderItem[]) {
   return apiClient.post(`/orders/${orderId}/items`, {
     orderItemRequestList: orderItemsList
@@ -65,4 +77,8 @@ export function getReadyOrderItems(token: string) {
       Authorization: `Bearer ${token}`
     }
   });
+}
+
+export function cancelPendingOrderItem(orderId: number, orderItemId: number) {
+  return apiClient.delete(`orders/${orderId}/items/${orderItemId}`);
 }
