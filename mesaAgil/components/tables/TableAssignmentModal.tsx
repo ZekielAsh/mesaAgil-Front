@@ -35,7 +35,7 @@ export default function TableAssignmentModal({
       ? 'Libre'
       : table.status === TableStatus.OCCUPIED
         ? 'Ocupada'
-        : 'Cerrada';
+        : 'Deshabilitada';
 
   return (
     <Modal
