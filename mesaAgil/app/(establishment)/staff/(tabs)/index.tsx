@@ -14,6 +14,8 @@ import { useWebSocket } from '@/hooks/useWebSocket';
 import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-native';
 import Toast from 'react-native-toast-message';
 
+const TABLE_EVENTS = ['ASSIGNED_TABLE_UPDATED'];
+
 export default function TablesScreen() {
   const { user } = useAuth();
   const { tables, loading, setTables } = useTableOccupancy();
@@ -22,9 +24,6 @@ export default function TablesScreen() {
   const { assign, unassign } = useTableAssignment();
   const [selectedTable, setSelectedTable] = useState<TableOccupancy | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
-  const TABLE_EVENTS = [
-    'ASSIGNED_TABLE_UPDATED'
-  ];
   const { openSession, closeSession } = useTableSessionManagement();
 
   const handleSelectTable = (table: TableOccupancy) => {
@@ -75,15 +74,19 @@ export default function TablesScreen() {
   useEffect(() => {
     if (!connected) { return; }
 
-    const subscription = stompClient.subscribe(
-      `/room/staff/${user?.username}`,
+    const tablesSubscription = stompClient.subscribe(
+      '/room/tables',
       message => {
         const event = JSON.parse(message.body);
+
+        if (!TABLE_EVENTS.includes(event.type)) {
+          return;
+        }
+
         const updatedTable: TableOccupancy = event.payload;
-        if (!TABLE_EVENTS.includes(event.type)) { return; }
-        
-        setTables((current: TableOccupancy[]) =>
-          current.map((table: TableOccupancy) =>
+
+        setTables(current =>
+          current.map(table =>
             table.tableId === updatedTable.tableId
               ? updatedTable
               : table
@@ -91,15 +94,16 @@ export default function TablesScreen() {
         );
 
         if (updatedTable.assignedStaffUsername === user?.username) {
-          setAssignedTables((current: TableOccupancy[]) => {
-            const exists =
-              current.some((t: TableOccupancy) =>
-                t.tableId === updatedTable.tableId
-              );
+          setAssignedTables(current => {
+            const exists = current.some(
+              t => t.tableId === updatedTable.tableId
+            );
+
             if (!exists) {
               return [...current, updatedTable];
             }
-            return current.map((t: TableOccupancy) =>
+
+            return current.map(t =>
               t.tableId === updatedTable.tableId
                 ? updatedTable
                 : t
@@ -107,16 +111,25 @@ export default function TablesScreen() {
           });
         } else {
           setAssignedTables(current =>
-            current.filter((t: TableOccupancy) =>
-              t.tableId !== updatedTable.tableId
+            current.filter(
+              t => t.tableId !== updatedTable.tableId
             )
           );
-
         }
       }
     );
 
-    return () => subscription.unsubscribe();
+    const staffSubscription = stompClient.subscribe(
+      `/room/staff/${user?.username}`,
+      message => {
+        const event = JSON.parse(message.body);
+      }
+    );
+
+    return () => {
+      tablesSubscription.unsubscribe();
+      staffSubscription.unsubscribe();
+    };
 
   }, [
     connected,
@@ -141,20 +154,10 @@ export default function TablesScreen() {
       style={styles.container}
       contentContainerStyle={styles.content}
     >
+
       <Text style={styles.title}>
-        Estado del salón
+        Estado del comedor
       </Text>
-
-      <View style={styles.legend}>
-        <Text>🔵 Libre</Text>
-        <Text>🟠 Ocupada</Text>
-        <Text>🔴 Deshabilitada</Text>
-      </View>
-
-      <TableStatusGrid
-        tables={tables}
-        onSelectTable={handleSelectTable}
-      />
 
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>
@@ -188,6 +191,21 @@ export default function TablesScreen() {
         onClose={() =>
           setModalVisible(false)
         }
+      />
+      
+      <Text style={styles.sectionTitle}>
+        Listado de mesas
+      </Text>
+
+      <View style={styles.legend}>
+        <Text>🔵 Libre</Text>
+        <Text>🟠 Ocupada</Text>
+        <Text>🔴 Deshabilitada</Text>
+      </View>
+
+      <TableStatusGrid
+        tables={tables}
+        onSelectTable={handleSelectTable}
       />
     </ScrollView>
   );
@@ -238,7 +256,8 @@ const styles = StyleSheet.create({
   },
 
   emptyText: {
-    color: '#6B7280'
+    color: '#6B7280',
+    marginBottom: 20
   },
   
   assignedTablesContainer: {
