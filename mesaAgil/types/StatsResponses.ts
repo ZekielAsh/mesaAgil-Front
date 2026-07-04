@@ -4,7 +4,7 @@ export interface StatsSummaryResponse {
   avgTicket: number;
 }
 
-export type Period = 'LAST_DAY' | 'LAST_WEEK' | 'LAST_MONTH';
+export type Period = 'LAST_DAY' | 'LAST_WEEK' | 'LAST_MONTH' | 'LAST_YEAR';
 
 export interface RevenuePointResponse {
   label: string;

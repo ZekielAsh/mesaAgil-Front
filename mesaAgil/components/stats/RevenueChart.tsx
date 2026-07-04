@@ -116,14 +116,15 @@ export default function RevenueChart({ data, }: Props) {
       ? points[selectedIndex]
       : null;
 
-  const visibleLabels =
-    points.filter((_, index) => {
-      if (points.length <= 7) { return true; }
-      if (index === 0 || index === points.length-1) {
-        return true;
-      }
-      return index % 5 === 0;
-    });
+  const isYearView = data.length <= 12;
+
+  const visibleLabels = points.filter((_, index) => {
+    if (isYearView) { return true; }
+    if (points.length <= 7) { return true; }
+    if (index === 0 || index === points.length - 1) { return true; }
+
+    return index % 5 === 0;
+  });
   
   return (
     <View style={styles.container}>

@@ -74,6 +74,11 @@ export default function Stats() {
       text: 'DEL ÚLTIMO MES',
       label: 'Mes',
       value: 'LAST_MONTH'
+    },
+    {
+      text: 'DEL ÚLTIMO AÑO',
+      label: 'Año',
+      value: 'LAST_YEAR'
     }
   ] as const;
 
