@@ -75,6 +75,7 @@ type ItemRequest = {
   price: number;
   categoryId: number;
   imageFile?: ImagePicker.ImagePickerAsset;
+  active?: boolean;
 };
 
 export const buildItemFormData = (request: ItemRequest): FormData => {
@@ -92,6 +93,10 @@ export const buildItemFormData = (request: ItemRequest): FormData => {
   // solo funciona para web XD
   if (request.imageFile?.file) {
     formData.append('imageFile', request.imageFile.file);
+  }
+
+  if (request.active !== undefined) {
+    formData.append('active', request.active.toString());
   }
 
   return formData;
