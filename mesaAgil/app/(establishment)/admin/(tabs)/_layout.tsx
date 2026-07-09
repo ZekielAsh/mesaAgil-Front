@@ -2,6 +2,7 @@ import { LogoutButton } from '@/components/LogOutButtom';
 import FoodIcon from '@/components/ui/food-icon';
 import StatsIcon from '@/components/ui/stats-icon';
 import TableIcon from '@/components/ui/table-icon';
+import UsersIcon from '@/components/ui/users-icon';
 import { Fonts } from '@/constants/fonts';
 import { Tabs } from 'expo-router';
 
@@ -38,6 +39,13 @@ export default function AdminLayout() {
         options={{
           title: 'Tables',
           tabBarIcon: ({ color }) => <TableIcon color={color} />
+        }}
+      />
+      <Tabs.Screen
+        name="users"
+        options={{
+          title: 'Users',
+          tabBarIcon: ({ color }) => <UsersIcon color={color} />
         }}
       />
       <Tabs.Screen
