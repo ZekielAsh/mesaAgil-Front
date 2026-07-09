@@ -1,16 +1,19 @@
 import { LogoutButton } from '@/components/LogOutButtom';
 import FlameIcon from '@/components/ui/flame-icon';
 import { Fonts } from '@/constants/fonts';
+import { useAuth } from '@/hooks/useAuth';
 import { Tabs } from 'expo-router';
 
 export default function KitchenLayout() {
+  const { user } = useAuth();
+
   return (
     <Tabs
       screenOptions={{
         headerShown: true,
         tabBarShowLabel: false,
         tabBarActiveTintColor: '#000000',
-        headerTitle: 'Cocina',
+        headerTitle: `Cocina - ${user?.username}`,
         headerStyle: {
           backgroundColor: '#111827'
         },

@@ -1,4 +1,5 @@
-import { Pressable, StyleSheet, Text } from 'react-native';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import { Pressable, StyleSheet } from 'react-native';
 
 import { Fonts } from '@/constants/fonts';
 import { useAuth } from '@/hooks/useAuth';
@@ -21,7 +22,7 @@ export function LogoutButton() {
         }
       ]}
     >
-      <Text style={styles.buttonText}>Cerrar sesión</Text>
+      <MaterialIcons name="exit-to-app" size={24} color="black" />
     </Pressable>
   );
 }
@@ -30,10 +31,9 @@ const styles = StyleSheet.create({
   button: {
     height: 36,
     justifyContent: 'center',
-    paddingLeft: 12,
-    paddingRight: 12,
-    borderRadius: 12,
-    marginRight: 12
+    paddingHorizontal: 6,
+    borderRadius: 100,
+    marginRight: 16
   },
   buttonText: {
     color: '#fff',
