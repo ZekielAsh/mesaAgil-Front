@@ -1,4 +1,5 @@
 import { apiClient } from '@/api/apiClient';
+import { BillSummary } from '@/types/BillResponses';
 import { CreateOrderItem } from '@/types/CreateOrderItem';
 import { Order } from '@/types/model/Order';
 import { OrderItem } from '@/types/model/OrderItem';
@@ -42,6 +43,12 @@ export function cancelBillRequest(orderId: number, token: string) {
     }
   );
 }
+
+export const getBillSummary = async (orderId: number) => {
+  const response = await apiClient.get<BillSummary>(`/orders/${orderId}/bill-summary`);
+
+  return response.data;
+};
 
 export async function addItems(orderId: number, orderItemsList: CreateOrderItem[]) {
   return apiClient.post(`/orders/${orderId}/items`, {

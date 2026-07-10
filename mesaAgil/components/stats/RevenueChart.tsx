@@ -180,12 +180,12 @@ export default function RevenueChart({ data, }: Props) {
             >
               <Stop
                   offset="0%"
-                  stopColor="#2196F3"
+                  stopColor="#1B5E20"
                   stopOpacity="0.35"
               />
               <Stop
                   offset="100%"
-                  stopColor="#2196F3"
+                  stopColor="#1B5E20"
                   stopOpacity="0"
               />
             </LinearGradient>
@@ -239,7 +239,7 @@ export default function RevenueChart({ data, }: Props) {
           {/* curva */}
           <Path
               d={linePath}
-              stroke="#2196F3"
+              stroke="#1B5E20"
               strokeWidth={3}
               fill="none"
           />
@@ -326,7 +326,7 @@ const styles = StyleSheet.create({
   singleValue: {
     fontSize: 32,
     fontWeight: '700',
-    color: '#2196F3',
+    color: '#1B5E20',
     marginTop: 8,
   },
 
@@ -369,7 +369,7 @@ const styles = StyleSheet.create({
   },
 
   maxYAxisLabel: {
-    color: '#2196F3',
+    color: '#1B5E20',
     fontWeight: '700',
   },
 
@@ -377,7 +377,7 @@ const styles = StyleSheet.create({
     width: 12,
     height: 12,
     borderRadius: 6,
-    backgroundColor: '#2196F3',
+    backgroundColor: '#1B5E20',
     borderWidth: 2,
     borderColor: '#FFFFFF',
   },
@@ -421,7 +421,7 @@ const styles = StyleSheet.create({
   tooltipRevenue: {
     fontSize: 17,
     fontWeight: '700',
-    color: '#2196F3',
+    color: '#1B5E20',
   },
 
   pointWrapper:{
@@ -434,7 +434,7 @@ const styles = StyleSheet.create({
     width:28,
     height:28,
     borderRadius:14,
-    backgroundColor:'rgba(33,150,243,0.18)'
+    backgroundColor:'rgba(9, 56, 5, 0.18)'
   },
 
   dateRange: {

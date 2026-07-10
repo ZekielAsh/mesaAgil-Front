@@ -1,15 +1,17 @@
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import OrderTable from '@/components/OrderTable';
+import BillSummaryModal from '@/components/BillSummaryModal';
 import { Fonts } from '@/constants/fonts';
 import { useGetOrderById } from '@/hooks/order/useOrderById';
 import { useTableSession } from '@/hooks/table/useTableSession';
+import { useBillSummary } from '@/hooks/order/useBillSummary';
 import { useWebSocket } from '@/hooks/useWebSocket';
 import { requestBill } from '@/service/orderService';
 import { stompClient } from '@/service/websocket';
 import { OrderStatus } from '@/types/model/Order';
 import { Redirect } from 'expo-router';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { ActivityIndicator, Button, Pressable, StyleSheet, Text, View } from 'react-native';
 import Toast from 'react-native-toast-message';
 
@@ -25,6 +27,8 @@ export default function Orders() {
   const { order, setOrder, isLoadingOrder, orderErrorMessage, refetch } = useGetOrderById(
     session?.orderId ?? undefined
   );
+  const { billSummary, loading: loadingBillSummary, fetchBillSummary } = useBillSummary();
+  const [showBillSummary, setShowBillSummary] = useState(false);
   const insets = useSafeAreaInsets();
   const { connected } = useWebSocket();
 
@@ -123,6 +127,27 @@ export default function Orders() {
       });
   };
 
+  const openBillSummary = async (orderId: number) => {
+    try {
+      setShowBillSummary(true);
+      await fetchBillSummary(orderId);
+    } catch {
+      Toast.show({
+        type: 'error',
+        text1: 'No se pudo obtener el resumen.'
+      });
+    }
+  };
+
+  const confirmBillRequest = () => {
+    if (!order) {
+      return;
+    }
+
+    setShowBillSummary(false);
+    onRequestBill(order.id);
+  };
+
   if (isLoadingOrder) {
     return <ActivityIndicator size="large" style={{ marginTop: 50 }} />;
   }
@@ -205,13 +230,21 @@ export default function Orders() {
               }
             ]}
             disabled={order?.billRequested}
-            onPress={() => onRequestBill(order.id)}
+            onPress={() => openBillSummary(order.id)}
           >
-            <Text style={styles.buttonText}>Pedir cuenta</Text>
+            <Text style={styles.buttonText}> Ver resumen de cuenta </Text>
           </Pressable>
         ) : null}
         {order && order.billRequested ? <Text style={styles.emptyDescription}>Esperando al mozo...</Text> : null}
       </View>
+
+      <BillSummaryModal
+        visible={showBillSummary}
+        loading={loadingBillSummary}
+        bill={billSummary}
+        onClose={() => setShowBillSummary(false)}
+        onConfirm={confirmBillRequest}
+      />
     </View>
   );
 }

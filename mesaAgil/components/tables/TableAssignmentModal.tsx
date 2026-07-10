@@ -53,14 +53,6 @@ export default function TableAssignmentModal({
             Estado: {statusText}
           </Text>
 
-          {table.status ===
-            TableStatus.OCCUPIED && (
-            <Text>
-              Clientes:{' '}
-              {table.customerCount}
-            </Text>
-          )}
-
           <Text>
             Asignación:{' '}
             {table.assignedStaffUsername ??
@@ -142,7 +134,7 @@ const styles = StyleSheet.create({
   },
 
   dangerButton: {
-    backgroundColor: '#DC2626',
+    backgroundColor: '#F06400',
     padding: 12,
     borderRadius: 10,
     marginTop: 16

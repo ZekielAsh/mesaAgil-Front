@@ -38,7 +38,7 @@ export default function CategoryPieChart({ data }: Props) {
 
   const colors = [
     '#2196F3',
-    '#4CAF50',
+    '#1B5E20',
     '#FF9800',
     '#9C27B0',
     '#F44336'
