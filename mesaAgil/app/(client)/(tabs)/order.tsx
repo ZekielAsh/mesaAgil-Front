@@ -1,12 +1,12 @@
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import OrderTable from '@/components/OrderTable';
 import BillSummaryModal from '@/components/BillSummaryModal';
+import OrderTable from '@/components/OrderTable';
 import { Fonts } from '@/constants/fonts';
+import { useBillSummary } from '@/hooks/order/useBillSummary';
 import { useDownloadBillSummary } from '@/hooks/order/useDownloadBillSummary';
 import { useGetOrderById } from '@/hooks/order/useOrderById';
 import { useTableSession } from '@/hooks/table/useTableSession';
-import { useBillSummary } from '@/hooks/order/useBillSummary';
 import { useWebSocket } from '@/hooks/useWebSocket';
 import { requestBill } from '@/service/orderService';
 import { stompClient } from '@/service/websocket';
@@ -243,14 +243,12 @@ export default function Orders() {
             disabled={order?.billRequested}
             onPress={() => openBillSummary(order.id)}
           >
-            <Text style={styles.buttonText}> Ver resumen de cuenta </Text>
+            <Text style={styles.buttonText}> Pedir cuenta </Text>
           </Pressable>
         ) : null}
         {order?.billRequested && (
           <>
-            <Text style={styles.emptyDescription}>
-              Esperando al mozo...
-            </Text>
+            <Text style={styles.emptyDescription}>Esperando al mozo...</Text>
 
             <Pressable
               style={({ pressed }) => [
@@ -262,11 +260,7 @@ export default function Orders() {
               onPress={() => download(order.id)}
               disabled={isDownloading}
             >
-              <Text style={styles.buttonText}>
-                {isDownloading
-                  ? 'Descargando...'
-                  : 'Descargar resumen'}
-              </Text>
+              <Text style={styles.buttonText}>{isDownloading ? 'Descargando...' : 'Descargar resumen'}</Text>
             </Pressable>
           </>
         )}
