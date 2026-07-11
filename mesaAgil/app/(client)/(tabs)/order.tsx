@@ -3,6 +3,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import OrderTable from '@/components/OrderTable';
 import BillSummaryModal from '@/components/BillSummaryModal';
 import { Fonts } from '@/constants/fonts';
+import { useDownloadBillSummary } from '@/hooks/order/useDownloadBillSummary';
 import { useGetOrderById } from '@/hooks/order/useOrderById';
 import { useTableSession } from '@/hooks/table/useTableSession';
 import { useBillSummary } from '@/hooks/order/useBillSummary';
@@ -29,6 +30,7 @@ export default function Orders() {
   );
   const { billSummary, loading: loadingBillSummary, fetchBillSummary } = useBillSummary();
   const [showBillSummary, setShowBillSummary] = useState(false);
+  const { download, isDownloading, downloadErrorMessage } = useDownloadBillSummary();
   const insets = useSafeAreaInsets();
   const { connected } = useWebSocket();
 
@@ -46,6 +48,15 @@ export default function Orders() {
       clearSession();
     }
   }, [session, clearSession]);
+
+  useEffect(() => {
+    if (downloadErrorMessage) {
+      Toast.show({
+        type: 'error',
+        text1: downloadErrorMessage
+      });
+    }
+  }, [downloadErrorMessage]);
 
   useEffect(() => {
     if (!connected) {
@@ -235,7 +246,30 @@ export default function Orders() {
             <Text style={styles.buttonText}> Ver resumen de cuenta </Text>
           </Pressable>
         ) : null}
-        {order && order.billRequested ? <Text style={styles.emptyDescription}>Esperando al mozo...</Text> : null}
+        {order?.billRequested && (
+          <>
+            <Text style={styles.emptyDescription}>
+              Esperando al mozo...
+            </Text>
+
+            <Pressable
+              style={({ pressed }) => [
+                styles.downloadButton,
+                {
+                  opacity: pressed ? 0.8 : 1
+                }
+              ]}
+              onPress={() => download(order.id)}
+              disabled={isDownloading}
+            >
+              <Text style={styles.buttonText}>
+                {isDownloading
+                  ? 'Descargando...'
+                  : 'Descargar resumen'}
+              </Text>
+            </Pressable>
+          </>
+        )}
       </View>
 
       <BillSummaryModal
@@ -317,6 +351,15 @@ const styles = StyleSheet.create({
     paddingLeft: 12,
     paddingRight: 12,
     borderRadius: 12
+  },
+  downloadButton: {
+    marginTop: 12,
+    backgroundColor: '#2563EB',
+    borderRadius: 12,
+    height: 36,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 16
   },
   sessionHeader: {
     backgroundColor: '#111827',
