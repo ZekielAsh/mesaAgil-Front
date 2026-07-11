@@ -386,7 +386,7 @@ const styles = StyleSheet.create({
     width: 18,
     height: 18,
     borderRadius: 9,
-    backgroundColor: '#1565C0',
+    backgroundColor: '#149b1d',
     borderWidth: 3,
     borderColor: '#FFFFFF',
   },
@@ -421,7 +421,7 @@ const styles = StyleSheet.create({
   tooltipRevenue: {
     fontSize: 17,
     fontWeight: '700',
-    color: '#1B5E20',
+    color: '#149b1d',
   },
 
   pointWrapper:{
