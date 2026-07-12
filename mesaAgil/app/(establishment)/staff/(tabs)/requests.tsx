@@ -172,13 +172,13 @@ const styles = StyleSheet.create({
     fontWeight: '600'
   },
   cancelButton: {
-    backgroundColor: '#565656',
+    backgroundColor: '#a94700',
     paddingHorizontal: 16,
     paddingVertical: 10,
     borderRadius: 8
   },
   cancelPressed: {
-    backgroundColor: '#5656566c'
+    backgroundColor: '#a947006c'
   },
   emptyText: {
     textAlign: 'center',
