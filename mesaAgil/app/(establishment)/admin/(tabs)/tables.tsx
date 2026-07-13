@@ -1,16 +1,16 @@
-import { Fonts } from '@/constants/fonts';
 import CreateTableModal from '@/components/tables/CreateTableModal';
 import EditTableModal from '@/components/tables/EditTableModal';
 import TableStatusModal from '@/components/tables/TableStatusModal';
+import { Fonts } from '@/constants/fonts';
 import { useCreateTable } from '@/hooks/menu/useCreateTable';
-import { useUpdateTable } from '@/hooks/table/useUpdateTable';
-import { useEnableTable } from '@/hooks/table/useEnableTable';
 import { useCloseTable } from '@/hooks/table/useCloseTable';
+import { useEnableTable } from '@/hooks/table/useEnableTable';
 import { useTablesQrInfo } from '@/hooks/table/useTablesQrInfo';
+import { useUpdateTable } from '@/hooks/table/useUpdateTable';
 import { TableQrInfo } from '@/types/TableQr';
+import { useState } from 'react';
 import { ActivityIndicator, Button, FlatList, Image, Linking, Pressable, StyleSheet, Text, View } from 'react-native';
 import { Toast } from 'react-native-toast-message/lib/src/Toast';
-import { useState } from 'react';
 
 const TableScreen = () => {
   const { tables, loading, error, refetch } = useTablesQrInfo();
@@ -149,22 +149,8 @@ const TableScreen = () => {
       <View style={styles.cardContent}>
         <View style={styles.titleRow}>
           <Text style={styles.tableTitle}>{item.tableLabel}</Text>
-          <View
-            style={[
-              styles.statusBadge,
-              item.enabled
-                ? styles.enabledBadge
-                : styles.disabledBadge
-            ]}
-          >
-            <Text
-              style={[
-                styles.badgeText,
-                item.enabled
-                  ? styles.enabledText
-                  : styles.disabledText
-              ]}
-            >
+          <View style={[styles.statusBadge, item.enabled ? styles.enabledBadge : styles.disabledBadge]}>
+            <Text style={[styles.badgeText, item.enabled ? styles.enabledText : styles.disabledText]}>
               {item.enabled ? '✓ Habilitada' : '✗ Cerrada'}
             </Text>
           </View>
@@ -175,27 +161,17 @@ const TableScreen = () => {
         </Text>
 
         <View style={styles.actions}>
-          <Pressable
-            style={styles.primaryButton}
-            onPress={() => Linking.openURL(item.qrImageUrl)}
-          >
+          <Pressable style={styles.primaryButton} onPress={() => Linking.openURL(item.qrImageUrl)}>
             <Text style={styles.primaryButtonText}>Ver QR</Text>
           </Pressable>
 
-          <Pressable
-            style={styles.secondaryButton}
-            onPress={() => handleDownload(item)}
-          >
+          <Pressable style={styles.secondaryButton} onPress={() => handleDownload(item)}>
             <Text style={styles.secondaryButtonText}>Descargar</Text>
           </Pressable>
         </View>
 
         <View style={styles.bottomActions}>
-          <Pressable
-            style={styles.editButton}
-            onPress={() => handleEdit(item)}
-            disabled={updatingTable}
-          >
+          <Pressable style={styles.editButton} onPress={() => handleEdit(item)} disabled={updatingTable}>
             <Text style={styles.editButtonText}>Editar</Text>
           </Pressable>
 
@@ -204,9 +180,7 @@ const TableScreen = () => {
             onPress={() => handleOpenStatus(item)}
             disabled={enablingTable || closingTable}
           >
-            <Text style={styles.statusButtonText}>
-              {item.enabled ? 'Cerrar' : 'Habilitar'}
-            </Text>
+            <Text style={styles.statusButtonText}>{item.enabled ? 'Cerrar' : 'Habilitar'}</Text>
           </Pressable>
         </View>
       </View>
@@ -240,14 +214,16 @@ const TableScreen = () => {
             <View style={styles.headerTop}>
               <View>
                 <Text style={styles.title}>Listado de Mesas</Text>
-                <Text style={styles.subtitle}>Cada mesa obtiene su propio codigo QR al crearse. El código no es modificable.</Text>
+                <Text style={styles.subtitle}>
+                  Cada mesa obtiene su propio codigo QR al crearse. El código no es modificable.
+                </Text>
               </View>
               <Pressable
                 style={styles.createButton}
                 onPress={() => setCreateModalVisible(true)}
                 disabled={creatingTable}
               >
-                <Text style={styles.createButtonText}>Crear</Text>
+                <Text style={styles.createButtonText}>+ Nueva mesa</Text>
               </Pressable>
             </View>
           </View>
@@ -418,7 +394,7 @@ const styles = StyleSheet.create({
     marginTop: 4
   },
   editButton: {
-    backgroundColor: '#3B82F6',
+    backgroundColor: '#f48e00',
     borderRadius: 8,
     paddingVertical: 8,
     paddingHorizontal: 16,
@@ -465,7 +441,7 @@ const styles = StyleSheet.create({
     fontFamily: Fonts.medium
   },
   createButton: {
-    backgroundColor: '#111827',
+    backgroundColor: '#2563EB',
     borderRadius: 8,
     paddingVertical: 8,
     paddingHorizontal: 12,
@@ -474,7 +450,7 @@ const styles = StyleSheet.create({
   },
   createButtonText: {
     color: '#fff',
-    fontFamily: Fonts.bold,
-    fontSize: 18
+    fontWeight: 'bold',
+    fontSize: 16
   }
 });

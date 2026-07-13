@@ -11,8 +11,8 @@ import { useCreateCategory } from '@/hooks/category/useCreateCategory';
 import { useUpdateCategory } from '@/hooks/category/useUpdateCategory';
 
 import { useCreateItem } from '@/hooks/item/useCreateItem';
-import { useItems } from '@/hooks/order/useItems';
 import { useUpdateItem } from '@/hooks/item/useUpdateItem';
+import { useItems } from '@/hooks/order/useItems';
 
 import { Category } from '@/types/model/Category';
 import { Item } from '@/types/model/Item';
@@ -39,9 +39,8 @@ const ItemsScreen = () => {
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
   const [createCategoryModalVisible, setCreateCategoryModalVisible] = useState(false);
   const [editCategoryModalVisible, setEditCategoryModalVisible] = useState(false);
-  
 
- const handleCreate = async (values: any) => {
+  const handleCreate = async (values: any) => {
     try {
       await createItem(values);
 
@@ -371,7 +370,7 @@ const styles = StyleSheet.create({
   },
 
   retryButton: {
-    backgroundColor: '#007AFF',
+    backgroundColor: '#2563EB',
     padding: 12,
     borderRadius: 8,
     marginTop: 16

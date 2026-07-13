@@ -1,41 +1,33 @@
-import { TableQrInfo } from '@/types/TableQr';
+import CloseIcon from '@/components/ui/close-icon';
 import { Modal, Pressable, StyleSheet, View } from 'react-native';
-import CloseIcon from '../ui/close-icon';
-import TableForm from './TableForm';
+import EditUserForm from '../EditUserForm';
 
-type EditTableModalProps = {
+type EditUserProps = {
   visible: boolean;
-  table: TableQrInfo | null;
   loading?: boolean;
+  userId: number;
+
   onClose: () => void;
-  onSubmit: (tableNumber: number) => void;
+
+  onSubmit: (id: number, username: string) => void;
 };
 
-const EditTableModal = ({ visible, table, loading, onClose, onSubmit }: EditTableModalProps) => {
-  if (!table) {
-    return null;
-  }
-
+const EditUserModal = ({ visible, loading, userId, onClose, onSubmit }: EditUserProps) => {
   return (
     <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
       <View style={styles.overlay}>
         <View style={styles.content}>
-          <Pressable style={styles.closeButton} onPress={onClose} disabled={loading}>
+          <Pressable style={styles.closeButton} onPress={onClose}>
             <CloseIcon color="#000000" />
           </Pressable>
-          <TableForm
-            initialValue={table.tableNumber}
-            loading={loading}
-            submitText="Guardar cambios"
-            onSubmit={onSubmit}
-          />
+          <EditUserForm userId={userId} loading={loading} onSubmit={onSubmit} />
         </View>
       </View>
     </Modal>
   );
 };
 
-export default EditTableModal;
+export default EditUserModal;
 
 const styles = StyleSheet.create({
   overlay: {

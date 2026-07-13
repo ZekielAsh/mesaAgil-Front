@@ -1,13 +1,8 @@
-import CategoryForm from './CategoryForm';
 import { Category } from '@/types/model/Category';
+import CategoryForm from './CategoryForm';
 
-import {
-  Modal,
-  Pressable,
-  StyleSheet,
-  Text,
-  View
-} from 'react-native';
+import { Modal, Pressable, StyleSheet, View } from 'react-native';
+import CloseIcon from '../ui/close-icon';
 
 type EditCategoryModalProps = {
   visible: boolean;
@@ -16,43 +11,23 @@ type EditCategoryModalProps = {
 
   onClose: () => void;
 
-  onSubmit: (
-    name: string
-  ) => void;
+  onSubmit: (name: string) => void;
 };
 
-const EditCategoryModal = ({
-  visible,
-  category,
-  loading,
-  onClose,
-  onSubmit
-}: EditCategoryModalProps) => {
+const EditCategoryModal = ({ visible, category, loading, onClose, onSubmit }: EditCategoryModalProps) => {
   if (!category) {
     return null;
   }
 
   return (
-    <Modal
-      visible={visible}
-      animationType="slide"
-      transparent
-      onRequestClose={onClose}
-    >
+    <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
       <View style={styles.overlay}>
         <View style={styles.content}>
-          <Pressable
-            style={styles.closeButton}
-            onPress={onClose}
-          >
-            <Text style={styles.closeText}>
-              ✕
-            </Text>
+          <Pressable style={styles.closeButton} onPress={onClose}>
+            <CloseIcon color="#000000" />
           </Pressable>
           <CategoryForm
-            initialValue={
-              category.name
-            }
+            initialValue={category.name}
             loading={loading}
             submitText="Guardar cambios"
             onSubmit={onSubmit}
@@ -68,25 +43,18 @@ export default EditCategoryModal;
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor:
-      'rgba(0,0,0,0.5)',
+    backgroundColor: 'rgba(0,0,0,0.5)',
     justifyContent: 'center',
     padding: 16
   },
 
   content: {
-    backgroundColor: '#222',
-    borderRadius: 16
+    backgroundColor: '#ffffff',
+    borderRadius: 16,
+    padding: 16
   },
 
   closeButton: {
-    alignSelf: 'flex-end',
-    padding: 12
-  },
-
-  closeText: {
-    color: '#fff',
-    fontSize: 20,
-    fontWeight: 'bold'
+    alignSelf: 'flex-end'
   }
 });

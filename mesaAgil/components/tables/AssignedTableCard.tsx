@@ -18,8 +18,8 @@ export default function AssignedTableCard({
   const getStatusLabel = () => {
   switch (table.status) {
     case TableStatus.FREE: return 'Libre';
-    case TableStatus.OCCUPIED: return `${table.customerCount} personas`;
-    case TableStatus.CLOSED: return 'Cerrada';
+    case TableStatus.OCCUPIED: return `Ocupada`;
+    case TableStatus.CLOSED: return 'Deshabilitada';
   }
 };
   return (

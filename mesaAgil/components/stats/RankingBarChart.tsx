@@ -1,8 +1,5 @@
-import {
-  StyleSheet,
-  Text,
-  View
-} from 'react-native';
+import { useState } from 'react';
+import { StyleSheet, Text, View, Pressable } from 'react-native';
 
 type ChartItem = {
   label: string;
@@ -12,20 +9,21 @@ type ChartItem = {
 type Props = {
   title: string;
   data: ChartItem[];
+  isCurrency?: boolean;
 };
 
-function formatValue(
-  value: number
-) {
-  return new Intl.NumberFormat(
-    'es-AR'
-  ).format(value);
+
+function formatValue(value: number, isCurrency: boolean) {
+  const formatted = new Intl.NumberFormat('es-AR').format(value);
+
+  return isCurrency
+    ? `$${formatted}`
+    : formatted;
 }
 
-export default function RankingBarChart({
-  title,
-  data
-}: Props) {
+export default function RankingBarChart({ title, data, isCurrency }: Props) {
+  const [showAll, setShowAll] = useState(false);
+
   if (data.length === 0) {
     return null;
   }
@@ -34,8 +32,14 @@ export default function RankingBarChart({
     (a, b) => b.value - a.value
   );
 
+  const visibleData = showAll
+        ? sortedData
+        : sortedData.slice(0, 5);
+
+  const shouldShowToggle = sortedData.length > 5;
+
   const maxValue = Math.max(
-    ...sortedData.map(
+    ...visibleData.map(
       item => item.value
     ),
     1
@@ -47,68 +51,64 @@ export default function RankingBarChart({
         {title}
       </Text>
 
-      {sortedData.map(
-        (item, index) => {
-          const percentage =
-            (item.value /
-              maxValue) *
-            100;
+      {visibleData.map((item, index) => {
+        const percentage =
+          (item.value / maxValue) * 100;
 
-          return (
-            <View
-              key={`${item.label}-${index}`}
-              style={styles.item}
-            >
-              <View
-                style={
-                  styles.header
-                }
+        return (
+          <View
+            key={`${item.label}-${index}`}
+            style={styles.item}
+          >
+            <View style={styles.header}>
+              <Text style={styles.rank}>
+                #{index + 1}
+              </Text>
+
+              <Text
+                style={styles.label}
+                numberOfLines={1}
               >
-                <Text
-                  style={
-                    styles.rank
-                  }
-                >
-                  #{index + 1}
-                </Text>
+                {item.label}
+              </Text>
 
-                <Text
-                  style={
-                    styles.label
-                  }
-                  numberOfLines={1}
-                >
-                  {item.label}
-                </Text>
-
-                <Text
-                  style={
-                    styles.value
-                  }
-                >
-                  {formatValue(
-                    item.value
-                  )}
-                </Text>
-              </View>
-
-              <View
-                style={
-                  styles.track
-                }
-              >
-                <View
-                  style={[
-                    styles.fill,
-                    {
-                      width: `${percentage}%`
-                    }
-                  ]}
-                />
-              </View>
+              <Text style={styles.value}>
+                {formatValue(
+                  item.value,
+                  isCurrency || false
+                )}
+              </Text>
             </View>
-          );
-        }
+
+            <View style={styles.track}>
+              <View
+                style={[
+                  styles.fill,
+                  {
+                    width: `${percentage}%`
+                  }
+                ]}
+              />
+            </View>
+          </View>
+        );
+      })}
+
+      {shouldShowToggle && (
+        <Pressable
+          onPress={() => setShowAll(prev => !prev)}
+          style={({ hovered, pressed }) => [
+            styles.toggle,
+            hovered && styles.toggleHover,
+            pressed && styles.togglePressed,
+          ]}
+        >
+          <Text style={styles.toggleText}>
+            {showAll
+              ? 'Ver menos'
+              : 'Ver ranking completo'}
+          </Text>
+        </Pressable>
       )}
     </View>
   );
@@ -168,5 +168,28 @@ const styles = StyleSheet.create({
     height: '100%',
     backgroundColor: '#1B5E20',
     borderRadius: 7
+  },
+
+  toggle: {
+    marginTop: 8,
+    alignSelf: 'center',
+    backgroundColor: '#111827',
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 8,
+    transitionDuration: '150ms' as any,
+  },
+
+  toggleHover: {
+    backgroundColor: '#2563EB',
+  },
+
+  togglePressed: {
+    opacity: 0.9,
+  },
+
+  toggleText: {
+    color: '#FFF',
+    fontWeight: '600'
   }
 });

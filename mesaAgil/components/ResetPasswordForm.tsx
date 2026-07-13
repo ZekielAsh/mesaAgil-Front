@@ -1,59 +1,50 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 
-type CategoryFormProps = {
-  initialValue?: string;
+interface ResetPasswordFormInput {
   loading?: boolean;
-  submitText: string;
+  userId: number;
 
-  onSubmit: (name: string) => void;
-};
+  onSubmit: (id: number, password: string) => void;
+}
 
-const CategoryForm = ({ initialValue, loading, submitText, onSubmit }: CategoryFormProps) => {
-  const [name, setName] = useState(initialValue || '');
-
+export default function ResetPasswordForm({ loading, userId, onSubmit }: ResetPasswordFormInput) {
+  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 
   const handleSubmit = () => {
-    const normalizedName = name.trim();
-
-    if (!normalizedName) {
-      setError('El nombre es obligatorio');
-
-      return;
+    if (password.trim()) {
+      onSubmit(userId, password);
+    } else {
+      setError('Password is required');
     }
-
-    onSubmit(normalizedName);
   };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Categoría</Text>
+      <Text style={styles.title}>Usuario</Text>
 
       <View style={styles.inputListContainer}>
-        <View>
-          <Text style={styles.inputTitle}>Nombre de categoría</Text>
-          <TextInput
-            placeholder="Nombre"
-            placeholderTextColor="#999"
-            value={name}
-            cursorColor={'#000000'}
-            onChangeText={setName}
-            style={styles.input}
-          />
-        </View>
-
-        {!!error && <Text style={styles.error}>{error}</Text>}
+        <Text style={styles.inputTitle}>Contraseña</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="Contraseña"
+          placeholderTextColor="#999"
+          secureTextEntry
+          cursorColor={'#000000'}
+          value={password}
+          onChangeText={setPassword}
+        />
       </View>
 
+      {error ? <Text style={styles.error}>{error}</Text> : null}
+
       <Pressable style={styles.submitButton} onPress={handleSubmit} disabled={loading}>
-        <Text style={styles.submitText}>{loading ? 'Guardando...' : submitText}</Text>
+        <Text style={styles.submitText}>{loading ? 'Cargando...' : 'Cambiar'}</Text>
       </Pressable>
     </View>
   );
-};
-
-export default CategoryForm;
+}
 
 const styles = StyleSheet.create({
   container: {

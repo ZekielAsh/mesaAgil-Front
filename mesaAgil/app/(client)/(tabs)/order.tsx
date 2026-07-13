@@ -1,7 +1,10 @@
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import BillSummaryModal from '@/components/BillSummaryModal';
 import OrderTable from '@/components/OrderTable';
 import { Fonts } from '@/constants/fonts';
+import { useBillSummary } from '@/hooks/order/useBillSummary';
+import { useDownloadBillSummary } from '@/hooks/order/useDownloadBillSummary';
 import { useGetOrderById } from '@/hooks/order/useOrderById';
 import { useTableSession } from '@/hooks/table/useTableSession';
 import { useWebSocket } from '@/hooks/useWebSocket';
@@ -9,7 +12,7 @@ import { requestBill } from '@/service/orderService';
 import { stompClient } from '@/service/websocket';
 import { OrderStatus } from '@/types/model/Order';
 import { Redirect } from 'expo-router';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { ActivityIndicator, Button, Pressable, StyleSheet, Text, View } from 'react-native';
 import Toast from 'react-native-toast-message';
 
@@ -25,6 +28,9 @@ export default function Orders() {
   const { order, setOrder, isLoadingOrder, orderErrorMessage, refetch } = useGetOrderById(
     session?.orderId ?? undefined
   );
+  const { billSummary, loading: loadingBillSummary, fetchBillSummary } = useBillSummary();
+  const [showBillSummary, setShowBillSummary] = useState(false);
+  const { download, isDownloading, downloadErrorMessage } = useDownloadBillSummary();
   const insets = useSafeAreaInsets();
   const { connected } = useWebSocket();
 
@@ -44,6 +50,15 @@ export default function Orders() {
   }, [session, clearSession]);
 
   useEffect(() => {
+    if (downloadErrorMessage) {
+      Toast.show({
+        type: 'error',
+        text1: downloadErrorMessage
+      });
+    }
+  }, [downloadErrorMessage]);
+
+  useEffect(() => {
     if (!connected) {
       return;
     }
@@ -54,36 +69,47 @@ export default function Orders() {
       if (event.type === 'ORDER_CLOSED' || event.type === 'ORDER_CANCELLED') {
         clearSession();
       }
+      if (event.type === 'ORDER_REOPEN') {
+        setOrder(prevOrder => (prevOrder ? { ...prevOrder, billRequested: false } : prevOrder));
+      }
     });
 
     const orderItemsSubscription = stompClient.subscribe(`/room/orderItems`, (message: any) => {
       const event = JSON.parse(message.body);
 
-      if (event.type !== 'ORDER_ITEM_STATUS_UPDATED') {
-        return;
-      }
+      if (event.type === 'ORDER_ITEM_STATUS_UPDATED') {
+        const updatedOrderItem = event.payload;
 
-      const updatedOrderItem = event.payload;
+        setOrder(current => {
+          if (!current) {
+            return current;
+          }
 
-      setOrder(current => {
-        if (!current) {
-          return current;
-        }
+          if (updatedOrderItem.status === 'CANCELLED') {
+            return {
+              ...current,
+              orderItems: current.orderItems.filter(item => item.id !== updatedOrderItem.id)
+            };
+          }
 
-        if (updatedOrderItem.status === 'CANCELLED') {
           return {
             ...current,
-            orderItems: current.orderItems.filter(
-              item => item.id !== updatedOrderItem.id
-            )
+            orderItems: current.orderItems.map(item => (item.id === updatedOrderItem.id ? updatedOrderItem : item))
           };
-        }
+        });
+      } else if (event.type === 'ORDER_ITEM_CANCELED') {
+        const deletedOrderItemId = event.payload;
 
-        return {
-          ...current,
-          orderItems: current.orderItems.map(item => (item.id === updatedOrderItem.id ? updatedOrderItem : item))
-        };
-      });
+        setOrder(current => {
+          if (!current) {
+            return current;
+          }
+          return {
+            ...current,
+            orderItems: current.orderItems.filter(item => item.id !== deletedOrderItemId)
+          };
+        });
+      }
     });
 
     return () => {
@@ -110,6 +136,27 @@ export default function Orders() {
           text1: error.response.data.message
         });
       });
+  };
+
+  const openBillSummary = async (orderId: number) => {
+    try {
+      setShowBillSummary(true);
+      await fetchBillSummary(orderId);
+    } catch {
+      Toast.show({
+        type: 'error',
+        text1: 'No se pudo obtener el resumen.'
+      });
+    }
+  };
+
+  const confirmBillRequest = () => {
+    if (!order) {
+      return;
+    }
+
+    setShowBillSummary(false);
+    onRequestBill(order.id);
   };
 
   if (isLoadingOrder) {
@@ -167,16 +214,17 @@ export default function Orders() {
       }}
     >
       {!isLoadingOrder && order ? (
-        <>
-          <View style={styles.titleContainer}>
-            <Text style={styles.title}>Orden de {session.tableLabel}</Text>
+        <View style={styles.container}>
+          <View style={styles.sessionHeader}>
+            <Text style={styles.sessionLabel}>Resumen de orden</Text>
+            <Text style={styles.sessionTitle}>{session.tableLabel}</Text>
           </View>
           <OrderTable orderItems={order.orderItems} />
           <View style={styles.totalContainer}>
             <Text style={styles.totalLabel}>Total de la orden</Text>
             <Text style={styles.totalValue}>{formatPrice(orderTotal)}</Text>
           </View>
-        </>
+        </View>
       ) : null}
       <View style={styles.buttonsContainer}>
         {!isLoadingOrder && order ? (
@@ -193,18 +241,49 @@ export default function Orders() {
               }
             ]}
             disabled={order?.billRequested}
-            onPress={() => onRequestBill(order.id)}
+            onPress={() => openBillSummary(order.id)}
           >
-            <Text style={styles.buttonText}>Pedir cuenta</Text>
+            <Text style={styles.buttonText}> Pedir cuenta </Text>
           </Pressable>
         ) : null}
-        {order && order.billRequested ? <Text style={styles.emptyDescription}>Esperando al mozo...</Text> : null}
+        {order?.billRequested && (
+          <>
+            <Text style={styles.emptyDescription}>Esperando al mozo...</Text>
+
+            <Pressable
+              style={({ pressed }) => [
+                styles.downloadButton,
+                {
+                  opacity: pressed ? 0.8 : 1
+                }
+              ]}
+              onPress={() => download(order.id)}
+              disabled={isDownloading}
+            >
+              <Text style={styles.buttonText}>{isDownloading ? 'Descargando...' : 'Descargar resumen'}</Text>
+            </Pressable>
+          </>
+        )}
       </View>
+
+      <BillSummaryModal
+        visible={showBillSummary}
+        loading={loadingBillSummary}
+        bill={billSummary}
+        onClose={() => setShowBillSummary(false)}
+        onConfirm={confirmBillRequest}
+      />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    paddingTop: 12,
+    paddingLeft: 12,
+    paddingRight: 12
+  },
   buttonsContainer: {
     justifyContent: 'center',
     alignItems: 'center',
@@ -224,10 +303,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginHorizontal: 12,
-    marginBottom: 16,
-    paddingVertical: 14,
+    marginBottom: 12,
     paddingHorizontal: 12,
+    paddingVertical: 14,
     backgroundColor: '#fff',
     borderTopWidth: 1,
     borderBottomWidth: 1,
@@ -267,5 +345,33 @@ const styles = StyleSheet.create({
     paddingLeft: 12,
     paddingRight: 12,
     borderRadius: 12
+  },
+  downloadButton: {
+    marginTop: 12,
+    backgroundColor: '#2563EB',
+    borderRadius: 12,
+    height: 36,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 16
+  },
+  sessionHeader: {
+    backgroundColor: '#111827',
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 4
+  },
+  sessionLabel: {
+    color: '#D1D5DB',
+    fontSize: 12,
+    fontWeight: '600',
+    fontFamily: Fonts.bold
+  },
+  sessionTitle: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: '700',
+    marginTop: 2,
+    fontFamily: Fonts.bold
   }
 });

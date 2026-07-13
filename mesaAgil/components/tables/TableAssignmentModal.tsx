@@ -35,7 +35,7 @@ export default function TableAssignmentModal({
       ? 'Libre'
       : table.status === TableStatus.OCCUPIED
         ? 'Ocupada'
-        : 'Cerrada';
+        : 'Deshabilitada';
 
   return (
     <Modal
@@ -49,36 +49,48 @@ export default function TableAssignmentModal({
             Mesa {table.tableNumber}
           </Text>
 
-          <Text>
-            Estado: {statusText}
-          </Text>
+          <View style={styles.infoCard}>
+            <Text style={styles.infoTitle}>Estado</Text>
 
-          {table.status ===
-            TableStatus.OCCUPIED && (
-            <Text>
-              Clientes:{' '}
-              {table.customerCount}
+            <Text
+              style={[
+                styles.statusValue,
+                table.status === TableStatus.FREE
+                  ? styles.free
+                  : table.status === TableStatus.OCCUPIED
+                    ? styles.occupied
+                    : styles.closed
+              ]}
+            >
+              {statusText}
             </Text>
-          )}
+          </View>
 
-          <Text>
-            Asignación:{' '}
-            {table.assignedStaffUsername ??
-              'Sin asignar'}
-          </Text>
+          <View style={styles.infoCard}>
+            <Text style={styles.infoTitle}>Asignación</Text>
+
+            <Text
+              style={[
+                styles.assignmentValue,
+                isMine
+                  ? styles.assignmentMine
+                  : isAssigned
+                    ? styles.assignmentOther
+                    : styles.assignmentFree
+              ]}
+            >
+              {isMine
+                ? 'Asignada a vos'
+                : table.assignedStaffUsername ?? 'Sin asignar'}
+            </Text>
+          </View>
 
           {!isAssigned && (
             <Pressable
               style={styles.primaryButton}
-              onPress={() =>
-                onAssign(table.tableId)
-              }
+              onPress={() => onAssign(table.tableId)}
             >
-              <Text
-                style={
-                  styles.buttonText
-                }
-              >
+              <Text style={styles.buttonText}>
                 Asignarme
               </Text>
             </Pressable>
@@ -87,15 +99,9 @@ export default function TableAssignmentModal({
           {isMine && (
             <Pressable
               style={styles.dangerButton}
-              onPress={() =>
-                onUnassign(table.tableId)
-              }
+              onPress={() => onUnassign(table.tableId)}
             >
-              <Text
-                style={
-                  styles.buttonText
-                }
-              >
+              <Text style={styles.buttonText}>
                 Liberar mesa
               </Text>
             </Pressable>
@@ -134,6 +140,57 @@ const styles = StyleSheet.create({
     marginBottom: 16
   },
 
+  infoCard: {
+    backgroundColor: '#F8FAFC',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    padding: 16,
+    marginBottom: 16
+  },
+
+  infoTitle: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#6B7280',
+    textTransform: 'uppercase',
+    marginBottom: 10
+  },
+
+  statusValue: {
+    fontSize: 22,
+    fontWeight: '700'
+  },
+
+  assignmentValue: {
+    fontSize: 20,
+    fontWeight: '700'
+  },
+
+  free: {
+    color: '#2563EB'
+  },
+
+  occupied: {
+    color: '#F06400'
+  },
+
+  closed: {
+    color: '#DC2626'
+  },
+
+  assignmentMine: {
+    color: '#2563EB'
+  },
+
+  assignmentOther: {
+    color: '#F06400'
+  },
+
+  assignmentFree: {
+    color: '#6B7280'
+  },
+
   primaryButton: {
     backgroundColor: '#2563EB',
     padding: 12,
@@ -142,7 +199,7 @@ const styles = StyleSheet.create({
   },
 
   dangerButton: {
-    backgroundColor: '#DC2626',
+    backgroundColor: '#F06400',
     padding: 12,
     borderRadius: 10,
     marginTop: 16

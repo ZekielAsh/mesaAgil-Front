@@ -1,4 +1,5 @@
 import { apiClient } from '@/api/apiClient';
+import { BillSummary } from '@/types/BillResponses';
 import { CreateOrderItem } from '@/types/CreateOrderItem';
 import { Order } from '@/types/model/Order';
 import { OrderItem } from '@/types/model/OrderItem';
@@ -30,6 +31,24 @@ export function closeOrder(orderId: number, token: string) {
     }
   );
 }
+
+export function cancelBillRequest(orderId: number, token: string) {
+  return apiClient.patch(
+    `/orders/${orderId}/cancel`,
+    {},
+    {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    }
+  );
+}
+
+export const getBillSummary = async (orderId: number) => {
+  const response = await apiClient.get<BillSummary>(`/orders/${orderId}/bill-summary`);
+
+  return response.data;
+};
 
 export async function addItems(orderId: number, orderItemsList: CreateOrderItem[]) {
   return apiClient.post(`/orders/${orderId}/items`, {
@@ -65,4 +84,17 @@ export function getReadyOrderItems(token: string) {
       Authorization: `Bearer ${token}`
     }
   });
+}
+
+export function cancelPendingOrderItem(orderId: number, orderItemId: number) {
+  return apiClient.delete(`orders/${orderId}/items/${orderItemId}`);
+}
+
+export function downloadBillSummary(orderId: number) {
+  return apiClient.get<Blob>(
+    `/orders/${orderId}/bill-summary/pdf`,
+    {
+      responseType: 'blob'
+    }
+  );
 }

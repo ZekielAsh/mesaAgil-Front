@@ -3,16 +3,19 @@ import OrderIcon from '@/components/ui/order-icon';
 import PeopleIcon from '@/components/ui/people-icon';
 import TableChairIcon from '@/components/ui/table-chair-icon';
 import { Fonts } from '@/constants/fonts';
+import { useAuth } from '@/hooks/useAuth';
 import { Tabs } from 'expo-router';
 
 export default function StaffLayout() {
+  const { user } = useAuth();
+
   return (
     <Tabs
       screenOptions={{
         headerShown: true,
         tabBarShowLabel: false,
         tabBarActiveTintColor: '#000000',
-        headerTitle: 'Staff',
+        headerTitle: `Mozo - ${user?.username}`,
         headerStyle: {
           backgroundColor: '#111827'
         },
@@ -30,27 +33,21 @@ export default function StaffLayout() {
         name="index"
         options={{
           title: 'Mesas',
-          tabBarIcon: ({ color }) => (
-            <TableChairIcon color={color} />
-          )
+          tabBarIcon: ({ color }) => <TableChairIcon color={color} />
         }}
       />
       <Tabs.Screen
         name="ready"
         options={{
           title: 'Comandas',
-          tabBarIcon: ({ color }) => (
-            <OrderIcon color={color} />
-          )
+          tabBarIcon: ({ color }) => <OrderIcon color={color} />
         }}
       />
       <Tabs.Screen
         name="requests"
         options={{
           title: 'Solicitudes',
-          tabBarIcon: ({ color }) => (
-            <PeopleIcon color={color} />
-          )
+          tabBarIcon: ({ color }) => <PeopleIcon color={color} />
         }}
       />
     </Tabs>

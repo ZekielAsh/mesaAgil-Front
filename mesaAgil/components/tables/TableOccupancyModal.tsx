@@ -22,10 +22,10 @@ const getStatusText = (table: TableOccupancy) => {
       return 'Libre';
 
     case TableStatus.CLOSED:
-      return 'Cerrada';
+      return 'Deshabilitada';
 
     case TableStatus.OCCUPIED:
-      return `${table.customerCount} personas`;
+      return 'Ocupada';
 
     default:
       return '';

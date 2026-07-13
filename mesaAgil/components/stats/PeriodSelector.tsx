@@ -1,10 +1,5 @@
 import { Period } from '@/types/StatsResponses';
-import {
-  Pressable,
-  StyleSheet,
-  Text,
-  View
-} from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 type PeriodOption = {
   text: string;
@@ -18,11 +13,7 @@ type Props = {
   onChange: (period: Period) => void;
 };
 
-export default function PeriodSelector({
-  period,
-  periods,
-  onChange
-}: Props) {
+export default function PeriodSelector({ period, periods, onChange }: Props) {
   return (
     <View style={styles.container}>
       <View style={styles.tabs}>
